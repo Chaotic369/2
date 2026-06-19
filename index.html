@@ -591,8 +591,9 @@ window.renderNotes = function() {
         el.className = 'note-card';
         el.style.background = n.color || noteColors[0];
         if (n.color === 'var(--bg-surface)' || !n.color) el.style.border = '1px solid rgba(139,137,132,0.2)';
-        el.setAttribute('draggable', 'true');
-        el.ondragstart = (e) => { e.dataTransfer.setData('text/plain', n.id); el.style.opacity = '0.5'; };
+                el.setAttribute('data-id', n.id);
+                el.setAttribute('draggable', 'true');
+                el.ondragstart = (e) => { e.dataTransfer.setData('text/plain', n.id); el.style.opacity = '0.5'; };
         el.ondragend = (e) => { el.style.opacity = '1'; };
         el.onclick = () => window.openNoteModal(n.id);
 
@@ -604,9 +605,33 @@ window.renderNotes = function() {
             html += `<div style="white-space:pre-wrap; word-break:break-word;">${String(textPreview).replace(/</g,'&lt;')}</div>`;
         }
         el.innerHTML = html;
-        nContainer.appendChild(el);
-    });
-};
+                nContainer.appendChild(el);
+            });
+
+            if (typeof Sortable !== 'undefined') {
+                if (window.notesSortable) window.notesSortable.destroy();
+                window.notesSortable = new Sortable(nContainer, {
+                    animation: 200,
+                    delay: 150,
+                    delayOnTouchOnly: true,
+                    ghostClass: 'sortable-ghost',
+                    dragClass: 'sortable-drag',
+                    setData: function (dataTransfer, dragEl) {
+                        dataTransfer.setData('text/plain', dragEl.getAttribute('data-id'));
+                    },
+                    onEnd: function (evt) {
+                        let items = Array.from(nContainer.children);
+                        let total = items.length;
+                        items.forEach((item, index) => {
+                            let id = item.getAttribute('data-id');
+                            let note = S.notes.find(n => n.id === id);
+                            if (note) note.order = total - index;
+                        });
+                        window.saveNotesData();
+                    }
+                });
+            }
+        };
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CLOUD STORAGE FILE MANAGER
