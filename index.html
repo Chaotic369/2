@@ -9,6 +9,7 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
 <style>
 :root {
@@ -247,9 +248,11 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
     <input type="hidden" id="nm-id"><input type="hidden" id="nm-color"><input type="hidden" id="nm-pinned">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:16px; border-top:1px solid rgba(139, 137, 132, 0.2);">
        <div style="display:flex; gap:12px;">
-          <button class="action-mini-btn" onclick="window.cycleModalColor()" title="Change Color"><i class="fa-solid fa-palette"></i></button>
-          <button class="action-mini-btn" style="color:var(--red);" onclick="window.deleteModalNote()" title="Delete Note"><i class="fa-solid fa-trash"></i></button>
-       </div>
+                 <button class="action-mini-btn" onclick="window.cycleModalColor()" title="Change Color"><i class="fa-solid fa-palette"></i></button>
+                 <input type="file" id="modalAttachInput" style="display:none;" accept="image/*" onchange="window.triggerModalImageUpload(event)">
+                 <button class="action-mini-btn" onclick="document.getElementById('modalAttachInput').click()" title="Attach Image Asset"><i class="fa-solid fa-paperclip"></i></button>
+                 <button class="action-mini-btn" style="color:var(--red);" onclick="window.deleteModalNote()" title="Delete Note"><i class="fa-solid fa-trash"></i></button>
+              </div>
        <div style="display:flex; gap:12px;">
           <button class="btn" style="padding:10px 20px;" onclick="document.getElementById('fullNoteModal').style.display='none'">Cancel</button>
           <button class="btn" style="padding:10px 20px; background:var(--amber); color:#000;" onclick="window.saveNoteModal()">Save Note</button>
@@ -403,6 +406,20 @@ window.openNoteModal = function(id) {
     document.getElementById('nm-color').value = n.color || noteColors[0];
     document.getElementById('nm-pinned').value = n.pinned ? 'true' : 'false';
     
+    const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
+    if (modalWrapper) {
+        modalWrapper.style.backgroundColor = (n.color && n.color !== 'var(--bg-surface)') ? n.color : 'var(--bg-surface)';
+    }
+
+    const imgContainer = document.getElementById('nm-image-container');
+    if(n.imageUrl) {
+        document.getElementById('nm-image').src = n.imageUrl;
+        imgContainer.style.display = 'block';
+    } else {
+        imgContainer.style.display = 'none';
+        document.getElementById('nm-image').src = '';
+    }
+    
     document.getElementById('nm-pin-btn').style.color = n.pinned ? 'var(--amber)' : 'var(--text-main)';
     document.getElementById('fullNoteModal').style.display = 'flex';
 };
@@ -441,8 +458,44 @@ window.cycleModalColor = function() {
     let cur = document.getElementById('nm-color').value;
     let idx = noteColors.indexOf(cur);
     let nextIdx = (idx + 1) % noteColors.length;
-    document.getElementById('nm-color').value = noteColors[nextIdx];
-    toast('Color changed (Save to apply)', 'info', 1000);
+    let nextColor = noteColors[nextIdx];
+    document.getElementById('nm-color').value = nextColor;
+    
+    // Dynamically update the modal's background element immediately for live tracking
+    const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
+    if (modalWrapper) {
+        modalWrapper.style.backgroundColor = nextColor.startsWith('var') ? 'var(--bg-surface)' : nextColor;
+    }
+    toast('Color selected', 'info', 800);
+};
+
+window.triggerModalImageUpload = async function(event) {
+    try {
+        const file = event.target.files[0];
+        if(!file) return;
+        event.target.value = '';
+        showProgress(30); toast('Uploading asset...', 'info');
+        
+        const uniqueName = `note_img_${Date.now()}_${file.name}`;
+        const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, file);
+        if(error) { hideProgress(); return toast('Upload failed: ' + error.message, 'err'); }
+        
+        const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(uniqueName);
+        const id = document.getElementById('nm-id').value;
+        const n = S.notes.find(x => x.id === id);
+        if(n) {
+            n.imageUrl = urlData.publicUrl;
+        }
+        
+        const imgContainer = document.getElementById('nm-image-container');
+        document.getElementById('nm-image').src = urlData.publicUrl;
+        imgContainer.style.display = 'block';
+        
+        hideProgress(); toast('Image tied to note schema.', 'ok');
+    } catch(err) {
+        hideProgress();
+        toast('Upload lifecycle exception', 'err');
+    }
 };
 
 window.copyModalNote = function() {
