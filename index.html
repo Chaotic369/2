@@ -354,12 +354,44 @@ window.quickAddNote = function() {
         id: 'n_' + Date.now(),
         text: text, title: '', color: noteColors[0],
         pinned: false, folderId: window.currentFolderView,
-        createdAt: Date.now(), updatedAt: Date.now()
+        createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
     };
     S.notes.push(newNote);
     input.value = '';
     window.saveNotesData(); window.renderNotes();
     toast('Note captured!', 'ok');
+};
+
+window.attachImageToNote = async function(event) {
+    try {
+        const file = event.target.files[0];
+        if(!file) return;
+        event.target.value = '';
+        showProgress(20); toast('Uploading image...', 'info');
+        
+        const uniqueName = `note_img_${Date.now()}_${file.name}`;
+        const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, file);
+        if(error) { hideProgress(); return toast('Upload failed: ' + error.message, 'err'); }
+        
+        const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(uniqueName);
+        const input = document.getElementById('quick-note-input');
+        const text = input.value.trim();
+        
+        const newNote = {
+            id: 'n_' + Date.now(),
+            text: text, title: '', color: noteColors[0],
+            pinned: false, folderId: window.currentFolderView,
+            imageUrl: urlData.publicUrl,
+            createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
+        };
+        S.notes.push(newNote);
+        input.value = '';
+        window.saveNotesData(); window.renderNotes();
+        hideProgress(); toast('Note with image created!', 'ok');
+    } catch (err) {
+        hideProgress();
+        toast('Upload exception', 'err');
+    }
 };
 
 window.createNewFolder = function() {
