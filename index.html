@@ -196,7 +196,8 @@ button.btn:active { transform: scale(0.96); }
 }
 .folder-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
 
-.quick-input-bar { display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: var(--bg-surface); border-radius: 32px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); border: none !important; }
+.quick-input-bar { position: fixed; bottom: 44px; right: 88px; z-index: 10000; width: calc(100vw - 110px); max-width: 280px; height: 56px; display: flex; align-items: center; gap: 12px; padding: 0 20px; background: var(--bg-surface); border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: none !important; transition: transform 0.2s, box-shadow 0.2s; }
+.quick-input-bar:focus-within { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
 
 /* UTILS & MODALS */
 .file-row-input {
@@ -259,6 +260,13 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   <i class="fa-solid fa-cloud-arrow-up"></i>
 </button>
 
+<div class="quick-input-bar">
+  <i class="fa-solid fa-bolt" style="color:var(--amber); font-size:16px;"></i>
+  <input id="quick-note-input" type="text" style="flex:1; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:14px; outline:none;" placeholder="Write me !" autocomplete="off" onkeydown="if(event.key==='Enter')window.quickAddNote()">
+  <input type="file" id="noteAttachInput" style="display:none;" accept="image/*" onchange="window.attachImageToNote(event)">
+  <button class="action-mini-btn" style="background:transparent; box-shadow:none; color:var(--text-muted);" onclick="document.getElementById('noteAttachInput').click()" title="Attach Image"><i class="fa-solid fa-image"></i></button>
+</div>
+
 <div id="mainWorkspace">
   
   <div class="workspace-panel">
@@ -269,15 +277,9 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
              <input id="notes-folder-edit" type="text" class="file-row-input" style="display:none; width:160px; padding:6px 10px; margin-left:8px;" onchange="window.renameCurrentFolder(this.value)">
            </div>
            <button style="background:transparent; border:none; box-shadow:none; color:var(--amber); cursor:pointer; font-size:18px; transition:transform 0.2s; outline:none;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" onclick="window.createNewFolder()" title="New Folder"><i class="fa-solid fa-folder-plus"></i></button>
-        </div>
-    <div class="quick-input-bar">
-          <i class="fa-solid fa-bolt" style="color:var(--amber); font-size:16px;"></i>
-          <input id="quick-note-input" type="text" style="flex:1; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:14px; outline:none;" placeholder="Write me !" autocomplete="off" onkeydown="if(event.key==='Enter')window.quickAddNote()">
-          <input type="file" id="noteAttachInput" style="display:none;" accept="image/*" onchange="window.attachImageToNote(event)">
-          <button class="action-mini-btn" style="background:transparent; box-shadow:none; color:var(--text-muted);" onclick="document.getElementById('noteAttachInput').click()" title="Attach Image"><i class="fa-solid fa-image"></i></button>
-        </div>
+                   </div>
     
-    <div id="folders-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px; margin-bottom:12px;"></div>
+               <div id="folders-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px; margin-bottom:12px;"></div>
     
     <div id="notes-container"></div>
   </div>
