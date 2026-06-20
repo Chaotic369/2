@@ -270,40 +270,51 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 <div id="mainWorkspace">
   
   <div class="workspace-panel">
-    <div class="panel-header">
-           <div style="display:flex; align-items:center; gap:8px;">
-             <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.viewRootFolder()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)';" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)';" ondrop="event.preventDefault(); this.style.transform='scale(1)'; this.style.color='var(--text-main)'; window.moveNoteToRoot(event.dataTransfer.getData('text/plain'))" title="Drop note here to move to root"><i class="fa-solid fa-arrow-left"></i></button>
-             <span id="notes-view-title" style="display:flex; align-items:center;" title="Quick Notes"><i class="fa-solid fa-note-sticky" style="font-size:20px; color:var(--amber);"></i></span>
-             <input id="notes-folder-edit" type="text" class="file-row-input" style="display:none; width:160px; padding:6px 10px; margin-left:8px;" onchange="window.renameCurrentFolder(this.value)">
-           </div>
-           <button style="background:transparent; border:none; box-shadow:none; color:var(--amber); cursor:pointer; font-size:18px; transition:transform 0.2s; outline:none;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" onclick="window.createNewFolder()" title="New Folder"><i class="fa-solid fa-folder-plus"></i></button>
-                   </div>
+      <div class="panel-header">
+             <div style="display:flex; align-items:center; gap:8px;">
+               <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.viewRootFolder()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)';" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)';" ondrop="event.preventDefault(); this.style.transform='scale(1)'; this.style.color='var(--text-main)'; window.moveNoteToRoot(event.dataTransfer.getData('text/plain'))" title="Drop note here to move to root"><i class="fa-solid fa-arrow-left"></i></button>
+               <span id="notes-view-title" style="display:flex; align-items:center;" title="Quick Notes"><i class="fa-solid fa-note-sticky" style="font-size:20px; color:var(--amber);"></i></span>
+               <input id="notes-folder-edit" type="text" class="file-row-input" style="display:none; width:160px; padding:6px 10px; margin-left:8px;" onchange="window.renameCurrentFolder(this.value)">
+             </div>
+          </div>
     
-               <div id="folders-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px; margin-bottom:12px;"></div>
+      <div id="folders-container" style="display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-bottom:12px;"></div>
     
     <div id="notes-container"></div>
   </div>
 
   <div class="workspace-panel">
-      <div class="panel-header" style="border-bottom: 1px solid rgba(139, 137, 132, 0.1); margin-bottom: 12px; min-height: 34px;">
-         <div style="display: flex; align-items: center; height: 26px;">
-           <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
-         </div>
-      </div>
+        <div class="panel-header" style="border-bottom: 1px solid rgba(139, 137, 132, 0.1); margin-bottom: 12px; min-height: 34px;">
+                   <div style="display: flex; align-items: center; gap: 8px; height: 26px;">
+                     <button id="btn-back-storage" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.goBackStorage()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)';" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)';" ondrop="window.dropOutStorage(event)" title="Drop file here to move out"><i class="fa-solid fa-arrow-left"></i></button>
+                     <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
+                     <span id="storage-path-display" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);"></span>
+                   </div>
+                </div>
     
     
 
     <div id="emptyState" style="position:relative; inset:auto; padding:60px 0; background:transparent; display:flex; flex-direction:column; align-items:center;">
-      <i class="fa-solid fa-cloud-open" style="font-size:36px; opacity:0.3; margin-bottom: 8px;"></i>
-      <div>NO DOCUMENTS DETECTED</div>
-    </div>
+          <i class="fa-solid fa-cloud-open" style="font-size:36px; opacity:0.3; margin-bottom: 8px;"></i>
+          <div>NO DOCUMENTS DETECTED</div>
+        </div>
 
-    <div id="filesGridContainer"></div>
+        <div id="storage-folders-container" style="display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-bottom:12px;"></div>
+
+        <div id="filesGridContainer"></div>
   </div>
   
 </div>
 
 <div id="toast"></div>
+
+<div id="folderContextMenu" class="modal-base" style="width: 250px; padding: 16px; gap: 8px; transition: opacity 0.1s;">
+  <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 4px;" id="fcm-title">Folder Actions</div>
+  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fcmRename()"><i class="fa-solid fa-pen" style="color:var(--blue)"></i> Rename</button>
+  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fcmMove()"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--amber)"></i> Move To</button>
+  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fcmDelete()"><i class="fa-solid fa-trash" style="color:var(--red)"></i> Delete</button>
+  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px; margin-top: 8px; background: var(--bg-base);" onclick="document.getElementById('folderContextMenu').classList.remove('open')"><i class="fa-solid fa-xmark"></i> Cancel</button>
+</div>
 
 <div id="renameModal" class="modal-base">
   <h4 style="color:var(--text-main); margin-bottom:16px; font-size:16px; font-weight:600; padding-bottom:12px;">📁 Rename Cloud Asset</h4>
@@ -802,27 +813,37 @@ window.renderNotes = function() {
     const nContainer = document.getElementById('notes-container');
     fContainer.innerHTML = ''; nContainer.innerHTML = '';
 
-    if (!window.currentFolderView && S.folders.length > 0) {
-        S.folders.forEach(f => {
-            const fel = document.createElement('div');
-            fel.className = 'folder-card';
-            fel.setAttribute('draggable', 'true');
-            fel.ondragover = (e) => { e.preventDefault(); fel.style.transform = 'scale(1.05)'; };
-            fel.ondragleave = (e) => { fel.style.transform = 'scale(1)'; };
-            fel.ondrop = (e) => {
-                e.preventDefault();
-                var data = e.dataTransfer.getData('text/plain');
-                if(data && data.startsWith('n_')) window.dropNoteIntoFolder(data, f.id, e);
-                fel.style.transform = 'scale(1)';
-            };
-            fel.onclick = (e) => window.viewFolder(f.id, f.name, e);
-            fel.innerHTML = `
-                <i class="fa-solid fa-folder" style="color:var(--amber); font-size:16px;"></i>
-                <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${f.name}</div>
-                <button class="action-mini-btn" style="width:24px; height:24px; background:transparent; box-shadow:none;" onclick="window.deleteFolder('${f.id}', event)"><i class="fa-solid fa-trash"></i></button>
-            `;
-            fContainer.appendChild(fel);
-        });
+    if (!window.currentFolderView) {
+        if (S.folders.length > 0) {
+            S.folders.forEach(f => {
+                const fel = document.createElement('div');
+                fel.className = 'folder-card';
+                fel.setAttribute('draggable', 'true');
+                fel.ondragover = (e) => { e.preventDefault(); fel.style.transform = 'scale(1.05)'; };
+                fel.ondragleave = (e) => { fel.style.transform = 'scale(1)'; };
+                fel.ondrop = (e) => {
+                    e.preventDefault();
+                    var data = e.dataTransfer.getData('text/plain');
+                                    if(data && data.startsWith('n_')) window.dropNoteIntoFolder(data, f.id, e);
+                                    fel.style.transform = 'scale(1)';
+                                };
+                                window.bindFolderEvents(fel, 'note', f.id, f.name, (e) => window.viewFolder(f.id, f.name, e));
+                                            fel.innerHTML = `
+                                                <i class="fa-solid fa-folder" style="color:var(--amber); font-size:16px;"></i>
+                                                <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${f.name}</div>
+                                            `;
+                                            fContainer.appendChild(fel);
+            });
+        }
+        
+        const addBtn = document.createElement('button');
+                            addBtn.style.cssText = "background:transparent; border:none; box-shadow:none; color:var(--amber); cursor:pointer; font-size:18px; transition:transform 0.2s; outline:none; display:flex; align-items:center; justify-content:center; padding:4px 8px;";
+                            addBtn.onmouseover = (e) => e.currentTarget.style.transform='scale(1.1)';
+                            addBtn.onmouseout = (e) => e.currentTarget.style.transform='scale(1)';
+                            addBtn.onclick = window.createNewFolder;
+                            addBtn.title = "New Folder";
+                            addBtn.innerHTML = '<i class="fa-solid fa-folder-plus"></i>';
+                            fContainer.appendChild(addBtn);
     }
 
     let visibleNotes = S.notes.filter(n => window.currentFolderView ? n.folderId === window.currentFolderView : !n.folderId);
@@ -916,31 +937,143 @@ window.packMasonry = function() {
     }
 };
 
+window.currentStoragePath = '';
+
+window.enterStorageFolder = function(folderName) {
+    window.currentStoragePath = window.currentStoragePath ? window.currentStoragePath + '/' + folderName : folderName;
+    document.getElementById('btn-back-storage').style.display = 'flex';
+    document.getElementById('storage-path-display').textContent = '/' + window.currentStoragePath;
+    window.loadFiles();
+};
+
+window.goBackStorage = function() {
+    let parts = window.currentStoragePath.split('/');
+    parts.pop();
+    window.currentStoragePath = parts.join('/');
+    if (!window.currentStoragePath) {
+        document.getElementById('btn-back-storage').style.display = 'none';
+        document.getElementById('storage-path-display').textContent = '';
+    } else {
+        document.getElementById('storage-path-display').textContent = '/' + window.currentStoragePath;
+    }
+    window.loadFiles();
+};
+
+window.createStorageFolder = async function() {
+    let folderName = prompt('Enter folder name:');
+    if (!folderName || !folderName.trim()) return;
+    folderName = folderName.trim();
+    let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+    showProgress(20); toast('Creating folder...', 'info');
+    const blob = new Blob([''], { type: 'text/plain' });
+    const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(prefix + folderName + '/.emptyFolderPlaceholder', blob);
+    if (error) { hideProgress(); return toast('Failed to create folder', 'err'); }
+    toast('Folder created', 'ok');
+    window.loadFiles();
+    hideProgress();
+};
+
+window.deleteStorageFolder = async function(folderName) {
+    if (!confirm(`Delete folder "${folderName}" and ALL its contents?`)) return;
+    showProgress(40);
+    let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+    let targetPath = prefix + folderName;
+    const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list(targetPath);
+    if (data && data.length > 0) {
+        let toRemove = data.map(f => targetPath + '/' + f.name);
+        await supabaseClient.storage.from(BUCKET_NAME).remove(toRemove);
+    }
+    await supabaseClient.storage.from(BUCKET_NAME).remove([targetPath + '/.emptyFolderPlaceholder']);
+    toast('Folder deleted', 'ok');
+    window.loadFiles();
+    hideProgress();
+};
+
+window.dropIntoStorageFolder = async function(fileName, folderName) {
+    let currentPrefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+    showProgress(30); toast('Moving file...', 'info');
+    const { error } = await supabaseClient.storage.from(BUCKET_NAME).move(currentPrefix + fileName, currentPrefix + folderName + '/' + fileName);
+    if (error) { hideProgress(); return toast('Move failed', 'err'); }
+    toast('File moved', 'ok');
+    window.loadFiles();
+    hideProgress();
+};
+
+window.dropOutStorage = async function(event) {
+    event.preventDefault();
+    event.currentTarget.style.transform = 'scale(1)';
+    event.currentTarget.style.color = 'var(--text-main)';
+    var fileName = event.dataTransfer.getData('text/plain');
+    if (!fileName || fileName.startsWith('n_') || !window.currentStoragePath) return;
+    let parts = window.currentStoragePath.split('/');
+    parts.pop();
+    let parentPath = parts.length > 0 ? parts.join('/') + '/' : '';
+    let currentPrefix = window.currentStoragePath + '/';
+    showProgress(30); toast('Moving file...', 'info');
+    const { error } = await supabaseClient.storage.from(BUCKET_NAME).move(currentPrefix + fileName, parentPath + fileName);
+    if (error) { hideProgress(); return toast('Move failed', 'err'); }
+    toast('File moved out', 'ok');
+    window.loadFiles();
+    hideProgress();
+};
+
 window.loadFiles = async function() {
     const container = document.getElementById('filesGridContainer');
+    const fContainer = document.getElementById('storage-folders-container');
     const emptyState = document.getElementById('emptyState');
     container.innerHTML = '<div style="color:var(--text-muted); font-family:monospace; grid-column: 1/-1;">Synchronizing with cloud array...</div>';
+    if(fContainer) fContainer.innerHTML = '';
     emptyState.style.display = 'none';
 
-    const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list('', { limit: 1000 });
+    let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+    const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list(window.currentStoragePath || '', { limit: 1000 });
     if (error) {
         container.innerHTML = `<div style="color:var(--red); font-family:monospace; grid-column: 1/-1;">Storage Node Error: ${error.message}</div>`;
         return toast('Matrix sync failed', 'err');
     }
 
-    // Calculate basic total storage for status bar
-        let totalBytes = data.reduce((acc, f) => acc + (f.metadata?.size || 0), 0);
-        let totalMB = totalBytes / (1024 * 1024);
-        document.getElementById('sb-storage').textContent = totalMB.toFixed(2) + ' MB utilized';
+    let totalBytes = data.reduce((acc, f) => acc + (f.metadata?.size || 0), 0);
+    let totalMB = totalBytes / (1024 * 1024);
+    document.getElementById('sb-storage').textContent = totalMB.toFixed(2) + ' MB utilized';
 
-        // Filter document assets from dedicated note gallery micro-images
-        const files = data.filter(f => f.name !== '.emptyFolderPlaceholder' && !f.name.startsWith('note_img_'));
+    const folders = data.filter(f => !f.id && f.name !== '.emptyFolderPlaceholder');
+    const files = data.filter(f => f.id && f.name !== '.emptyFolderPlaceholder' && !f.name.startsWith('note_img_'));
     document.getElementById('sb-count').textContent = files.length + ' files';
 
-    if (files.length === 0) { container.innerHTML = ''; emptyState.style.display = 'flex'; return; }
-    container.innerHTML = '';
-    
-    files.sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).forEach(file => {
+    folders.forEach(folder => {
+                const card = document.createElement('div');
+                card.className = 'folder-card';
+                card.ondragover = (e) => { e.preventDefault(); card.style.transform = 'scale(1.02)'; };
+                card.ondragleave = (e) => { card.style.transform = 'scale(1)'; };
+                card.ondrop = (e) => {
+                                e.preventDefault(); card.style.transform = 'scale(1)';
+                                var fileName = e.dataTransfer.getData('text/plain');
+                                if (fileName && !fileName.startsWith('n_')) window.dropIntoStorageFolder(fileName, folder.name);
+                            };
+                            window.bindFolderEvents(card, 'storage', folder.name, folder.name, () => window.enterStorageFolder(folder.name));
+                                        card.innerHTML = `
+                                            <i class="fa-solid fa-folder" style="color:var(--amber); font-size:16px;"></i>
+                                            <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${folder.name}</div>
+                                        `;
+                                        if (fContainer) fContainer.appendChild(card);
+                else container.appendChild(card);
+            });
+
+            if (fContainer) {
+                const addBtn = document.createElement('button');
+                addBtn.style.cssText = "background:transparent; border:none; box-shadow:none; color:var(--amber); cursor:pointer; font-size:18px; transition:transform 0.2s; outline:none; display:flex; align-items:center; justify-content:center; padding:4px 8px;";
+                addBtn.onmouseover = (e) => e.currentTarget.style.transform='scale(1.1)';
+                addBtn.onmouseout = (e) => e.currentTarget.style.transform='scale(1)';
+                addBtn.onclick = window.createStorageFolder;
+                addBtn.title = "New Storage Folder";
+                addBtn.innerHTML = '<i class="fa-solid fa-folder-plus"></i>';
+                fContainer.appendChild(addBtn);
+            }
+
+            if (folders.length === 0 && files.length === 0) { container.innerHTML = ''; emptyState.style.display = 'flex'; return; }
+            container.innerHTML = '';
+
+            files.sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).forEach(file => {
         const ext = file.name.split('.').pop().toLowerCase();
         let icon = 'fa-file';
                 if(['png','jpg','jpeg','gif','webp','svg'].includes(ext)) icon = 'fa-file-image';
@@ -953,7 +1086,8 @@ window.loadFiles = async function() {
                 else if(['mp4','webm','mov'].includes(ext)) icon = 'fa-file-video';
 
                 const isImage = ['png','jpg','jpeg','gif','webp','svg'].includes(ext);
-                const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(file.name);
+                const fullPath = prefix + file.name;
+                const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(fullPath);
                 const fileUrl = urlData.publicUrl;
                 let cleanName = file.name.includes('_') ? file.name.substring(file.name.indexOf('_') + 1) : file.name;
 
@@ -970,6 +1104,9 @@ window.loadFiles = async function() {
 
                         const card = document.createElement('div');
                                 card.className = 'file-card';
+                                card.setAttribute('draggable', 'true');
+                                card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', file.name); card.style.opacity = '0.5'; };
+                                card.ondragend = (e) => { card.style.opacity = '1'; };
                                 card.innerHTML = `
                                     <div style="display:flex; gap:12px; align-items:center; flex:1; overflow:hidden;">
                                         ${previewHtml}
@@ -992,7 +1129,8 @@ window.loadFiles = async function() {
 window.uploadFile = async function(event) {
     const file = event.target.files[0]; if(!file) return;
     event.target.value = ''; showProgress(20); toast('Injecting payload...', 'info');
-    const uniqueName = `${Date.now()}_${file.name}`;
+    let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+    const uniqueName = prefix + `${Date.now()}_${file.name}`;
     const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, file, { cacheControl: '3600', upsert: false });
     if (error) { hideProgress(); return toast('Upload rejected: ' + error.message, 'err'); }
     toast('Upload confirmed!', 'ok'); window.loadFiles(); hideProgress();
@@ -1000,7 +1138,9 @@ window.uploadFile = async function(event) {
 
 window.deleteFile = async function(fileName) {
     if(!confirm('Purge this asset permanently?')) return;
-    showProgress(40); const { error } = await supabaseClient.storage.from(BUCKET_NAME).remove([fileName]);
+    showProgress(40); 
+    let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+    const { error } = await supabaseClient.storage.from(BUCKET_NAME).remove([prefix + fileName]);
     if(error) { hideProgress(); return toast('Purge failure', 'err'); }
     toast('Asset cleanly purged.', 'ok'); window.loadFiles(); hideProgress();
 };
@@ -1024,10 +1164,199 @@ window.executeRename = async function() {
     document.getElementById('renameModal').classList.remove('open'); showProgress(30);
     const newName = oldName.includes('_') ? `${oldName.split('_')[0]}_${input}` : `${Date.now()}_${input}`;
     toast('Rewriting path...', 'info');
-    const { error } = await supabaseClient.storage.from(BUCKET_NAME).move(oldName, newName);
+    let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+    const { error } = await supabaseClient.storage.from(BUCKET_NAME).move(prefix + oldName, prefix + newName);
     if(error) { hideProgress(); return toast('Rename failed', 'err'); }
     toast('Asset name updated!', 'ok'); window.loadFiles(); hideProgress();
 };
+
+window.fcmTarget = { type: null, id: null, name: null };
+window.pendingMove = null;
+
+window.openFolderMenu = function(type, id, name, event) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    window.fcmTarget = { type, id, name };
+    document.getElementById('fcm-title').innerText = name;
+    
+    const menu = document.getElementById('folderContextMenu');
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
+    
+    if (event) {
+        if (event.touches && event.touches.length > 0) {
+            x = event.touches[0].clientX;
+            y = event.touches[0].clientY;
+        } else if (event.clientX !== undefined) {
+            x = event.clientX;
+            y = event.clientY;
+        }
+    }
+    
+    menu.style.top = y + 'px';
+    menu.style.left = x + 'px';
+    menu.style.transform = 'none';
+    menu.style.margin = '0';
+    menu.style.opacity = '0';
+    menu.classList.add('open');
+    
+    setTimeout(() => {
+        const rect = menu.getBoundingClientRect();
+        if (x + rect.width > window.innerWidth) x = window.innerWidth - rect.width - 16;
+        if (y + rect.height > window.innerHeight) y = window.innerHeight - rect.height - 16;
+        menu.style.left = x + 'px';
+        menu.style.top = y + 'px';
+        menu.style.opacity = '1';
+    }, 0);
+};
+
+window.bindFolderEvents = function(card, type, id, name, clickHandler) {
+    let pressTimer;
+    let isLong = false;
+    card.oncontextmenu = (e) => { e.preventDefault(); window.openFolderMenu(type, id, name, e); };
+    
+    const startPress = (e) => {
+        if(e.type === 'mousedown' && e.button !== 0) return;
+        isLong = false;
+        pressTimer = setTimeout(() => { 
+            isLong = true; 
+            window.openFolderMenu(type, id, name, e); 
+        }, 550);
+    };
+    const cancelPress = () => clearTimeout(pressTimer);
+    
+    card.addEventListener('touchstart', startPress, {passive: true});
+    card.addEventListener('touchend', cancelPress);
+    card.addEventListener('touchmove', cancelPress);
+    card.addEventListener('mousedown', startPress);
+    card.addEventListener('mouseup', cancelPress);
+    card.addEventListener('mouseleave', cancelPress);
+    card.addEventListener('dragstart', cancelPress);
+    
+    card.onclick = (e) => { 
+        if(isLong) { e.preventDefault(); e.stopPropagation(); return; } 
+        if(type === 'storage' && window.pendingMove) {
+            e.preventDefault(); e.stopPropagation();
+            window.executeTapMove(id); 
+            return;
+        }
+        clickHandler(e); 
+    };
+};
+
+window.fcmRename = async function() {
+    document.getElementById('folderContextMenu').classList.remove('open');
+    let t = window.fcmTarget;
+    let newName = prompt(`Rename folder "${t.name}" to:`, t.name);
+    if(!newName || newName === t.name) return;
+    
+    if (t.type === 'note') {
+        let f = S.folders.find(x => x.id === t.id);
+        if(f) { f.name = newName; await window.saveNotesData(); window.renderNotes(); toast('Folder renamed', 'ok'); }
+    } else if (t.type === 'storage') {
+        showProgress(50);
+        let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+        let oldPath = prefix + t.name;
+        let newPath = prefix + newName;
+        const { data } = await supabaseClient.storage.from(BUCKET_NAME).list(oldPath);
+        if (data && data.length > 0) {
+            for (let file of data) {
+                 await supabaseClient.storage.from(BUCKET_NAME).move(oldPath + '/' + file.name, newPath + '/' + file.name);
+            }
+        }
+        await supabaseClient.storage.from(BUCKET_NAME).remove([oldPath + '/.emptyFolderPlaceholder']);
+        await supabaseClient.storage.from(BUCKET_NAME).upload(newPath + '/.emptyFolderPlaceholder', new Blob([''], { type: 'text/plain' }));
+        window.loadFiles();
+        hideProgress();
+        toast('Folder renamed', 'ok');
+    }
+};
+
+window.fcmDelete = function() {
+    document.getElementById('folderContextMenu').classList.remove('open');
+    let t = window.fcmTarget;
+    if (t.type === 'note') {
+        window.deleteFolder(t.id);
+    } else if (t.type === 'storage') {
+        window.deleteStorageFolder(t.name);
+    }
+};
+
+window.fcmMove = async function() {
+    document.getElementById('folderContextMenu').classList.remove('open');
+    let t = window.fcmTarget;
+    if (t.type === 'note') {
+        return toast('Note folders are root-level only right now.', 'warn');
+    } 
+    window.pendingMove = { type: t.type, name: t.name, path: window.currentStoragePath };
+    
+    let mToast = document.getElementById('moveToast');
+    if (!mToast) {
+        mToast = document.createElement('div');
+        mToast.id = 'moveToast';
+        mToast.style.cssText = "position:fixed; bottom:110px; left:50%; transform:translateX(-50%); background:var(--blue); color:#fff; padding:12px 24px; border-radius:32px; z-index:50000; display:flex; gap:12px; align-items:center; font-size:13px; font-weight:600; box-shadow:0 8px 32px rgba(0,0,0,0.3);";
+        document.body.appendChild(mToast);
+    }
+    mToast.innerHTML = `
+        <span>Tap folder to move "${t.name}" into</span>
+        <button class="btn" onclick="window.executeTapMove(null)" style="background:rgba(255,255,255,0.2); color:#fff; padding:6px 12px; font-size:12px;">Paste Here</button>
+        <button class="btn" onclick="window.cancelTapMove()" style="background:transparent; color:rgba(255,255,255,0.8); width:28px; height:28px;"><i class="fa-solid fa-xmark"></i></button>
+    `;
+    mToast.style.display = 'flex';
+};
+
+window.executeTapMove = async function(destFolderName) {
+    let pm = window.pendingMove;
+    if (!pm) return;
+    
+    let destPath = window.currentStoragePath || '';
+    if (destFolderName) {
+        destPath = destPath ? destPath + '/' + destFolderName : destFolderName;
+    }
+    
+    let sourcePrefix = pm.path ? pm.path + '/' : '';
+    let oldPath = sourcePrefix + pm.name;
+    let destPrefix = destPath ? destPath + '/' : '';
+    let newPath = destPrefix + pm.name;
+    
+    if (oldPath === newPath || newPath.startsWith(oldPath + '/')) {
+        window.cancelTapMove();
+        return toast('Cannot move a folder into itself', 'warn');
+    }
+    
+    window.cancelTapMove();
+    showProgress(50); toast('Moving folder...', 'info');
+    
+    const { data } = await supabaseClient.storage.from(BUCKET_NAME).list(oldPath);
+    if (data && data.length > 0) {
+        for (let file of data) {
+             await supabaseClient.storage.from(BUCKET_NAME).move(oldPath + '/' + file.name, newPath + '/' + file.name);
+        }
+    }
+    await supabaseClient.storage.from(BUCKET_NAME).remove([oldPath + '/.emptyFolderPlaceholder']);
+    await supabaseClient.storage.from(BUCKET_NAME).upload(newPath + '/.emptyFolderPlaceholder', new Blob([''], { type: 'text/plain' }));
+    window.loadFiles();
+    hideProgress();
+    toast('Folder moved', 'ok');
+};
+
+window.cancelTapMove = function() {
+    window.pendingMove = null;
+    let mToast = document.getElementById('moveToast');
+    if (mToast) mToast.style.display = 'none';
+};
+
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('folderContextMenu');
+    if (menu && menu.classList.contains('open') && !menu.contains(e.target)) {
+        menu.classList.remove('open');
+    }
+});
+document.addEventListener('touchstart', (e) => {
+    const menu = document.getElementById('folderContextMenu');
+    if (menu && menu.classList.contains('open') && !menu.contains(e.target)) {
+        menu.classList.remove('open');
+    }
+}, {passive: true});
 
 window.onload = () => {
   window.loadFiles(); window.loadNotesData();
