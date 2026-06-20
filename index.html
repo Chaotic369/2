@@ -246,6 +246,9 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 <div id="progressBar"></div>
 
 <div class="top-bar-actions">
+  <button class="action-mini-btn" onclick="window.checkStorage()" title="Storage Info">
+    <i class="fa-solid fa-hard-drive"></i>
+  </button>
   <button class="action-mini-btn" onclick="window.toggleTheme()" title="Toggle Theme">
     <i class="fa-solid fa-circle-half-stroke"></i>
   </button>
@@ -435,6 +438,11 @@ window.toggleTheme = function() {
     document.documentElement.classList.toggle('light-theme');
     const isLight = document.documentElement.classList.contains('light-theme');
     localStorage.setItem('sovereign_theme', isLight ? 'light' : 'dark');
+};
+
+window.checkStorage = function() {
+    const storageUsage = document.getElementById('sb-storage').textContent;
+    toast(`Cloud Storage: ${storageUsage}`, 'info', 3000);
 };
 
 window.stopMedia = function() {
