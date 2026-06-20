@@ -1,6 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" class="light-theme">
+<html lang="en">
 <head>
+<script>
+  // Instantly apply the saved theme before the page renders to prevent flashbangs
+  (function() {
+    var theme = localStorage.getItem('sovereign_theme');
+    if (theme === 'light' || !theme) document.documentElement.classList.add('light-theme');
+  })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Sovereign System - Files & Notes</title>
@@ -238,7 +245,7 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 <div id="progressBar"></div>
 
 <div class="top-bar-actions">
-  <button class="action-mini-btn" onclick="document.documentElement.classList.toggle('light-theme')" title="Toggle Theme">
+  <button class="action-mini-btn" onclick="window.toggleTheme()" title="Toggle Theme">
     <i class="fa-solid fa-circle-half-stroke"></i>
   </button>
 </div>
@@ -431,6 +438,12 @@ window.previewImage = function(event, url) {
     document.getElementById('imagePreviewSrc').style.display = 'block';
     document.getElementById('imagePreviewSrc').src = url;
     document.getElementById('mediaPreviewModal').style.display = 'flex';
+};
+
+window.toggleTheme = function() {
+    document.documentElement.classList.toggle('light-theme');
+    const isLight = document.documentElement.classList.contains('light-theme');
+    localStorage.setItem('sovereign_theme', isLight ? 'light' : 'dark');
 };
 
 window.stopMedia = function() {
