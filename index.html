@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="light-theme">
 <head>
 <meta charset="UTF-8">
@@ -102,23 +102,43 @@ button.btn:active { transform: scale(0.96); }
 .list-view .file-card .card-actions button { width: 36px; height: 36px; }
 
 /* QUICK NOTES ENGINE */
-#notes-container { display: flex; flex-direction: row; gap: 16px; align-items: start; width: 100%; }
-.notes-column-track { display: flex; flex-direction: column; gap: 16px; flex: 1; min-width: 0; }
-#mainWorkspace.list-view #notes-container { flex-direction: column; gap: 12px; }
-#mainWorkspace.list-view .notes-column-track { width: 100%; }
-
-.note-card {
-  width: 100%; display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 16px;
-  cursor: grab; transition: transform 0.2s, box-shadow 0.2s; color: var(--text-main); font-size: 13px; line-height: 1.5; position: relative;
+#notes-container {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* 6 Column Math Base for 1/2 and 1/3 splits */
+  grid-auto-flow: dense; /* Tightly packs items into empty gaps automatically */
+  gap: 16px;
+  width: 100%;
 }
-@media (max-width: 600px) { #notes-container { grid-template-columns: 1fr; } }
-#mainWorkspace.list-view #notes-container { display: flex; flex-direction: column; gap: 12px; }
+@media (max-width: 1024px) {
+  #notes-container { grid-template-columns: repeat(4, 1fr); } /* Fallback for smaller screens */
+}
+#mainWorkspace.list-view #notes-container {
+  display: flex; flex-direction: column; gap: 12px;
+}
 
 .note-card {
-  break-inside: avoid; padding: 16px; border-radius: 16px;
-  display: flex; flex-direction: column; gap: 8px; cursor: grab; transition: transform 0.2s, box-shadow 0.2s;
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 16px;
+  cursor: grab; transition: transform 0.2s, box-shadow 0.2s;
   color: var(--text-main); font-size: 13px; line-height: 1.5; position: relative;
+  backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
 }
+/* 6-Column Base Math */
+.note-card.span-small { grid-column: span 2; grid-row: span 1; } /* 3 per row (6/2) */
+.note-card.span-half { grid-column: span 3; grid-row: span 1; }  /* 2 per row (6/3) - Exactly half */
+.note-card.span-row-2 { grid-row: span 2; }
+
+@media (max-width: 1024px) { 
+  .note-card.span-small { grid-column: span 2; } /* 2 per row on tablets */
+  .note-card.span-half { grid-column: span 4; } /* Full row on tablets */
+}
+@media (max-width: 600px) { 
+  #notes-container { grid-template-columns: repeat(1, 1fr); }
+  .note-card { grid-column: span 1 !important; grid-row: span 1 !important; } 
+}
+#mainWorkspace.list-view .note-card { grid-column: auto; grid-row: auto; }
+
 .note-card:active { cursor: grabbing; }
 .sortable-ghost { opacity: 0.4; transform: scale(0.98); }
 .sortable-drag { cursor: grabbing !important; }
@@ -257,7 +277,7 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
              <button class="action-mini-btn" onclick="window.copyModalNote()" title="Copy Text"><i class="fa-regular fa-copy"></i></button>
            </div>
         </div>
-        <div id="nm-image-container" style="display:none; width:100%; border-radius:12px; overflow:hidden; margin-bottom:12px; max-height:300px; background:#000;"><img id="nm-image" style="width:100%; height:100%; object-fit:contain; display:block;"></div>
+        <div id="nm-image-container" style="display:none; width:100%; border-radius:12px; overflow:hidden; margin-bottom:12px; max-height:300px; background:#000; cursor:pointer;" onclick="window.previewImage(event, document.getElementById('nm-image').src)" title="Click to enlarge"><img id="nm-image" style="width:100%; height:100%; object-fit:contain; display:block; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'"></div>
         <textarea id="nm-text" style="width:100%; min-height:250px; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:15px; line-height:1.6; resize:vertical; outline:none;" placeholder="Start typing..."></textarea>
     <input type="hidden" id="nm-id"><input type="hidden" id="nm-color"><input type="hidden" id="nm-pinned">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:16px; border-top:1px solid rgba(139, 137, 132, 0.2);">
@@ -273,6 +293,11 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
        </div>
     </div>
   </div>
+</div>
+
+<div id="imagePreviewModal" style="display:none; position:fixed; z-index:60000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px);" onclick="this.style.display='none'">
+  <img id="imagePreviewSrc" style="max-width:90vw; max-height:90vh; object-fit:contain; border-radius:8px; box-shadow:0 24px 64px rgba(0,0,0,0.5);">
+  <button style="position:absolute; top:24px; right:24px; background:var(--bg-surface); color:var(--text-main); border:none; width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.3);"><i class="fa-solid fa-xmark"></i></button>
 </div>
 
 <div id="statusBar">
@@ -337,6 +362,12 @@ function formatBytes(bytes, decimals = 2) {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
+
+window.previewImage = function(event, url) {
+    if (event) event.stopPropagation();
+    document.getElementById('imagePreviewSrc').src = url;
+    document.getElementById('imagePreviewModal').style.display = 'flex';
+};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // QUICK NOTES ENGINE
@@ -596,7 +627,16 @@ window.renderNotes = function() {
 
     visibleNotes.forEach(n => {
         const el = document.createElement('div');
-        el.className = 'note-card';
+        
+        let spanClass = '';
+        let txtLen = n.text ? n.text.length : 0;
+        
+        // Dynamically assign grid footprint based on content mass
+        if (txtLen > 400 || (n.imageUrl && txtLen > 150)) spanClass = ' span-large';
+        else if (txtLen > 200 || n.imageUrl) spanClass = ' span-col-2';
+        else if (txtLen > 100) spanClass = ' span-row-2';
+        
+        el.className = 'note-card' + spanClass;
         el.style.background = n.color || noteColors[0];
         if (n.color === 'var(--bg-surface)' || !n.color) el.style.border = '1px solid rgba(139,137,132,0.2)';
                 el.setAttribute('data-id', n.id);
@@ -608,8 +648,14 @@ window.renderNotes = function() {
         let html = '';
         if (n.pinned) html += `<div style="position:absolute; top:12px; right:12px; color:var(--amber);"><i class="fa-solid fa-thumbtack"></i></div>`;
         if (n.title) html += `<div class="note-card-title">${String(n.title).replace(/</g,'&lt;')}</div>`;
-        if (n.text) {
-            let textPreview = n.text.length > 200 ? n.text.substring(0, 200) + '...' : n.text;
+        
+        // Inject image preview dynamically on the grid if available
+                if (n.imageUrl) html += `<div style="width:100%; border-radius:8px; overflow:hidden; margin-bottom:8px; cursor:pointer;" onclick="window.previewImage(event, '${n.imageUrl}')" title="Click to enlarge"><img src="${n.imageUrl}" style="width:100%; max-height:200px; object-fit:cover; display:block; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></div>`;
+        
+                if (n.text) {
+            // Expand text cutoff logic if the footprint is dynamically larger
+            let maxLen = spanClass ? 800 : 200;
+            let textPreview = n.text.length > maxLen ? n.text.substring(0, maxLen) + '...' : n.text;
             html += `<div style="white-space:pre-wrap; word-break:break-word;">${String(textPreview).replace(/</g,'&lt;')}</div>`;
         }
         el.innerHTML = html;
@@ -686,10 +732,10 @@ window.loadFiles = async function() {
         let cleanName = file.name.includes('_') ? file.name.substring(file.name.indexOf('_') + 1) : file.name;
 
         let previewHtml = isImage 
-            ? `<div style="width:42px; height:42px; border-radius:10px; overflow:hidden; flex-shrink:0; background:var(--bg-base);"><img src="${fileUrl}" style="width:100%; height:100%; object-fit:cover;" loading="lazy"></div>`
-            : `<div style="width:42px; height:42px; border-radius:10px; background:var(--bg-base); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:18px; flex-shrink:0;"><i class="fa-solid ${icon}"></i></div>`;
+                    ? `<div style="width:42px; height:42px; border-radius:10px; overflow:hidden; flex-shrink:0; background:var(--bg-base); cursor:pointer;" onclick="window.previewImage(event, '${fileUrl}')" title="Preview Image"><img src="${fileUrl}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" loading="lazy"></div>`
+                    : `<div style="width:42px; height:42px; border-radius:10px; background:var(--bg-base); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:18px; flex-shrink:0;"><i class="fa-solid ${icon}"></i></div>`;
 
-        const card = document.createElement('div');
+                const card = document.createElement('div');
         card.className = 'file-card';
         card.innerHTML = `
             <div style="display:flex; gap:12px; align-items:center;">
