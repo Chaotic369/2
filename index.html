@@ -62,8 +62,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 ::-webkit-scrollbar-thumb { 
   background: var(--text-muted); 
   border-radius: 18px; 
-  border: 4px solid var(--bg-surface); /* Adds negative space so the hit-box is huge but the visual bar isn't ugly */
+  border: 4px solid var(--bg-surface); 
 }
+::-webkit-scrollbar-corner { background: transparent; }
 
 /* Huge, unmistakable expanding button (textarea resize handle) */
 ::-webkit-resizer { 
@@ -114,14 +115,14 @@ button.btn:hover { filter: brightness(0.9); }
 html:not(.light-theme) button.btn:hover { filter: brightness(1.2); }
 button.btn:active { transform: scale(0.96); }
 
-/* FILE GRID ENGINE */
+/* FILE LIST ENGINE */
 #filesGridContainer {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; align-content: start;
+  display: flex; flex-direction: column; gap: 12px; align-content: start;
 }
 
 .file-card {
   background: var(--bg-surface); border: none !important;
-  border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 14px;
+  border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 16px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
@@ -283,19 +284,7 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
        <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
     </div>
     
-    <div id="storageMonitorContainer" style="background: var(--bg-surface); padding: 14px 16px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 4px;">
-      <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 2px;">
-        <span>Supabase Storage Capacity</span>
-        <span id="sm-percentage" style="color: var(--amber); font-weight: 700;">0.00%</span>
-      </div>
-      <div style="width: 100%; height: 6px; background: var(--bg-base); border-radius: 3px; overflow: hidden;">
-        <div id="sm-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--amber), var(--teal)); transition: width 0.4s ease;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px; font-family: 'JetBrains Mono', monospace;">
-        <span id="sm-used">0.00 MB used</span>
-        <span>1,024 MB Limit</span>
-      </div>
-    </div>
+    
 
     <div id="emptyState" style="position:relative; inset:auto; padding:60px 0; background:transparent; display:flex; flex-direction:column; align-items:center;">
       <i class="fa-solid fa-cloud-open" style="font-size:36px; opacity:0.3; margin-bottom: 8px;"></i>
@@ -927,19 +916,13 @@ window.loadFiles = async function() {
         return toast('Matrix sync failed', 'err');
     }
 
-    // 1. Calculate absolute physical capacity metrics across all storage assets
-    let totalBytes = data.reduce((acc, f) => acc + (f.metadata?.size || 0), 0);
-    let totalMB = totalBytes / (1024 * 1024);
-    let limitMB = 1024; // 1 GB free tier limitation
-    let pct = Math.min((totalMB / limitMB) * 100, 100);
+    // Calculate basic total storage for status bar
+        let totalBytes = data.reduce((acc, f) => acc + (f.metadata?.size || 0), 0);
+        let totalMB = totalBytes / (1024 * 1024);
+        document.getElementById('sb-storage').textContent = totalMB.toFixed(2) + ' MB utilized';
 
-    document.getElementById('sm-percentage').textContent = pct.toFixed(2) + '%';
-    document.getElementById('sm-bar').style.width = pct + '%';
-    document.getElementById('sm-used').textContent = totalMB.toFixed(2) + ' MB used';
-    document.getElementById('sb-storage').textContent = totalMB.toFixed(2) + ' MB utilized';
-
-    // 2. Filter document assets from dedicated note gallery micro-images
-    const files = data.filter(f => f.name !== '.emptyFolderPlaceholder' && !f.name.startsWith('note_img_'));
+        // Filter document assets from dedicated note gallery micro-images
+        const files = data.filter(f => f.name !== '.emptyFolderPlaceholder' && !f.name.startsWith('note_img_'));
     document.getElementById('sb-count').textContent = files.length + ' files';
 
     if (files.length === 0) { container.innerHTML = ''; emptyState.style.display = 'flex'; return; }
@@ -974,23 +957,23 @@ window.loadFiles = async function() {
         }
 
         const card = document.createElement('div');
-        card.className = 'file-card';
-        card.innerHTML = `
-            <div style="display:flex; gap:12px; align-items:center;">
-                ${previewHtml}
-                <div style="overflow:hidden; flex:1;">
-                    <div style="font-weight:600; font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${cleanName}">${cleanName}</div>
-                    <div style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">${formatBytes(file.metadata?.size || 0)}</div>
-                </div>
-            </div>
-            <div class="card-actions" style="display:flex; gap:8px;">
-                <button class="btn" style="flex:1; border-radius:8px; font-size:12px; height:32px; color:var(--text-main);" onclick="window.copyLink('${fileUrl}')"><i class="fa-solid fa-link"></i></button>
-                <button class="btn" style="flex:1; border-radius:8px; font-size:12px; height:32px; color:var(--blue);" onclick="window.triggerDownload('${fileUrl}', '${cleanName}')"><i class="fa-solid fa-download"></i></button>
-                <button class="btn" style="flex:1; border-radius:8px; font-size:12px; height:32px; color:var(--teal);" onclick="window.openRenameModal('${file.name}')"><i class="fa-solid fa-pen-to-square"></i></button>
-                <button class="btn" style="flex:1; border-radius:8px; font-size:12px; height:32px; color:var(--red);" onclick="window.deleteFile('${file.name}')"><i class="fa-solid fa-trash-can"></i></button>
-            </div>
-        `;
-        container.appendChild(card);
+                card.className = 'file-card';
+                card.innerHTML = `
+                    <div style="display:flex; gap:12px; align-items:center; flex:1; overflow:hidden;">
+                        ${previewHtml}
+                        <div style="overflow:hidden; display:flex; flex-direction:column;">
+                            <div style="font-weight:600; font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${cleanName}">${cleanName}</div>
+                            <div style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">${formatBytes(file.metadata?.size || 0)}</div>
+                        </div>
+                    </div>
+                    <div class="card-actions" style="display:flex; gap:8px; flex-shrink:0;">
+                        <button class="btn" style="width:32px; border-radius:8px; font-size:12px; height:32px; color:var(--text-main);" onclick="window.copyLink('${fileUrl}')"><i class="fa-solid fa-link"></i></button>
+                        <button class="btn" style="width:32px; border-radius:8px; font-size:12px; height:32px; color:var(--blue);" onclick="window.triggerDownload('${fileUrl}', '${cleanName}')"><i class="fa-solid fa-download"></i></button>
+                        <button class="btn" style="width:32px; border-radius:8px; font-size:12px; height:32px; color:var(--teal);" onclick="window.openRenameModal('${file.name}')"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn" style="width:32px; border-radius:8px; font-size:12px; height:32px; color:var(--red);" onclick="window.deleteFile('${file.name}')"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `;
+                container.appendChild(card);
     });
 };
 
