@@ -785,14 +785,15 @@ window.loadFiles = async function() {
 
     const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list();
     
-    if (error) {
-        container.innerHTML = `<div style="color:var(--red); font-family:monospace; grid-column: 1/-1;">Storage Node Error: ${error.message} (Check SELECT Policy)</div>`;
-        return toast('Matrix sync failed', 'err');
-    }
+        if (error) {
+            container.innerHTML = `<div style="color:var(--red); font-family:monospace; grid-column: 1/-1;">Storage Node Error: ${error.message} (Check SELECT Policy)</div>`;
+            return toast('Matrix sync failed', 'err');
+        }
 
-    const files = data.filter(f => f.name !== '.emptyFolderPlaceholder');
+        // Filter out both the system placeholder AND any internal note attachments
+        const files = data.filter(f => f.name !== '.emptyFolderPlaceholder' && !f.name.startsWith('note_img_'));
     
-    document.getElementById('sb-count').textContent = files.length + ' files';
+        document.getElementById('sb-count').textContent = files.length + ' files';
     let totalBytes = files.reduce((acc, f) => acc + (f.metadata?.size || 0), 0);
     document.getElementById('sb-storage').textContent = (totalBytes / (1024 * 1024)).toFixed(2) + ' MB';
 
