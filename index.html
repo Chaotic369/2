@@ -20,6 +20,14 @@
   --text-muted: #8b8984;
   --accent: #d8cebc;
   --blue: #5c9dff; --green: #39d353; --red: #f85149; --amber: #e3b341; --teal: #2dd4bf;
+  
+  /* Dark Mode Note Phases (Darker & Translucent) */
+  --note-base: rgba(255, 255, 255, 0.05);
+  --note-amber: rgba(227, 179, 65, 0.12);
+  --note-blue: rgba(92, 157, 255, 0.12);
+  --note-green: rgba(57, 211, 83, 0.12);
+  --note-red: rgba(248, 81, 73, 0.12);
+  --note-purple: rgba(188, 140, 255, 0.12);
 }
 html.light-theme {
   /* Claude Light Theme */
@@ -28,6 +36,14 @@ html.light-theme {
   --text-main: #191813;
   --text-muted: #8b8984;
   --accent: #e5e0da;
+
+  /* Light Mode Note Phases (Brighter pastel for perfect text contrast) */
+  --note-base: rgba(0, 0, 0, 0.04);
+  --note-amber: rgba(227, 179, 65, 0.2);
+  --note-blue: rgba(92, 157, 255, 0.2);
+  --note-green: rgba(57, 211, 83, 0.2);
+  --note-red: rgba(248, 81, 73, 0.2);
+  --note-purple: rgba(188, 140, 255, 0.2);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; outline: none !important; border: none; }
@@ -337,13 +353,25 @@ let S = { notes: [], folders: [] };
 window.currentFolderView = null;
 
 const noteColors = [
-  'rgba(215, 210, 200, 0.4)', // Noticeably brighter Glass Base
-  'rgba(227,179,65,0.15)', // Amber
-  'rgba(92,157,255,0.15)', // Blue
-  'rgba(57,211,83,0.15)',  // Green
-  'rgba(248,81,73,0.15)',  // Red
-  'rgba(188,140,255,0.15)' // Purple
+  'var(--note-base)',
+  'var(--note-amber)',
+  'var(--note-blue)',
+  'var(--note-green)',
+  'var(--note-red)',
+  'var(--note-purple)'
 ];
+
+// Seamless migration tool for existing notes
+window.getUpgradedColor = function(c) {
+    if (!c) return 'var(--note-base)';
+    if (c.includes('var(--note-')) return c; 
+    if (c.includes('227') && c.includes('179') && c.includes('65')) return 'var(--note-amber)';
+    if (c.includes('92') && c.includes('157') && c.includes('255')) return 'var(--note-blue)';
+    if (c.includes('57') && c.includes('211') && c.includes('83')) return 'var(--note-green)';
+    if (c.includes('248') && c.includes('81') && c.includes('73')) return 'var(--note-red)';
+    if (c.includes('188') && c.includes('140') && c.includes('255')) return 'var(--note-purple)';
+    return 'var(--note-base)';
+};
 
 // --- UTILS ---
 function showProgress(pct) {
@@ -490,19 +518,26 @@ window.openNoteModal = function(id) {
     document.getElementById('nm-id').value = n.id;
     document.getElementById('nm-title').value = n.title || '';
     document.getElementById('nm-text').value = n.text || '';
-    document.getElementById('nm-color').value = n.color || noteColors[0];
+    let upgradedColor = window.getUpgradedColor(n.color);
+        document.getElementById('nm-color').value = upgradedColor;
         document.getElementById('nm-pinned').value = n.pinned ? 'true' : 'false';
     
         let dt = new Date(n.updatedAt || Date.now());
         document.getElementById('nm-timestamp').innerText = `Last saved: ${dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at ${dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
     
         const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
-        if (modalWrapper) {
-            // Keep the modal solid so it's readable (includes legacy color check to prevent bugs on old notes)
-            modalWrapper.style.backgroundColor = (n.color && n.color !== 'rgba(215, 210, 200, 0.4)' && n.color !== 'rgba(165, 163, 158, 0.22)' && n.color !== 'rgba(139, 137, 132, 0.15)' && n.color !== 'var(--bg-surface)') ? n.color : 'var(--bg-surface)';
-        }
+            if (modalWrapper) {
+                // Blocks the dark background from bleeding through by stacking the solid surface color underneath
+                if (upgradedColor === 'var(--note-base)') {
+                    modalWrapper.style.background = 'var(--bg-surface)';
+                } else {
+                    modalWrapper.style.background = `linear-gradient(${upgradedColor}, ${upgradedColor}), var(--bg-surface)`;
+                }
+                modalWrapper.style.backdropFilter = 'blur(35px)';
+                modalWrapper.style.webkitBackdropFilter = 'blur(35px)';
+            }
 
-    const imgContainer = document.getElementById('nm-image-container');
+            const imgContainer = document.getElementById('nm-image-container');
     if(n.imageUrl) {
         document.getElementById('nm-image').src = n.imageUrl;
         imgContainer.style.display = 'block';
@@ -548,15 +583,16 @@ window.toggleModalPin = function() {
 window.cycleModalColor = function() {
     let cur = document.getElementById('nm-color').value;
     let idx = noteColors.indexOf(cur);
+    if(idx === -1) idx = 0;
     let nextIdx = (idx + 1) % noteColors.length;
     let nextColor = noteColors[nextIdx];
     document.getElementById('nm-color').value = nextColor;
     
     // Dynamically update the modal's background element immediately for live tracking
-        const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
-        if (modalWrapper) {
-            modalWrapper.style.backgroundColor = (nextColor === 'rgba(215, 210, 200, 0.4)' || nextColor === 'rgba(165, 163, 158, 0.22)' || nextColor === 'rgba(139, 137, 132, 0.15)' || nextColor.startsWith('var')) ? 'var(--bg-surface)' : nextColor;
-        }
+    const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
+    if (modalWrapper) {
+        modalWrapper.style.backgroundColor = (nextColor === 'var(--note-base)') ? 'var(--bg-surface)' : nextColor;
+    }
     toast('Color selected', 'info', 800);
 };
 
@@ -655,11 +691,9 @@ window.renderNotes = function() {
         }
         
         el.className = 'note-card' + spanClass;
-                // Ensure legacy colors upgrade to the new brighter glass
-                let cardColor = (n.color === 'var(--bg-surface)' || n.color === 'rgba(139, 137, 132, 0.15)' || n.color === 'rgba(165, 163, 158, 0.22)' || !n.color) ? noteColors[0] : n.color;
-                el.style.background = cardColor;
+                el.style.background = window.getUpgradedColor(n.color);
         
-        el.setAttribute('data-id', n.id);
+                el.setAttribute('data-id', n.id);
                 el.setAttribute('draggable', 'true');
                 el.ondragstart = (e) => { e.dataTransfer.setData('text/plain', n.id); el.style.opacity = '0.5'; };
                 el.ondragend = (e) => { el.style.opacity = '1'; };
@@ -719,7 +753,8 @@ window.packMasonry = function() {
     
     const items = container.querySelectorAll('.note-card');
     const rowHeight = 12; // Matches grid-auto-rows
-    const gap = 16;       // Matches gap
+    // Dynamically grab CSS gap to prevent mobile math overlap bugs
+    const gap = parseFloat(window.getComputedStyle(container).gap) || 16; 
     
     // Pass 1: reset all limits
     for (let i = 0; i < items.length; i++) {
@@ -728,7 +763,8 @@ window.packMasonry = function() {
     
     // Pass 2: calculate absolute heights
     for (let i = 0; i < items.length; i++) {
-        const height = items[i].scrollHeight; // Accurate internal measurement
+        // getBoundingClientRect handles internal flex-wrapping math much better than scrollHeight
+        const height = items[i].getBoundingClientRect().height; 
         const spans = Math.ceil((height + gap) / (rowHeight + gap));
         items[i].style.gridRowEnd = `span ${spans}`;
     }
