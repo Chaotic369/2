@@ -591,7 +591,11 @@ window.cycleModalColor = function() {
     // Dynamically update the modal's background element immediately for live tracking
     const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
     if (modalWrapper) {
-        modalWrapper.style.backgroundColor = (nextColor === 'var(--note-base)') ? 'var(--bg-surface)' : nextColor;
+        if (nextColor === 'var(--note-base)') {
+            modalWrapper.style.background = 'var(--bg-surface)';
+        } else {
+            modalWrapper.style.background = `linear-gradient(${nextColor}, ${nextColor}), var(--bg-surface)`;
+        }
     }
     toast('Color selected', 'info', 800);
 };
