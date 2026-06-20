@@ -91,7 +91,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
   position: fixed; top: 16px; right: 20px; z-index: 10000; display: flex; gap: 10px;
 }
 .action-mini-btn {
-  width: 36px; height: 36px; border-radius: 10px; background: var(--bg-surface); color: var(--text-main);
+  width: 36px; height: 36px; border-radius: 50%; background: var(--bg-surface); color: var(--text-main);
   display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.2s, color 0.2s; border: none !important;
 }
@@ -99,7 +99,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 
 /* FLOATING SQUIRCLE UPLOAD BUTTON (BOTTOM RIGHT) */
 #uploadSquircleBtn {
-  position: fixed; bottom: 44px; right: 20px; z-index: 10000; width: 56px; height: 56px; border-radius: 20px;
+  position: fixed; bottom: 44px; right: 20px; z-index: 10000; width: 56px; height: 56px; border-radius: 50%;
   background: var(--text-main); color: var(--bg-base); border: none !important;
   display: flex; align-items: center; justify-content: center; font-size: 22px;
   cursor: pointer; transition: transform 0.2s; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
@@ -108,7 +108,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 #uploadSquircleBtn:active { transform: scale(0.92); }
 
 button.btn {
-  background: var(--bg-base); border: none !important; color: var(--text-main); border-radius: 8px; cursor: pointer;
+  background: var(--bg-base); border: none !important; color: var(--text-main); border-radius: 24px; cursor: pointer;
   display: flex; align-items: center; justify-content: center; transition: filter 0.2s, transform 0.1s;
 }
 button.btn:hover { filter: brightness(0.9); }
@@ -122,7 +122,7 @@ button.btn:active { transform: scale(0.96); }
 
 .file-card {
   background: var(--bg-surface); border: none !important;
-  border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 16px;
+  border-radius: 24px; padding: 12px 16px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 16px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
@@ -141,7 +141,7 @@ button.btn:active { transform: scale(0.96); }
 
 .note-card {
   width: 100%; min-width: 0; border: none !important;
-  display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 16px;
+  display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 24px;
   cursor: grab; transition: transform 0.2s, box-shadow 0.2s;
   color: var(--text-main); font-size: 13px; line-height: 1.5; position: relative;
   backdrop-filter: blur(35px); -webkit-backdrop-filter: blur(35px);
@@ -180,7 +180,7 @@ button.btn:active { transform: scale(0.96); }
 .note-card-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
 
 /* Dynamic Note Gallery Engine */
-.note-gallery { display: grid; gap: 4px; border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+.note-gallery { display: grid; gap: 4px; border-radius: 16px; overflow: hidden; margin-bottom: 8px; }
 .note-gallery.count-1 { grid-template-columns: 1fr; }
 .note-gallery.count-2 { grid-template-columns: 1fr 1fr; }
 .note-gallery.count-3 { grid-template-columns: 1fr 1fr; }
@@ -190,24 +190,24 @@ button.btn:active { transform: scale(0.96); }
 .note-gallery-item:hover img { transform: scale(1.05); }
 
 .folder-card {
-  background: var(--bg-surface); padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px;
+  background: var(--bg-surface); padding: 12px 16px; border-radius: 24px; display: flex; align-items: center; gap: 12px;
   cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   font-weight: 600; font-size: 13px; border: none !important;
 }
 .folder-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
 
-.quick-input-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-surface); border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); border: none !important; }
+.quick-input-bar { display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: var(--bg-surface); border-radius: 32px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); border: none !important; }
 
 /* UTILS & MODALS */
 .file-row-input {
   width: 100%; background: var(--bg-base); border: none !important; color: var(--text-main);
-  padding: 10px 14px; border-radius: 12px; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  padding: 10px 16px; border-radius: 24px; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 13px;
 }
 .file-row-input:focus { filter: brightness(0.95); }
 html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 
 #toast {
-  position: fixed; top: 80px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 20px; font-size: 13px; font-weight: 500;
+  position: fixed; top: 80px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 32px; font-size: 13px; font-weight: 500;
   background: var(--bg-surface); color: var(--text-main); border: none !important;
   z-index: 50000; display: none; max-width: 90vw; text-align: center; white-space: pre-line;
   box-shadow: 0 8px 32px rgba(0,0,0,0.2);
@@ -218,7 +218,7 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 @keyframes slideUp{from{opacity:0;transform:translate(-50%, 10px) translateZ(0)}to{opacity:1;transform:translate(-50%, 0) translateZ(0)}}
 
 .modal-base {
-  position: fixed; z-index: 40000; background: var(--bg-surface); border-radius: 16px;
+  position: fixed; z-index: 40000; background: var(--bg-surface); border-radius: 32px;
   padding: 24px; color: var(--text-main); font-size: 13px; border: none !important;
   top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90vw; max-width: 400px; display: none; flex-direction: column; gap: 12px;
   box-shadow: 0 16px 48px rgba(0,0,0,0.3);
@@ -317,7 +317,7 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 </div>
 
 <div id="fullNoteModal" style="display:none; position:fixed; z-index:40000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.9);">
-  <div style="background:var(--bg-surface); width:90vw; max-width:600px; border-radius:24px; padding:24px; box-shadow:0 24px 64px rgba(0,0,0,0.4); display:flex; flex-direction:column; gap:16px; border:none !important;">
+  <div style="background:var(--bg-surface); width:90vw; max-width:600px; border-radius:32px; padding:24px; box-shadow:0 24px 64px rgba(0,0,0,0.4); display:flex; flex-direction:column; gap:16px; border:none !important;">
     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
            <input type="text" id="nm-title" style="flex:1; background:transparent; border:none; font-size:22px; font-weight:700; color:var(--text-main); outline:none; margin-right:12px;" placeholder="Note Title...">
            <div style="display:flex; gap:8px;">
@@ -345,10 +345,10 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 </div>
 
 <div id="mediaPreviewModal" style="display:none; position:fixed; z-index:60000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px);" onclick="this.style.display='none'; window.stopMedia && window.stopMedia();">
-  <img id="imagePreviewSrc" style="display:none; max-width:90vw; max-height:90vh; object-fit:contain; border-radius:8px; box-shadow:0 24px 64px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
-  <iframe id="pdfPreviewSrc" style="display:none; width:90vw; height:90vh; border:none; border-radius:8px; box-shadow:0 24px 64px rgba(0,0,0,0.5); background:#ffffff;" onclick="event.stopPropagation()"></iframe>
-  <audio id="audioPreviewSrc" controls style="display:none; width:90vw; max-width:400px; box-shadow:0 24px 64px rgba(0,0,0,0.5); border-radius:30px;" onclick="event.stopPropagation()"></audio>
-  <video id="videoPreviewSrc" controls style="display:none; max-width:90vw; max-height:90vh; border-radius:8px; box-shadow:0 24px 64px rgba(0,0,0,0.5);" onclick="event.stopPropagation()"></video>
+  <img id="imagePreviewSrc" style="display:none; max-width:90vw; max-height:90vh; object-fit:contain; border-radius:24px; box-shadow:0 24px 64px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
+  <iframe id="pdfPreviewSrc" style="display:none; width:90vw; height:90vh; border:none; border-radius:24px; box-shadow:0 24px 64px rgba(0,0,0,0.5); background:#ffffff;" onclick="event.stopPropagation()"></iframe>
+  <audio id="audioPreviewSrc" controls style="display:none; width:90vw; max-width:400px; box-shadow:0 24px 64px rgba(0,0,0,0.5); border-radius:32px;" onclick="event.stopPropagation()"></audio>
+  <video id="videoPreviewSrc" controls style="display:none; max-width:90vw; max-height:90vh; border-radius:24px; box-shadow:0 24px 64px rgba(0,0,0,0.5);" onclick="event.stopPropagation()"></video>
   <button style="position:absolute; top:24px; right:24px; background:var(--bg-surface); color:var(--text-main); border:none; width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.3);" onclick="document.getElementById('mediaPreviewModal').style.display='none'; window.stopMedia && window.stopMedia(); event.stopPropagation();"><i class="fa-solid fa-xmark"></i></button>
 </div>
 
@@ -639,9 +639,9 @@ window.openNoteModal = function(id) {
     let imgs = n.images || (n.imageUrl ? [n.imageUrl] : []);
     if(imgs.length > 0) {
         imgs.forEach((src, idx) => {
-            let w = document.createElement('div');
-            w.style.cssText = "position:relative; width:80px; height:80px; border-radius:8px; overflow:hidden; background:var(--bg-base); border: 1px solid rgba(139, 137, 132, 0.1);";
-            w.innerHTML = `
+                    let w = document.createElement('div');
+                    w.style.cssText = "position:relative; width:80px; height:80px; border-radius:16px; overflow:hidden; background:var(--bg-base); border: 1px solid rgba(139, 137, 132, 0.1);";
+                    w.innerHTML = `
                <img src="${src}" style="width:100%;height:100%;object-fit:cover;cursor:pointer;" onclick="window.previewImage(event, '${src}')" title="Preview">
                <button onclick="window.removeModalImage(event, ${idx})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.3);"><i class="fa-solid fa-xmark"></i></button>
             `;
@@ -957,32 +957,32 @@ window.loadFiles = async function() {
 
                 let previewHtml = '';
                 if (isImage) {
-                    previewHtml = `<div style="width:42px; height:42px; border-radius:10px; overflow:hidden; flex-shrink:0; background:var(--bg-base); cursor:pointer;" onclick="window.previewImage(event, '${fileUrl}')"><img src="${fileUrl}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" loading="lazy"></div>`;
-                } else {
-                    let docColor = 'var(--blue)'; 
-                    if(['pdf','mp4','webm','mov'].includes(ext)) docColor = 'var(--red)';
-                    else if(['zip','rar','tar','gz','ppt','pptx'].includes(ext)) docColor = 'var(--amber)';
-                    else if(['mp3','wav','ogg','m4a'].includes(ext)) docColor = 'var(--green)';
-            previewHtml = `<div style="width:42px; height:42px; border-radius:10px; background:var(--bg-base); display:flex; align-items:center; justify-content:center; color:${docColor}; font-size:18px; flex-shrink:0; cursor:pointer;" onclick="window.previewUniversal(event, '${fileUrl}', '${ext}')"><i class="fa-solid ${icon}" style="transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></i></div>`;
-        }
+                                    previewHtml = `<div style="width:42px; height:42px; border-radius:14px; overflow:hidden; flex-shrink:0; background:var(--bg-base); cursor:pointer;" onclick="window.previewImage(event, '${fileUrl}')"><img src="${fileUrl}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" loading="lazy"></div>`;
+                                } else {
+                                    let docColor = 'var(--blue)'; 
+                                    if(['pdf','mp4','webm','mov'].includes(ext)) docColor = 'var(--red)';
+                                    else if(['zip','rar','tar','gz','ppt','pptx'].includes(ext)) docColor = 'var(--amber)';
+                                    else if(['mp3','wav','ogg','m4a'].includes(ext)) docColor = 'var(--green)';
+                            previewHtml = `<div style="width:42px; height:42px; border-radius:14px; background:var(--bg-base); display:flex; align-items:center; justify-content:center; color:${docColor}; font-size:18px; flex-shrink:0; cursor:pointer;" onclick="window.previewUniversal(event, '${fileUrl}', '${ext}')"><i class="fa-solid ${icon}" style="transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></i></div>`;
+                        }
 
-        const card = document.createElement('div');
-                card.className = 'file-card';
-                card.innerHTML = `
-                    <div style="display:flex; gap:12px; align-items:center; flex:1; overflow:hidden;">
-                        ${previewHtml}
-                        <div style="overflow:hidden; display:flex; flex-direction:column;">
-                            <div style="font-weight:600; font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${cleanName}">${cleanName}</div>
-                            <div style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">${formatBytes(file.metadata?.size || 0)}</div>
-                        </div>
-                    </div>
-                    <div class="card-actions" style="display:flex; gap:8px; flex-shrink:0;">
-                        <button class="btn" style="width:32px; border-radius:8px; font-size:12px; height:32px; color:var(--text-main);" onclick="window.copyLink('${fileUrl}')"><i class="fa-solid fa-link"></i></button>
-                        <button class="btn" style="width:32px; border-radius:8px; font-size:12px; height:32px; color:var(--blue);" onclick="window.triggerDownload('${fileUrl}', '${cleanName}')"><i class="fa-solid fa-download"></i></button>
-                        <button class="btn" style="width:32px; border-radius:8px; font-size:12px; height:32px; color:var(--teal);" onclick="window.openRenameModal('${file.name}')"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button class="btn" style="width:32px; border-radius:8px; font-size:12px; height:32px; color:var(--red);" onclick="window.deleteFile('${file.name}')"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                `;
+                        const card = document.createElement('div');
+                                card.className = 'file-card';
+                                card.innerHTML = `
+                                    <div style="display:flex; gap:12px; align-items:center; flex:1; overflow:hidden;">
+                                        ${previewHtml}
+                                        <div style="overflow:hidden; display:flex; flex-direction:column;">
+                                            <div style="font-weight:600; font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${cleanName}">${cleanName}</div>
+                                            <div style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">${formatBytes(file.metadata?.size || 0)}</div>
+                                        </div>
+                                    </div>
+                                    <div class="card-actions" style="display:flex; gap:8px; flex-shrink:0;">
+                                        <button class="btn" style="width:32px; border-radius:50%; font-size:12px; height:32px; color:var(--text-main);" onclick="window.copyLink('${fileUrl}')"><i class="fa-solid fa-link"></i></button>
+                                        <button class="btn" style="width:32px; border-radius:50%; font-size:12px; height:32px; color:var(--blue);" onclick="window.triggerDownload('${fileUrl}', '${cleanName}')"><i class="fa-solid fa-download"></i></button>
+                                        <button class="btn" style="width:32px; border-radius:50%; font-size:12px; height:32px; color:var(--teal);" onclick="window.openRenameModal('${file.name}')"><i class="fa-solid fa-pen-to-square"></i></button>
+                                        <button class="btn" style="width:32px; border-radius:50%; font-size:12px; height:32px; color:var(--red);" onclick="window.deleteFile('${file.name}')"><i class="fa-solid fa-trash-can"></i></button>
+                                    </div>
+                                `;
                 container.appendChild(card);
     });
 };
