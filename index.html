@@ -49,20 +49,30 @@ html.light-theme {
 * { margin: 0; padding: 0; box-sizing: border-box; outline: none !important; border: none; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-base); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--text-main); transition: background 0.3s, color 0.3s; }
 
-::-webkit-scrollbar { width: 4px; height: 4px; }
+/* Massive slider size for flawless tablet touch */
+::-webkit-scrollbar { width: 18px; height: 18px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; opacity: 0.3; }
+::-webkit-scrollbar-thumb { 
+  background: var(--text-muted); 
+  border-radius: 18px; 
+  border: 4px solid var(--bg-surface); /* Adds negative space so the hit-box is huge but the visual bar isn't ugly */
+}
 
-/* WORKSPACE LAYOUT (MULTIGRID / SPLIT VIEW) */
+/* Huge, unmistakable expanding button (textarea resize handle) */
+::-webkit-resizer { 
+  background: var(--amber); 
+  border-top-left-radius: 8px; 
+  border-bottom-right-radius: 16px;
+  box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2); 
+}
+
+/* WORKSPACE LAYOUT */
 #mainWorkspace {
   position: fixed; top: 0; bottom: 0; left: 0; right: 0;
   background: var(--bg-base); color: var(--text-main);
   padding: 70px 24px 90px 24px; overflow-y: auto; z-index: 1;
   display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; align-content: start;
   transition: background 0.3s;
-}
-#mainWorkspace.list-view {
-  display: flex; flex-direction: column; padding-bottom: 100px; gap: 40px;
 }
 
 .workspace-panel { display: flex; flex-direction: column; gap: 16px; }
@@ -75,7 +85,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 .action-mini-btn {
   width: 36px; height: 36px; border-radius: 10px; background: var(--bg-surface); color: var(--text-main);
   display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.2s; border: none !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.2s, color 0.2s; border: none !important;
 }
 .action-mini-btn:active { transform: scale(0.9); }
 
@@ -101,9 +111,6 @@ button.btn:active { transform: scale(0.96); }
 #filesGridContainer {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; align-content: start;
 }
-#mainWorkspace.list-view #filesGridContainer {
-  display: flex; flex-direction: column;
-}
 
 .file-card {
   background: var(--bg-surface); border: none !important;
@@ -112,25 +119,16 @@ button.btn:active { transform: scale(0.96); }
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 .file-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
-.list-view .file-card { flex-direction: row; align-items: center; padding: 12px 16px; justify-content: space-between; }
-.list-view .file-card > div:first-child { flex: 1; min-width: 0; }
-.list-view .file-card .card-actions { flex-shrink: 0; display: flex; gap: 8px; width: auto !important; }
-.list-view .file-card .card-actions button { width: 36px; height: 36px; }
 
-/* ═══════════════════════════════════════════════════════════════════════════ */
-/* DYNAMIC MASONRY GRID SYSTEM */
-/* ═══════════════════════════════════════════════════════════════════════════ */
+/* MASONRY GRID SYSTEM */
 #notes-container {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); /* Default PC: 6 Columns */
-  grid-auto-rows: 12px; /* High-fidelity Masonry steps */
-  grid-auto-flow: dense; /* Tightly pack elements */
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: 12px;
+  grid-auto-flow: dense;
   gap: 16px;
   width: 100%;
   align-items: start;
-}
-#mainWorkspace.list-view #notes-container {
-  display: flex; flex-direction: column; gap: 12px;
 }
 
 .note-card {
@@ -140,38 +138,48 @@ button.btn:active { transform: scale(0.96); }
   color: var(--text-main); font-size: 13px; line-height: 1.5; position: relative;
   backdrop-filter: blur(35px); -webkit-backdrop-filter: blur(35px);
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  -webkit-touch-callout: none; /* Blocks the mobile long-press popup */
-  user-select: none; /* Prevents text selection hijacking */
+  -webkit-touch-callout: none;
+  user-select: none;
   -webkit-user-select: none;
-  touch-action: pan-y; /* Fixes mobile scroll vs drag conflicts */
+  touch-action: pan-y;
 }
 .note-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
 .note-card:active { cursor: grabbing; }
 
 /* PC Grid Logic (6 Columns) */
-.note-card.span-tiny { grid-column: span 2; }  /* 3 per row */
-.note-card.span-small { grid-column: span 2; } /* 3 per row */
-.note-card.span-half { grid-column: span 3; }  /* 2 per row (50%) */
+.note-card.span-tiny { grid-column: span 2; }
+.note-card.span-small { grid-column: span 2; }
+.note-card.span-half { grid-column: span 3; }
 
 /* Tablet & Mobile Layout Engine (Strict 4-Column base) */
 @media (max-width: 1200px) { 
   #notes-container { grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .note-card.span-tiny { grid-column: span 1; }  /* 25% width */
-  .note-card.span-small { grid-column: span 2; } /* 50% width */
-  .note-card.span-half { grid-column: span 2; }  /* 50% width locked */
+  .note-card.span-tiny { grid-column: span 1; }  
+  .note-card.span-small { grid-column: span 2; } 
+  .note-card.span-half { grid-column: span 2; }  
 }
 
-/* Fallback for extremely small phones (e.g., iPhone SE) */
+/* Fallback for extremely small phones */
 @media (max-width: 380px) { 
   #notes-container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .note-card.span-tiny { grid-column: span 1; }  /* 50% width */
-  .note-card.span-small { grid-column: span 2; } /* 100% width */
-  .note-card.span-half { grid-column: span 2; }  /* 100% width */
+  .note-card.span-tiny { grid-column: span 1; }  
+  .note-card.span-small { grid-column: span 2; } 
+  .note-card.span-half { grid-column: span 2; }  
 }
 
 .sortable-ghost { opacity: 0.4; transform: scale(0.98); }
 .sortable-drag { cursor: grabbing !important; }
 .note-card-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+
+/* Dynamic Note Gallery Engine */
+.note-gallery { display: grid; gap: 4px; border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+.note-gallery.count-1 { grid-template-columns: 1fr; }
+.note-gallery.count-2 { grid-template-columns: 1fr 1fr; }
+.note-gallery.count-3 { grid-template-columns: 1fr 1fr; }
+.note-gallery.count-many { grid-template-columns: 1fr 1fr; }
+.note-gallery-item { position: relative; overflow: hidden; cursor: pointer; background: var(--bg-base); }
+.note-gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.2s; }
+.note-gallery-item:hover img { transform: scale(1.05); }
 
 .folder-card {
   background: var(--bg-surface); padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px;
@@ -245,16 +253,16 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   <div class="workspace-panel">
     <div class="panel-header">
        <div style="display:flex; align-items:center; gap:8px;">
-         <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none;" onclick="window.viewRootFolder()"><i class="fa-solid fa-arrow-left"></i></button>
-                  <span id="notes-view-title" style="display:flex; align-items:center;" title="Quick Notes"><i class="fa-solid fa-note-sticky" style="font-size:20px; color:var(--amber);"></i></span>
-                  <input id="notes-folder-edit" type="text" class="file-row-input" style="display:none; width:160px; padding:6px 10px; margin-left:8px;" onchange="window.renameCurrentFolder(this.value)">
+         <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.viewRootFolder()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)';" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)';" ondrop="event.preventDefault(); this.style.transform='scale(1)'; this.style.color='var(--text-main)'; window.moveNoteToRoot(event.dataTransfer.getData('text/plain'))" title="Drop note here to move to root"><i class="fa-solid fa-arrow-left"></i></button>
+         <span id="notes-view-title" style="display:flex; align-items:center;" title="Quick Notes"><i class="fa-solid fa-note-sticky" style="font-size:20px; color:var(--amber);"></i></span>
+         <input id="notes-folder-edit" type="text" class="file-row-input" style="display:none; width:160px; padding:6px 10px; margin-left:8px;" onchange="window.renameCurrentFolder(this.value)">
        </div>
        <button class="action-mini-btn" style="color:var(--amber); width:28px; height:28px; box-shadow:none;" onclick="window.createNewFolder()" title="New Folder"><i class="fa-solid fa-folder-plus"></i></button>
     </div>
     <div class="quick-input-bar">
           <i class="fa-solid fa-bolt" style="color:var(--amber); font-size:16px;"></i>
-                    <input id="quick-note-input" type="text" style="flex:1; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:14px; outline:none;" placeholder="Write me !" autocomplete="off" onkeydown="if(event.key==='Enter')window.quickAddNote()">
-                    <input type="file" id="noteAttachInput" style="display:none;" accept="image/*" onchange="window.attachImageToNote(event)">
+          <input id="quick-note-input" type="text" style="flex:1; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:14px; outline:none;" placeholder="Write me !" autocomplete="off" onkeydown="if(event.key==='Enter')window.quickAddNote()">
+          <input type="file" id="noteAttachInput" style="display:none;" accept="image/*" onchange="window.attachImageToNote(event)">
           <button class="action-mini-btn" style="background:transparent; box-shadow:none; color:var(--text-muted);" onclick="document.getElementById('noteAttachInput').click()" title="Attach Image"><i class="fa-solid fa-image"></i></button>
         </div>
     
@@ -264,10 +272,24 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   </div>
 
   <div class="workspace-panel" style="margin-top: 32px;">
-      <div class="panel-header" style="border-bottom: 1px solid rgba(139, 137, 132, 0.1);">
-         <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
-      </div>
+    <div class="panel-header" style="border-bottom: 1px solid rgba(139, 137, 132, 0.1); margin-bottom: 12px;">
+       <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
+    </div>
     
+    <div id="storageMonitorContainer" style="background: var(--bg-surface); padding: 14px 16px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 4px;">
+      <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 2px;">
+        <span>Supabase Storage Capacity</span>
+        <span id="sm-percentage" style="color: var(--amber); font-weight: 700;">0.00%</span>
+      </div>
+      <div style="width: 100%; height: 6px; background: var(--bg-base); border-radius: 3px; overflow: hidden;">
+        <div id="sm-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--amber), var(--teal)); transition: width 0.4s ease;"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px; font-family: 'JetBrains Mono', monospace;">
+        <span id="sm-used">0.00 MB used</span>
+        <span>1,024 MB Limit</span>
+      </div>
+    </div>
+
     <div id="emptyState" style="position:relative; inset:auto; padding:60px 0; background:transparent; display:flex; flex-direction:column; align-items:center;">
       <i class="fa-solid fa-cloud-open" style="font-size:36px; opacity:0.3; margin-bottom: 8px;"></i>
       <div>NO DOCUMENTS DETECTED</div>
@@ -302,10 +324,10 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
              <button class="action-mini-btn" onclick="window.copyModalNote()" title="Copy Text"><i class="fa-regular fa-copy"></i></button>
            </div>
         </div>
-        <div id="nm-image-container" style="display:none; width:100%; border-radius:12px; overflow:hidden; margin-bottom:12px; max-height:300px; background:#000; cursor:pointer;" onclick="window.previewImage(event, document.getElementById('nm-image').src)" title="Click to enlarge"><img id="nm-image" style="width:100%; height:100%; object-fit:contain; display:block; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'"></div>
+        <div id="nm-gallery" style="display:none; flex-wrap:wrap; gap:8px; margin-bottom:12px;"></div>
         <textarea id="nm-text" style="width:100%; min-height:250px; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:15px; line-height:1.6; resize:vertical; outline:none;" placeholder="Start typing..."></textarea>
-                <div id="nm-timestamp" style="font-size:11px; color:var(--text-muted); opacity:0.7; text-align:right; font-family:'JetBrains Mono', monospace; margin-top:4px;"></div>
-            <input type="hidden" id="nm-id"><input type="hidden" id="nm-color"><input type="hidden" id="nm-pinned">
+        <div id="nm-timestamp" style="font-size:11px; color:var(--text-muted); opacity:0.7; text-align:right; font-family:'JetBrains Mono', monospace; margin-top:4px;"></div>
+    <input type="hidden" id="nm-id"><input type="hidden" id="nm-color"><input type="hidden" id="nm-pinned">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:16px; border-top:1px solid rgba(139, 137, 132, 0.1);">
        <div style="display:flex; gap:12px;">
                  <button class="action-mini-btn" onclick="window.cycleModalColor()" title="Change Color"><i class="fa-solid fa-palette"></i></button>
@@ -321,9 +343,12 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   </div>
 </div>
 
-<div id="imagePreviewModal" style="display:none; position:fixed; z-index:60000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px);" onclick="this.style.display='none'">
-  <img id="imagePreviewSrc" style="max-width:90vw; max-height:90vh; object-fit:contain; border-radius:8px; box-shadow:0 24px 64px rgba(0,0,0,0.5);">
-  <button style="position:absolute; top:24px; right:24px; background:var(--bg-surface); color:var(--text-main); border:none; width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.3);"><i class="fa-solid fa-xmark"></i></button>
+<div id="mediaPreviewModal" style="display:none; position:fixed; z-index:60000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px);" onclick="this.style.display='none'; window.stopMedia && window.stopMedia();">
+  <img id="imagePreviewSrc" style="display:none; max-width:90vw; max-height:90vh; object-fit:contain; border-radius:8px; box-shadow:0 24px 64px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
+  <iframe id="pdfPreviewSrc" style="display:none; width:90vw; height:90vh; border:none; border-radius:8px; box-shadow:0 24px 64px rgba(0,0,0,0.5); background:#ffffff;" onclick="event.stopPropagation()"></iframe>
+  <audio id="audioPreviewSrc" controls style="display:none; width:90vw; max-width:400px; box-shadow:0 24px 64px rgba(0,0,0,0.5); border-radius:30px;" onclick="event.stopPropagation()"></audio>
+  <video id="videoPreviewSrc" controls style="display:none; max-width:90vw; max-height:90vh; border-radius:8px; box-shadow:0 24px 64px rgba(0,0,0,0.5);" onclick="event.stopPropagation()"></video>
+  <button style="position:absolute; top:24px; right:24px; background:var(--bg-surface); color:var(--text-main); border:none; width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.3);" onclick="document.getElementById('mediaPreviewModal').style.display='none'; window.stopMedia && window.stopMedia(); event.stopPropagation();"><i class="fa-solid fa-xmark"></i></button>
 </div>
 
 <div id="statusBar">
@@ -338,7 +363,6 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// --- CONFIGURATION ---
 const SUPABASE_URL = 'https://fxnrugbvbfyamtrfmjea.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_FnWYWD7C9Tvc1YNtVYQ1dA_aPwVsCmE';
 const BUCKET_NAME = 'docs';
@@ -346,7 +370,6 @@ const USER_DOC_ID = 'global_user_1';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// --- GLOBAL STATE ---
 var $progress = document.getElementById('progressBar');
 var $toast = document.getElementById('toast');
 let S = { notes: [], folders: [] };
@@ -361,7 +384,6 @@ const noteColors = [
   'var(--note-purple)'
 ];
 
-// Seamless migration tool for existing notes
 window.getUpgradedColor = function(c) {
     if (!c) return 'var(--note-base)';
     if (c.includes('var(--note-')) return c; 
@@ -373,7 +395,6 @@ window.getUpgradedColor = function(c) {
     return 'var(--note-base)';
 };
 
-// --- UTILS ---
 function showProgress(pct) {
   $progress.style.width = pct + '%';
   $progress.classList.add('active');
@@ -403,13 +424,59 @@ function formatBytes(bytes, decimals = 2) {
 
 window.previewImage = function(event, url) {
     if (event) event.stopPropagation();
+    window.stopMedia();
+    document.getElementById('pdfPreviewSrc').style.display = 'none';
+    document.getElementById('audioPreviewSrc').style.display = 'none';
+    document.getElementById('videoPreviewSrc').style.display = 'none';
+    document.getElementById('imagePreviewSrc').style.display = 'block';
     document.getElementById('imagePreviewSrc').src = url;
-    document.getElementById('imagePreviewModal').style.display = 'flex';
+    document.getElementById('mediaPreviewModal').style.display = 'flex';
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// QUICK NOTES ENGINE
-// ═══════════════════════════════════════════════════════════════════════════
+window.stopMedia = function() {
+    const a = document.getElementById('audioPreviewSrc'); if(a) { a.pause(); a.src=''; }
+    const v = document.getElementById('videoPreviewSrc'); if(v) { v.pause(); v.src=''; }
+    document.getElementById('pdfPreviewSrc').src='';
+};
+
+window.previewUniversal = function(event, url, ext) {
+    if (event) event.stopPropagation();
+    
+    const imgExt = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'];
+    if (imgExt.includes(ext.toLowerCase())) {
+        window.previewImage(event, url);
+        return;
+    }
+
+    window.stopMedia();
+    document.getElementById('imagePreviewSrc').style.display = 'none';
+    document.getElementById('pdfPreviewSrc').style.display = 'none';
+    document.getElementById('audioPreviewSrc').style.display = 'none';
+    document.getElementById('videoPreviewSrc').style.display = 'none';
+    
+    const gDocs = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'rtf'];
+    const audioExt = ['mp3', 'wav', 'ogg', 'm4a'];
+    const videoExt = ['mp4', 'webm', 'mov'];
+
+    if (audioExt.includes(ext)) {
+        const a = document.getElementById('audioPreviewSrc');
+        a.style.display = 'block'; a.src = url; a.play();
+    } else if (videoExt.includes(ext)) {
+        const v = document.getElementById('videoPreviewSrc');
+        v.style.display = 'block'; v.src = url; v.play();
+    } else if (gDocs.includes(ext)) {
+        const i = document.getElementById('pdfPreviewSrc');
+        i.style.display = 'block';
+        i.src = 'https://docs.google.com/gview?embedded=true&url=' + encodeURIComponent(url);
+    } else {
+        const i = document.getElementById('pdfPreviewSrc');
+        i.style.display = 'block';
+        i.src = url;
+    }
+    
+    document.getElementById('mediaPreviewModal').style.display = 'flex';
+};
+
 window.saveNotesData = async function() {
     const { error } = await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { notes: S.notes, folders: S.folders } });
     if (error) { console.error("Cloud save error:", error); toast("Failed to sync note data", "err"); }
@@ -422,7 +489,7 @@ window.loadNotesData = async function() {
     window.renderNotes();
 };
 
-window.quickAddNote = function() {
+window.quickAddNote = async function() {
     const input = document.getElementById('quick-note-input');
     const text = input.value.trim();
     if (!text) return;
@@ -431,11 +498,12 @@ window.quickAddNote = function() {
         id: 'n_' + Date.now(),
         text: text, title: '', color: noteColors[0],
         pinned: false, folderId: window.currentFolderView,
+        images: [],
         createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
     };
     S.notes.push(newNote);
     input.value = '';
-    window.saveNotesData(); window.renderNotes();
+    await window.saveNotesData(); window.renderNotes();
     toast('Note captured!', 'ok');
 };
 
@@ -458,12 +526,13 @@ window.attachImageToNote = async function(event) {
             id: 'n_' + Date.now(),
             text: text, title: '', color: noteColors[0],
             pinned: false, folderId: window.currentFolderView,
-            imageUrl: urlData.publicUrl,
+            images: [urlData.publicUrl],
             createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
         };
         S.notes.push(newNote);
         input.value = '';
-        window.saveNotesData(); window.renderNotes();
+        await window.saveNotesData(); window.renderNotes();
+        window.loadFiles(); 
         hideProgress(); toast('Note with image created!', 'ok');
     } catch (err) {
         hideProgress();
@@ -503,13 +572,29 @@ window.renameCurrentFolder = function(val) {
     }
 };
 
-window.deleteFolder = function(id, event) {
+window.deleteFolder = async function(id, event) {
     if(event) event.stopPropagation();
     if(!confirm('Delete folder and all notes inside?')) return;
+    
+    let notesInFolder = S.notes.filter(n => n.folderId === id);
+    for (let n of notesInFolder) {
+        let imgs = n.images || (n.imageUrl ? [n.imageUrl] : []);
+        for (let src of imgs) {
+            if (src && src.includes('/storage/v1/object/public/docs/')) {
+                let parts = src.split('/storage/v1/object/public/docs/');
+                if (parts.length > 1) {
+                    let storageName = decodeURIComponent(parts[1]);
+                    await supabaseClient.storage.from(BUCKET_NAME).remove([storageName]);
+                }
+            }
+        }
+    }
+
     S.folders = S.folders.filter(f => f.id !== id);
     S.notes = S.notes.filter(n => n.folderId !== id);
     if(window.currentFolderView === id) window.viewRootFolder(); else window.renderNotes();
-    window.saveNotesData();
+    await window.saveNotesData();
+    window.loadFiles(); 
 };
 
 window.openNoteModal = function(id) {
@@ -518,36 +603,70 @@ window.openNoteModal = function(id) {
     document.getElementById('nm-id').value = n.id;
     document.getElementById('nm-title').value = n.title || '';
     document.getElementById('nm-text').value = n.text || '';
+    
     let upgradedColor = window.getUpgradedColor(n.color);
-        document.getElementById('nm-color').value = upgradedColor;
-        document.getElementById('nm-pinned').value = n.pinned ? 'true' : 'false';
+    document.getElementById('nm-color').value = upgradedColor;
+    document.getElementById('nm-pinned').value = n.pinned ? 'true' : 'false';
     
-        let dt = new Date(n.updatedAt || Date.now());
-        document.getElementById('nm-timestamp').innerText = `Last saved: ${dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at ${dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
+    let dt = new Date(n.updatedAt || Date.now());
+    document.getElementById('nm-timestamp').innerText = `Last saved: ${dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at ${dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
     
-        const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
-            if (modalWrapper) {
-                // Blocks the dark background from bleeding through by stacking the solid surface color underneath
-                if (upgradedColor === 'var(--note-base)') {
-                    modalWrapper.style.background = 'var(--bg-surface)';
-                } else {
-                    modalWrapper.style.background = `linear-gradient(${upgradedColor}, ${upgradedColor}), var(--bg-surface)`;
-                }
-                modalWrapper.style.backdropFilter = 'blur(35px)';
-                modalWrapper.style.webkitBackdropFilter = 'blur(35px)';
-            }
+    const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
+    if (modalWrapper) {
+        if (upgradedColor === 'var(--note-base)') {
+            modalWrapper.style.background = 'var(--bg-surface)';
+        } else {
+            modalWrapper.style.background = `linear-gradient(${upgradedColor}, ${upgradedColor}), var(--bg-surface)`;
+        }
+        modalWrapper.style.backdropFilter = 'blur(35px)';
+        modalWrapper.style.webkitBackdropFilter = 'blur(35px)';
+    }
 
-            const imgContainer = document.getElementById('nm-image-container');
-    if(n.imageUrl) {
-        document.getElementById('nm-image').src = n.imageUrl;
-        imgContainer.style.display = 'block';
+    const gal = document.getElementById('nm-gallery');
+    gal.innerHTML = '';
+    let imgs = n.images || (n.imageUrl ? [n.imageUrl] : []);
+    if(imgs.length > 0) {
+        imgs.forEach((src, idx) => {
+            let w = document.createElement('div');
+            w.style.cssText = "position:relative; width:80px; height:80px; border-radius:8px; overflow:hidden; background:var(--bg-base); border: 1px solid rgba(139, 137, 132, 0.1);";
+            w.innerHTML = `
+               <img src="${src}" style="width:100%;height:100%;object-fit:cover;cursor:pointer;" onclick="window.previewImage(event, '${src}')" title="Preview">
+               <button onclick="window.removeModalImage(event, ${idx})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.3);"><i class="fa-solid fa-xmark"></i></button>
+            `;
+            gal.appendChild(w);
+        });
+        gal.style.display = 'flex';
     } else {
-        imgContainer.style.display = 'none';
-        document.getElementById('nm-image').src = '';
+        gal.style.display = 'none';
     }
     
     document.getElementById('nm-pin-btn').style.color = n.pinned ? 'var(--amber)' : 'var(--text-main)';
     document.getElementById('fullNoteModal').style.display = 'flex';
+};
+
+window.removeModalImage = async function(event, idx) {
+    event.stopPropagation();
+    const id = document.getElementById('nm-id').value;
+    const n = S.notes.find(x => x.id === id);
+    if (n) {
+        let imgs = n.images || (n.imageUrl ? [n.imageUrl] : []);
+        let removedSrc = imgs[idx];
+        imgs.splice(idx, 1);
+        n.images = imgs;
+        if(imgs.length === 0) n.imageUrl = null; 
+        
+        await window.saveNotesData();
+        window.openNoteModal(id); 
+
+        if (removedSrc && removedSrc.includes('/storage/v1/object/public/docs/')) {
+            let parts = removedSrc.split('/storage/v1/object/public/docs/');
+            if (parts.length > 1) {
+                let storageName = decodeURIComponent(parts[1]);
+                await supabaseClient.storage.from(BUCKET_NAME).remove([storageName]);
+            }
+        }
+        window.loadFiles(); 
+    }
 };
 
 window.saveNoteModal = function() {
@@ -564,12 +683,26 @@ window.saveNoteModal = function() {
     document.getElementById('fullNoteModal').style.display = 'none';
 };
 
-window.deleteModalNote = function() {
+window.deleteModalNote = async function() {
     if(!confirm('Delete this note?')) return;
     const id = document.getElementById('nm-id').value;
+    const n = S.notes.find(x => x.id === id);
+    if (n) {
+        let imgs = n.images || (n.imageUrl ? [n.imageUrl] : []);
+        for (let src of imgs) {
+            if (src && src.includes('/storage/v1/object/public/docs/')) {
+                let parts = src.split('/storage/v1/object/public/docs/');
+                if (parts.length > 1) {
+                    let storageName = decodeURIComponent(parts[1]);
+                    await supabaseClient.storage.from(BUCKET_NAME).remove([storageName]);
+                }
+            }
+        }
+    }
     S.notes = S.notes.filter(n => n.id !== id);
-    window.saveNotesData(); window.renderNotes();
+    await window.saveNotesData(); window.renderNotes();
     document.getElementById('fullNoteModal').style.display = 'none';
+    window.loadFiles(); 
     toast('Note deleted', 'ok');
 };
 
@@ -588,7 +721,6 @@ window.cycleModalColor = function() {
     let nextColor = noteColors[nextIdx];
     document.getElementById('nm-color').value = nextColor;
     
-    // Dynamically update the modal's background element immediately for live tracking
     const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
     if (modalWrapper) {
         if (nextColor === 'var(--note-base)') {
@@ -615,17 +747,18 @@ window.triggerModalImageUpload = async function(event) {
         const id = document.getElementById('nm-id').value;
         const n = S.notes.find(x => x.id === id);
         if(n) {
-            n.imageUrl = urlData.publicUrl;
+            let imgs = n.images || (n.imageUrl ? [n.imageUrl] : []);
+            imgs.push(urlData.publicUrl);
+            n.images = imgs;
+            await window.saveNotesData();
         }
         
-        const imgContainer = document.getElementById('nm-image-container');
-        document.getElementById('nm-image').src = urlData.publicUrl;
-        imgContainer.style.display = 'block';
+        window.openNoteModal(id); 
+        window.loadFiles(); 
         
-        hideProgress(); toast('Image tied to note schema.', 'ok');
+        hideProgress(); toast('Image added to note array.', 'ok');
     } catch(err) {
-        hideProgress();
-        toast('Upload lifecycle exception', 'err');
+        hideProgress(); toast('Upload lifecycle exception', 'err');
     }
 };
 
@@ -642,6 +775,12 @@ window.dropNoteIntoFolder = function(noteId, folderId, event) {
     event.currentTarget.style.transform = 'scale(1)';
     var n = S.notes.find(x => x.id === noteId);
     if(n) { n.folderId = folderId; window.saveNotesData(); window.renderNotes(); toast('Note moved', 'ok'); }
+};
+
+window.moveNoteToRoot = function(noteId) {
+    if(!noteId || !noteId.startsWith('n_')) return;
+    var n = S.notes.find(x => x.id === noteId);
+    if(n) { n.folderId = null; window.saveNotesData(); window.renderNotes(); toast('Note moved to root', 'ok'); }
 };
 
 window.renderNotes = function() {
@@ -681,58 +820,59 @@ window.renderNotes = function() {
 
     visibleNotes.forEach(n => {
         const el = document.createElement('div');
-        
         let txtLen = n.text ? n.text.length : 0;
-        let spanClass = ' span-small'; // default 50% Mobile / 33% PC
+        let spanClass = ' span-small';
         
-        // Advanced sizing logic
-        if (n.imageUrl) {
-            spanClass = ' span-half'; // Strict 50%
-        } else if (txtLen > 300) {
-            spanClass = ' span-half'; // Strict 50%
-        } else if (txtLen < 60 && (!n.title || n.title.length < 20)) {
-            spanClass = ' span-tiny'; // Strict 25% (Mobile) / 33% (PC)
-        }
+        let imgs = n.images || (n.imageUrl ? [n.imageUrl] : []);
+        
+        if (imgs.length > 0 || txtLen > 300) spanClass = ' span-half';
+        else if (txtLen < 60 && (!n.title || n.title.length < 20)) spanClass = ' span-tiny';
         
         el.className = 'note-card' + spanClass;
-                el.style.background = window.getUpgradedColor(n.color);
+        el.style.background = window.getUpgradedColor(n.color);
         
-                el.setAttribute('data-id', n.id);
-                el.setAttribute('draggable', 'true');
-                el.ondragstart = (e) => { e.dataTransfer.setData('text/plain', n.id); el.style.opacity = '0.5'; };
-                el.ondragend = (e) => { el.style.opacity = '1'; };
-                el.onclick = () => window.openNoteModal(n.id);
-                el.oncontextmenu = (e) => { e.preventDefault(); return false; }; // Double-layer protection against popups
+        el.setAttribute('data-id', n.id);
+        el.setAttribute('draggable', 'true');
+        el.ondragstart = (e) => { e.dataTransfer.setData('text/plain', n.id); el.style.opacity = '0.5'; };
+        el.ondragend = (e) => { el.style.opacity = '1'; };
+        el.onclick = () => window.openNoteModal(n.id);
+        el.oncontextmenu = (e) => { e.preventDefault(); return false; };
 
-                let html = '';
+        let html = '';
         if (n.pinned) html += `<div style="position:absolute; top:12px; right:12px; color:var(--amber);"><i class="fa-solid fa-thumbtack"></i></div>`;
         if (n.title) html += `<div class="note-card-title">${String(n.title).replace(/</g,'&lt;')}</div>`;
         
-        // Inject image preview dynamically on the grid if available
-        if (n.imageUrl) html += `<div style="width:100%; border-radius:8px; overflow:hidden; margin-bottom:8px; cursor:pointer;" onclick="window.previewImage(event, '${n.imageUrl}')" title="Click to enlarge"><img src="${n.imageUrl}" onload="window.packMasonry()" style="width:100%; max-height:200px; object-fit:cover; display:block; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></div>`;
+        if (imgs.length > 0) {
+            let galClass = imgs.length > 4 ? 'count-many' : 'count-' + imgs.length;
+            html += `<div class="note-gallery ${galClass}">`;
+            imgs.forEach((src, i) => {
+                if (i >= 4) return; 
+                let extraStyle = (imgs.length === 3 && i === 0) ? 'grid-column: span 2; max-height: 160px;' : 'max-height: ' + (imgs.length === 1 ? '200px' : '100px') + ';';
+                let isOverlay = (imgs.length > 4 && i === 3);
+                html += `<div class="note-gallery-item" style="${extraStyle}" onclick="window.previewImage(event, '${src}')">
+                           <img src="${src}" onload="window.packMasonry()">
+                           ${isOverlay ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:24px;">+${imgs.length-3}</div>` : ''}
+                         </div>`;
+            });
+            html += `</div>`;
+        }
         
         if (n.text) {
-                    let maxLen = spanClass ? 800 : 200;
-                    let textPreview = n.text.length > maxLen ? n.text.substring(0, maxLen) + '...' : n.text;
-                    html += `<div style="white-space:pre-wrap; word-break:break-word;">${String(textPreview).replace(/</g,'<')}</div>`;
-                }
-                el.innerHTML = html;
-                nContainer.appendChild(el);
+            let maxLen = spanClass ? 800 : 200;
+            let textPreview = n.text.length > maxLen ? n.text.substring(0, maxLen) + '...' : n.text;
+            html += `<div style="white-space:pre-wrap; word-break:break-word;">${String(textPreview).replace(/</g,'&lt;')}</div>`;
+        }
+        el.innerHTML = html;
+        nContainer.appendChild(el);
     });
 
     if (typeof Sortable !== 'undefined') {
-            if (window.notesSortable) window.notesSortable.destroy();
-            window.notesSortable = new Sortable(nContainer, {
-                animation: 250,
-                delay: 200, // Slightly longer hold required to pick up the note
-                delayOnTouchOnly: true,
-                touchStartThreshold: 5, // Forgives slight finger movement without cancelling drag
-                ghostClass: 'sortable-ghost',
-                dragClass: 'sortable-drag',
-                setData: function (dataTransfer, dragEl) {
-                dataTransfer.setData('text/plain', dragEl.getAttribute('data-id'));
-            },
-            onEnd: function (evt) {
+        if (window.notesSortable) window.notesSortable.destroy();
+        window.notesSortable = new Sortable(nContainer, {
+            animation: 250, delay: 200, delayOnTouchOnly: true, touchStartThreshold: 5,
+            ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
+            setData: function (dataTransfer, dragEl) { dataTransfer.setData('text/plain', dragEl.getAttribute('data-id')); },
+            onEnd: function () {
                 let items = Array.from(nContainer.children);
                 let total = items.length;
                 items.forEach((item, index) => {
@@ -740,88 +880,84 @@ window.renderNotes = function() {
                     let note = S.notes.find(n => n.id === id);
                     if (note) note.order = total - index;
                 });
-                window.saveNotesData();
-                window.packMasonry();
+                window.saveNotesData(); window.packMasonry();
             }
         });
     }
-            
-    // Trigger masonry once dom paints
     setTimeout(() => window.packMasonry(), 50);
 };
 
-// Rock-solid masonry calculator
 window.packMasonry = function() {
     const container = document.getElementById('notes-container');
     if (!container) return;
-    
     const items = container.querySelectorAll('.note-card');
-    const rowHeight = 12; // Matches grid-auto-rows
-    // Dynamically grab CSS gap to prevent mobile math overlap bugs
+    const rowHeight = 12;
     const gap = parseFloat(window.getComputedStyle(container).gap) || 16; 
     
-    // Pass 1: reset all limits
+    for (let i = 0; i < items.length; i++) items[i].style.gridRowEnd = 'auto';
     for (let i = 0; i < items.length; i++) {
-        items[i].style.gridRowEnd = 'auto';
-    }
-    
-    // Pass 2: calculate absolute heights
-    for (let i = 0; i < items.length; i++) {
-        // getBoundingClientRect handles internal flex-wrapping math much better than scrollHeight
         const height = items[i].getBoundingClientRect().height; 
         const spans = Math.ceil((height + gap) / (rowHeight + gap));
         items[i].style.gridRowEnd = `span ${spans}`;
     }
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// CLOUD STORAGE FILE MANAGER
-// ═══════════════════════════════════════════════════════════════════════════
 window.loadFiles = async function() {
     const container = document.getElementById('filesGridContainer');
     const emptyState = document.getElementById('emptyState');
     container.innerHTML = '<div style="color:var(--text-muted); font-family:monospace; grid-column: 1/-1;">Synchronizing with cloud array...</div>';
     emptyState.style.display = 'none';
 
-    const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list();
-    
-        if (error) {
-            container.innerHTML = `<div style="color:var(--red); font-family:monospace; grid-column: 1/-1;">Storage Node Error: ${error.message} (Check SELECT Policy)</div>`;
-            return toast('Matrix sync failed', 'err');
-        }
-
-        // Filter out both the system placeholder AND any internal note attachments
-        const files = data.filter(f => f.name !== '.emptyFolderPlaceholder' && !f.name.startsWith('note_img_'));
-    
-        document.getElementById('sb-count').textContent = files.length + ' files';
-    let totalBytes = files.reduce((acc, f) => acc + (f.metadata?.size || 0), 0);
-    document.getElementById('sb-storage').textContent = (totalBytes / (1024 * 1024)).toFixed(2) + ' MB';
-
-    if (files.length === 0) {
-        container.innerHTML = '';
-        emptyState.style.display = 'flex';
-        return;
+    const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list('', { limit: 1000 });
+    if (error) {
+        container.innerHTML = `<div style="color:var(--red); font-family:monospace; grid-column: 1/-1;">Storage Node Error: ${error.message}</div>`;
+        return toast('Matrix sync failed', 'err');
     }
 
+    // 1. Calculate absolute physical capacity metrics across all storage assets
+    let totalBytes = data.reduce((acc, f) => acc + (f.metadata?.size || 0), 0);
+    let totalMB = totalBytes / (1024 * 1024);
+    let limitMB = 1024; // 1 GB free tier limitation
+    let pct = Math.min((totalMB / limitMB) * 100, 100);
+
+    document.getElementById('sm-percentage').textContent = pct.toFixed(2) + '%';
+    document.getElementById('sm-bar').style.width = pct + '%';
+    document.getElementById('sm-used').textContent = totalMB.toFixed(2) + ' MB used';
+    document.getElementById('sb-storage').textContent = totalMB.toFixed(2) + ' MB utilized';
+
+    // 2. Filter document assets from dedicated note gallery micro-images
+    const files = data.filter(f => f.name !== '.emptyFolderPlaceholder' && !f.name.startsWith('note_img_'));
+    document.getElementById('sb-count').textContent = files.length + ' files';
+
+    if (files.length === 0) { container.innerHTML = ''; emptyState.style.display = 'flex'; return; }
     container.innerHTML = '';
     
     files.sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).forEach(file => {
         const ext = file.name.split('.').pop().toLowerCase();
-        let icon = 'fa-file-code';
+        let icon = 'fa-file';
         if(['png','jpg','jpeg','gif','webp','svg'].includes(ext)) icon = 'fa-file-image';
-        if(['pdf'].includes(ext)) icon = 'fa-file-pdf';
-        if(['doc','docx'].includes(ext)) icon = 'fa-file-word';
-        if(['zip','rar','tar','gz'].includes(ext)) icon = 'fa-file-zipper';
+        else if(['pdf'].includes(ext)) icon = 'fa-file-pdf';
+        else if(['doc','docx'].includes(ext)) icon = 'fa-file-word';
+        else if(['zip','rar','tar','gz'].includes(ext)) icon = 'fa-file-zipper';
+        else if(['txt','rtf','csv','log','json','md'].includes(ext)) icon = 'fa-file-lines';
+        else if(['mp3','wav','ogg','m4a'].includes(ext)) icon = 'fa-file-audio';
+        else if(['mp4','webm','mov'].includes(ext)) icon = 'fa-file-video';
 
         const isImage = ['png','jpg','jpeg','gif','webp','svg'].includes(ext);
         const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(file.name);
         const fileUrl = urlData.publicUrl;
-
         let cleanName = file.name.includes('_') ? file.name.substring(file.name.indexOf('_') + 1) : file.name;
 
-        let previewHtml = isImage 
-            ? `<div style="width:42px; height:42px; border-radius:10px; overflow:hidden; flex-shrink:0; background:var(--bg-base); cursor:pointer;" onclick="window.previewImage(event, '${fileUrl}')" title="Preview Image"><img src="${fileUrl}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" loading="lazy"></div>`
-            : `<div style="width:42px; height:42px; border-radius:10px; background:var(--bg-base); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:18px; flex-shrink:0;"><i class="fa-solid ${icon}"></i></div>`;
+        let previewHtml = '';
+        if (isImage) {
+            previewHtml = `<div style="width:42px; height:42px; border-radius:10px; overflow:hidden; flex-shrink:0; background:var(--bg-base); cursor:pointer;" onclick="window.previewImage(event, '${fileUrl}')"><img src="${fileUrl}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" loading="lazy"></div>`;
+        } else {
+            let docColor = 'var(--blue)'; 
+            if(['pdf','mp4','webm','mov'].includes(ext)) docColor = 'var(--red)';
+            else if(['zip','rar','tar','gz'].includes(ext)) docColor = 'var(--amber)';
+            else if(['mp3','wav','ogg','m4a'].includes(ext)) docColor = 'var(--green)';
+            previewHtml = `<div style="width:42px; height:42px; border-radius:10px; background:var(--bg-base); display:flex; align-items:center; justify-content:center; color:${docColor}; font-size:18px; flex-shrink:0; cursor:pointer;" onclick="window.previewUniversal(event, '${fileUrl}', '${ext}')"><i class="fa-solid ${icon}" style="transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></i></div>`;
+        }
 
         const card = document.createElement('div');
         card.className = 'file-card';
@@ -834,10 +970,10 @@ window.loadFiles = async function() {
                 </div>
             </div>
             <div class="card-actions" style="display:flex; gap:8px;">
-                <button class="btn" style="flex:1; border-radius:8px; font-size:12px; height:32px; color:var(--text-main);" onclick="window.copyLink('${fileUrl}')" title="Copy Public Link"><i class="fa-solid fa-link"></i></button>
-                <button class="btn" style="flex:1; border-radius:8px; font-size:12px; height:32px; color:var(--blue);" onclick="window.triggerDownload('${fileUrl}', '${cleanName}')" title="Download File"><i class="fa-solid fa-download"></i></button>
-                <button class="btn" style="flex:1; border-radius:8px; font-size:12px; height:32px; color:var(--teal);" onclick="window.openRenameModal('${file.name}')" title="Rename Asset"><i class="fa-solid fa-pen-to-square"></i></button>
-                <button class="btn" style="flex:1; border-radius:8px; font-size:12px; height:32px; color:var(--red);" onclick="window.deleteFile('${file.name}')" title="Purge Asset"><i class="fa-solid fa-trash-can"></i></button>
+                <button class="btn" style="flex:1; border-radius:8px; font-size:12px; height:32px; color:var(--text-main);" onclick="window.copyLink('${fileUrl}')"><i class="fa-solid fa-link"></i></button>
+                <button class="btn" style="flex:1; border-radius:8px; font-size:12px; height:32px; color:var(--blue);" onclick="window.triggerDownload('${fileUrl}', '${cleanName}')"><i class="fa-solid fa-download"></i></button>
+                <button class="btn" style="flex:1; border-radius:8px; font-size:12px; height:32px; color:var(--teal);" onclick="window.openRenameModal('${file.name}')"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button class="btn" style="flex:1; border-radius:8px; font-size:12px; height:32px; color:var(--red);" onclick="window.deleteFile('${file.name}')"><i class="fa-solid fa-trash-can"></i></button>
             </div>
         `;
         container.appendChild(card);
@@ -845,115 +981,59 @@ window.loadFiles = async function() {
 };
 
 window.uploadFile = async function(event) {
-    const file = event.target.files[0];
-    if(!file) return;
-    event.target.value = '';
-
-    showProgress(20);
-    toast('Injecting payload...', 'info');
-
+    const file = event.target.files[0]; if(!file) return;
+    event.target.value = ''; showProgress(20); toast('Injecting payload...', 'info');
     const uniqueName = `${Date.now()}_${file.name}`;
-
-    const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, file, {
-        cacheControl: '3600',
-        upsert: false
-    });
-
-    if (error) {
-        hideProgress();
-        return toast('Upload rejected: ' + error.message, 'err');
-    }
-
-    toast('Upload confirmed!', 'ok');
-    window.loadFiles();
-    hideProgress();
+    const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, file, { cacheControl: '3600', upsert: false });
+    if (error) { hideProgress(); return toast('Upload rejected: ' + error.message, 'err'); }
+    toast('Upload confirmed!', 'ok'); window.loadFiles(); hideProgress();
 };
 
 window.deleteFile = async function(fileName) {
     if(!confirm('Purge this asset permanently?')) return;
-    
-    showProgress(40);
-    const { error } = await supabaseClient.storage.from(BUCKET_NAME).remove([fileName]);
-
-    if(error) {
-        hideProgress();
-        return toast('Purge failure', 'err');
-    }
-
-    toast('Asset cleanly purged.', 'ok');
-    window.loadFiles();
-    hideProgress();
+    showProgress(40); const { error } = await supabaseClient.storage.from(BUCKET_NAME).remove([fileName]);
+    if(error) { hideProgress(); return toast('Purge failure', 'err'); }
+    toast('Asset cleanly purged.', 'ok'); window.loadFiles(); hideProgress();
 };
 
-window.copyLink = function(url) {
-    navigator.clipboard.writeText(url).then(() => {
-        toast('Link copied to clipboard!', 'info');
-    });
+window.copyLink = function(url) { navigator.clipboard.writeText(url).then(() => { toast('Link copied!', 'info'); }); };
+window.triggerDownload = function(url, name) {
+    toast('Downloading...', 'info'); const a = document.createElement('a'); a.href = url; a.download = name; a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
 };
 
-window.triggerDownload = function(url, explicitName) {
-    toast('Downloading file...', 'info');
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = explicitName;
-    anchor.target = '_blank'; 
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
-};
-
-window.openRenameModal = function(fullStorageName) {
-    document.getElementById('oldNameHidden').value = fullStorageName;
-    let baselineName = fullStorageName.includes('_') ? fullStorageName.substring(fullStorageName.indexOf('_') + 1) : fullStorageName;
-    document.getElementById('renameValueInput').value = baselineName;
+window.openRenameModal = function(name) {
+    document.getElementById('oldNameHidden').value = name;
+    let base = name.includes('_') ? name.substring(name.indexOf('_') + 1) : name;
+    document.getElementById('renameValueInput').value = base;
     document.getElementById('renameModal').classList.add('open');
 };
 
 window.executeRename = async function() {
     const oldName = document.getElementById('oldNameHidden').value;
-    const inputtedValue = document.getElementById('renameValueInput').value.trim();
-    
-    if(!inputtedValue) return toast('Name cannot be empty', 'warn');
-    
-    document.getElementById('renameModal').classList.remove('open');
-    showProgress(30);
-    
-    const newStorageName = oldName.includes('_') ? `${oldName.split('_')[0]}_${inputtedValue}` : `${Date.now()}_${inputtedValue}`;
+    const input = document.getElementById('renameValueInput').value.trim();
+    if(!input) return toast('Name cannot be empty', 'warn');
+    document.getElementById('renameModal').classList.remove('open'); showProgress(30);
+    const newName = oldName.includes('_') ? `${oldName.split('_')[0]}_${input}` : `${Date.now()}_${input}`;
     toast('Rewriting path...', 'info');
-    
-    const { error: copyError } = await supabaseClient.storage.from(BUCKET_NAME).move(oldName, newStorageName);
-    
-    if(copyError) {
-        hideProgress();
-        return toast('Rename failed', 'err');
-    }
-    
-    toast('Asset name updated!', 'ok');
-    window.loadFiles();
-    hideProgress();
+    const { error } = await supabaseClient.storage.from(BUCKET_NAME).move(oldName, newName);
+    if(error) { hideProgress(); return toast('Rename failed', 'err'); }
+    toast('Asset name updated!', 'ok'); window.loadFiles(); hideProgress();
 };
 
 window.onload = () => {
-  window.loadFiles();
-  window.loadNotesData();
-  
-  // Debounced real-time grid monitoring to prevent ResizeObserver loop crashes
+  window.loadFiles(); window.loadNotesData();
   let roTimer;
   const resizeObserver = new ResizeObserver(() => {
       window.requestAnimationFrame(() => {
-          clearTimeout(roTimer);
-          roTimer = setTimeout(() => window.packMasonry(), 40);
+          clearTimeout(roTimer); roTimer = setTimeout(() => window.packMasonry(), 40);
       });
   });
   const gridNode = document.getElementById('notes-container');
   if (gridNode) resizeObserver.observe(gridNode);
 };
 
-// Globally suppress the benign ResizeObserver loop warning overlay
 window.addEventListener('error', function(e) {
-    if (e.message && e.message.includes('ResizeObserver loop')) {
-        e.stopImmediatePropagation();
-    }
+    if (e.message && e.message.includes('ResizeObserver loop')) e.stopImmediatePropagation();
 });
 </script>
 </body>
