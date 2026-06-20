@@ -30,7 +30,7 @@ html.light-theme {
   --accent: #e5e0da;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; outline: none !important; }
+* { margin: 0; padding: 0; box-sizing: border-box; outline: none !important; border: none; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-base); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--text-main); transition: background 0.3s, color 0.3s; }
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -50,7 +50,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 }
 
 .workspace-panel { display: flex; flex-direction: column; gap: 16px; }
-.panel-header { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--amber); letter-spacing: 0.08em; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(139, 137, 132, 0.2); padding-bottom: 8px; }
+.panel-header { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--amber); letter-spacing: 0.08em; display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; }
 
 /* TOP RIGHT MINI BUTTONS */
 .top-bar-actions {
@@ -59,14 +59,14 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 .action-mini-btn {
   width: 36px; height: 36px; border-radius: 10px; background: var(--bg-surface); color: var(--text-main);
   display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.2s; border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.2s; border: none !important;
 }
 .action-mini-btn:active { transform: scale(0.9); }
 
 /* FLOATING SQUIRCLE UPLOAD BUTTON (BOTTOM RIGHT) */
 #uploadSquircleBtn {
   position: fixed; bottom: 44px; right: 20px; z-index: 10000; width: 56px; height: 56px; border-radius: 20px;
-  background: var(--text-main); color: var(--bg-base); border: none;
+  background: var(--text-main); color: var(--bg-base); border: none !important;
   display: flex; align-items: center; justify-content: center; font-size: 22px;
   cursor: pointer; transition: transform 0.2s; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
 }
@@ -74,7 +74,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 #uploadSquircleBtn:active { transform: scale(0.92); }
 
 button.btn {
-  background: var(--bg-base); border: none; color: var(--text-main); border-radius: 8px; cursor: pointer;
+  background: var(--bg-base); border: none !important; color: var(--text-main); border-radius: 8px; cursor: pointer;
   display: flex; align-items: center; justify-content: center; transition: filter 0.2s, transform 0.1s;
 }
 button.btn:hover { filter: brightness(0.9); }
@@ -90,7 +90,7 @@ button.btn:active { transform: scale(0.96); }
 }
 
 .file-card {
-  background: var(--bg-surface); border: none;
+  background: var(--bg-surface); border: none !important;
   border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 14px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -101,62 +101,74 @@ button.btn:active { transform: scale(0.96); }
 .list-view .file-card .card-actions { flex-shrink: 0; display: flex; gap: 8px; width: auto !important; }
 .list-view .file-card .card-actions button { width: 36px; height: 36px; }
 
-/* QUICK NOTES ENGINE */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* DYNAMIC MASONRY GRID SYSTEM */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 #notes-container {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); /* 6 Column Math Base for 1/2 and 1/3 splits */
-  grid-auto-flow: dense; /* Tightly packs items into empty gaps automatically */
+  grid-template-columns: repeat(6, 1fr); /* Default PC: 6 Columns */
+  grid-auto-rows: 12px; /* High-fidelity Masonry steps */
+  grid-auto-flow: dense; /* Tightly pack elements */
   gap: 16px;
   width: 100%;
-}
-@media (max-width: 1024px) {
-  #notes-container { grid-template-columns: repeat(4, 1fr); } /* Fallback for smaller screens */
+  align-items: start;
 }
 #mainWorkspace.list-view #notes-container {
   display: flex; flex-direction: column; gap: 12px;
 }
 
 .note-card {
-  width: 100%; height: 100%;
+  width: 100%; min-width: 0; border: none !important;
   display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 16px;
   cursor: grab; transition: transform 0.2s, box-shadow 0.2s;
   color: var(--text-main); font-size: 13px; line-height: 1.5; position: relative;
-  backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
+  backdrop-filter: blur(35px); -webkit-backdrop-filter: blur(35px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  -webkit-touch-callout: none; /* Blocks the mobile long-press popup */
+  user-select: none; /* Prevents text selection hijacking */
+  -webkit-user-select: none;
+  touch-action: pan-y; /* Fixes mobile scroll vs drag conflicts */
 }
-/* 6-Column Base Math */
-.note-card.span-small { grid-column: span 2; grid-row: span 1; } /* 3 per row (6/2) */
-.note-card.span-half { grid-column: span 3; grid-row: span 1; }  /* 2 per row (6/3) - Exactly half */
-.note-card.span-row-2 { grid-row: span 2; }
-
-@media (max-width: 1024px) { 
-  .note-card.span-small { grid-column: span 2; } /* 2 per row on tablets */
-  .note-card.span-half { grid-column: span 4; } /* Full row on tablets */
-}
-@media (max-width: 600px) { 
-  #notes-container { grid-template-columns: repeat(1, 1fr); }
-  .note-card { grid-column: span 1 !important; grid-row: span 1 !important; } 
-}
-#mainWorkspace.list-view .note-card { grid-column: auto; grid-row: auto; }
-
+.note-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
 .note-card:active { cursor: grabbing; }
+
+/* PC Grid Logic (6 Columns) */
+.note-card.span-tiny { grid-column: span 2; }  /* 3 per row */
+.note-card.span-small { grid-column: span 2; } /* 3 per row */
+.note-card.span-half { grid-column: span 3; }  /* 2 per row (50%) */
+
+/* Tablet & Mobile Layout Engine (Strict 4-Column base) */
+@media (max-width: 1200px) { 
+  #notes-container { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .note-card.span-tiny { grid-column: span 1; }  /* 25% width */
+  .note-card.span-small { grid-column: span 2; } /* 50% width */
+  .note-card.span-half { grid-column: span 2; }  /* 50% width locked */
+}
+
+/* Fallback for extremely small phones (e.g., iPhone SE) */
+@media (max-width: 380px) { 
+  #notes-container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .note-card.span-tiny { grid-column: span 1; }  /* 50% width */
+  .note-card.span-small { grid-column: span 2; } /* 100% width */
+  .note-card.span-half { grid-column: span 2; }  /* 100% width */
+}
+
 .sortable-ghost { opacity: 0.4; transform: scale(0.98); }
 .sortable-drag { cursor: grabbing !important; }
-.note-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
 .note-card-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
 
 .folder-card {
   background: var(--bg-surface); padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px;
   cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  font-weight: 600; font-size: 13px; border: 1px solid transparent;
+  font-weight: 600; font-size: 13px; border: none !important;
 }
-.folder-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); border-color: var(--amber); }
+.folder-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
 
-.quick-input-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-surface); border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.quick-input-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-surface); border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); border: none !important; }
 
 /* UTILS & MODALS */
 .file-row-input {
-  width: 100%; background: var(--bg-base); border: none; color: var(--text-main);
+  width: 100%; background: var(--bg-base); border: none !important; color: var(--text-main);
   padding: 10px 14px; border-radius: 12px; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 13px;
 }
 .file-row-input:focus { filter: brightness(0.95); }
@@ -164,7 +176,7 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 
 #toast {
   position: fixed; top: 80px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 20px; font-size: 13px; font-weight: 500;
-  background: var(--bg-surface); color: var(--text-main); border: none;
+  background: var(--bg-surface); color: var(--text-main); border: none !important;
   z-index: 50000; display: none; max-width: 90vw; text-align: center; white-space: pre-line;
   box-shadow: 0 8px 32px rgba(0,0,0,0.2);
 }
@@ -175,7 +187,7 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 
 .modal-base {
   position: fixed; z-index: 40000; background: var(--bg-surface); border-radius: 16px;
-  padding: 24px; color: var(--text-main); font-size: 13px; border: none;
+  padding: 24px; color: var(--text-main); font-size: 13px; border: none !important;
   top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90vw; max-width: 400px; display: none; flex-direction: column; gap: 12px;
   box-shadow: 0 16px 48px rgba(0,0,0,0.3);
 }
@@ -184,7 +196,7 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 #statusBar {
   position: fixed; bottom: 0; left: 0; right: 0; height: 24px; background: var(--bg-surface); 
   display: flex; align-items: center; padding: 0 12px; gap: 12px; font-size: 11px; font-weight: 500; color: var(--text-muted); z-index: 9990;
-  border: none; transition: background 0.3s;
+  border: none !important; transition: background 0.3s;
 }
 #statusBar .sb-item { white-space: nowrap; }
 #statusBar .sb-ok { color: var(--green); }
@@ -192,7 +204,7 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 
 #progressBar {
   position: fixed; top: 0; left: 0; height: 3px; background: var(--blue); z-index: 50000;
-  width: 0%; display: none; box-shadow: none;
+  width: 0%; display: none; box-shadow: none; border: none !important;
 }
 #progressBar.active { display: block; }
 </style>
@@ -202,9 +214,6 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 <div id="progressBar"></div>
 
 <div class="top-bar-actions">
-  <button class="action-mini-btn" onclick="document.getElementById('mainWorkspace').classList.toggle('list-view')" title="Toggle Layout View">
-    <i class="fa-solid fa-list"></i>
-  </button>
   <button class="action-mini-btn" onclick="document.documentElement.classList.toggle('light-theme')" title="Toggle Theme">
     <i class="fa-solid fa-circle-half-stroke"></i>
   </button>
@@ -215,14 +224,14 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   <i class="fa-solid fa-cloud-arrow-up"></i>
 </button>
 
-<div id="mainWorkspace" class="list-view">
+<div id="mainWorkspace">
   
   <div class="workspace-panel">
     <div class="panel-header">
        <div style="display:flex; align-items:center; gap:8px;">
          <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none;" onclick="window.viewRootFolder()"><i class="fa-solid fa-arrow-left"></i></button>
-         <span id="notes-view-title">QUICK NOTES</span>
-         <input id="notes-folder-edit" type="text" class="file-row-input" style="display:none; width:160px; padding:6px 10px; margin-left:8px;" onchange="window.renameCurrentFolder(this.value)">
+                  <span id="notes-view-title" style="display:flex; align-items:center;" title="Quick Notes"><i class="fa-solid fa-note-sticky" style="font-size:20px; color:var(--amber);"></i></span>
+                  <input id="notes-folder-edit" type="text" class="file-row-input" style="display:none; width:160px; padding:6px 10px; margin-left:8px;" onchange="window.renameCurrentFolder(this.value)">
        </div>
        <button class="action-mini-btn" style="color:var(--amber); width:28px; height:28px; box-shadow:none;" onclick="window.createNewFolder()" title="New Folder"><i class="fa-solid fa-folder-plus"></i></button>
     </div>
@@ -238,10 +247,10 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
     <div id="notes-container"></div>
   </div>
 
-  <div class="workspace-panel">
-    <div class="panel-header">
-       <span>CLOUD STORAGE FILES</span>
-    </div>
+  <div class="workspace-panel" style="margin-top: 32px;">
+      <div class="panel-header" style="border-bottom: 1px solid rgba(139, 137, 132, 0.1);">
+         <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
+      </div>
     
     <div id="emptyState" style="position:relative; inset:auto; padding:60px 0; background:transparent; display:flex; flex-direction:column; align-items:center;">
       <i class="fa-solid fa-cloud-open" style="font-size:36px; opacity:0.3; margin-bottom: 8px;"></i>
@@ -268,8 +277,8 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   </div>
 </div>
 
-<div id="fullNoteModal" style="display:none; position:fixed; z-index:40000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.5); backdrop-filter:blur(6px);">
-  <div style="background:var(--bg-surface); width:90vw; max-width:600px; border-radius:24px; padding:24px; box-shadow:0 24px 64px rgba(0,0,0,0.4); display:flex; flex-direction:column; gap:16px;">
+<div id="fullNoteModal" style="display:none; position:fixed; z-index:40000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.9);">
+  <div style="background:var(--bg-surface); width:90vw; max-width:600px; border-radius:24px; padding:24px; box-shadow:0 24px 64px rgba(0,0,0,0.4); display:flex; flex-direction:column; gap:16px; border:none !important;">
     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
            <input type="text" id="nm-title" style="flex:1; background:transparent; border:none; font-size:22px; font-weight:700; color:var(--text-main); outline:none; margin-right:12px;" placeholder="Note Title...">
            <div style="display:flex; gap:8px;">
@@ -279,8 +288,9 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
         </div>
         <div id="nm-image-container" style="display:none; width:100%; border-radius:12px; overflow:hidden; margin-bottom:12px; max-height:300px; background:#000; cursor:pointer;" onclick="window.previewImage(event, document.getElementById('nm-image').src)" title="Click to enlarge"><img id="nm-image" style="width:100%; height:100%; object-fit:contain; display:block; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'"></div>
         <textarea id="nm-text" style="width:100%; min-height:250px; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:15px; line-height:1.6; resize:vertical; outline:none;" placeholder="Start typing..."></textarea>
-    <input type="hidden" id="nm-id"><input type="hidden" id="nm-color"><input type="hidden" id="nm-pinned">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:16px; border-top:1px solid rgba(139, 137, 132, 0.2);">
+                <div id="nm-timestamp" style="font-size:11px; color:var(--text-muted); opacity:0.7; text-align:right; font-family:'JetBrains Mono', monospace; margin-top:4px;"></div>
+            <input type="hidden" id="nm-id"><input type="hidden" id="nm-color"><input type="hidden" id="nm-pinned">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:16px; border-top:1px solid rgba(139, 137, 132, 0.1);">
        <div style="display:flex; gap:12px;">
                  <button class="action-mini-btn" onclick="window.cycleModalColor()" title="Change Color"><i class="fa-solid fa-palette"></i></button>
                  <input type="file" id="modalAttachInput" style="display:none;" accept="image/*" onchange="window.triggerModalImageUpload(event)">
@@ -327,7 +337,7 @@ let S = { notes: [], folders: [] };
 window.currentFolderView = null;
 
 const noteColors = [
-  'var(--bg-surface)',      // Base Default
+  'rgba(215, 210, 200, 0.4)', // Noticeably brighter Glass Base
   'rgba(227,179,65,0.15)', // Amber
   'rgba(92,157,255,0.15)', // Blue
   'rgba(57,211,83,0.15)',  // Green
@@ -441,8 +451,8 @@ window.createNewFolder = function() {
 window.viewRootFolder = function() {
     window.currentFolderView = null;
     document.getElementById('btn-back-folder').style.display = 'none';
-    document.getElementById('notes-view-title').style.display = 'block';
-    document.getElementById('notes-view-title').innerText = 'QUICK NOTES';
+    document.getElementById('notes-view-title').style.display = 'flex';
+    document.getElementById('notes-view-title').innerHTML = '<i class="fa-solid fa-note-sticky" style="font-size:20px; color:var(--amber);"></i>';
     document.getElementById('notes-folder-edit').style.display = 'none';
     window.renderNotes();
 };
@@ -481,12 +491,16 @@ window.openNoteModal = function(id) {
     document.getElementById('nm-title').value = n.title || '';
     document.getElementById('nm-text').value = n.text || '';
     document.getElementById('nm-color').value = n.color || noteColors[0];
-    document.getElementById('nm-pinned').value = n.pinned ? 'true' : 'false';
+        document.getElementById('nm-pinned').value = n.pinned ? 'true' : 'false';
     
-    const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
-    if (modalWrapper) {
-        modalWrapper.style.backgroundColor = (n.color && n.color !== 'var(--bg-surface)') ? n.color : 'var(--bg-surface)';
-    }
+        let dt = new Date(n.updatedAt || Date.now());
+        document.getElementById('nm-timestamp').innerText = `Last saved: ${dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at ${dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
+    
+        const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
+        if (modalWrapper) {
+            // Keep the modal solid so it's readable (includes legacy color check to prevent bugs on old notes)
+            modalWrapper.style.backgroundColor = (n.color && n.color !== 'rgba(215, 210, 200, 0.4)' && n.color !== 'rgba(165, 163, 158, 0.22)' && n.color !== 'rgba(139, 137, 132, 0.15)' && n.color !== 'var(--bg-surface)') ? n.color : 'var(--bg-surface)';
+        }
 
     const imgContainer = document.getElementById('nm-image-container');
     if(n.imageUrl) {
@@ -539,10 +553,10 @@ window.cycleModalColor = function() {
     document.getElementById('nm-color').value = nextColor;
     
     // Dynamically update the modal's background element immediately for live tracking
-    const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
-    if (modalWrapper) {
-        modalWrapper.style.backgroundColor = nextColor.startsWith('var') ? 'var(--bg-surface)' : nextColor;
-    }
+        const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
+        if (modalWrapper) {
+            modalWrapper.style.backgroundColor = (nextColor === 'rgba(215, 210, 200, 0.4)' || nextColor === 'rgba(165, 163, 158, 0.22)' || nextColor === 'rgba(139, 137, 132, 0.15)' || nextColor.startsWith('var')) ? 'var(--bg-surface)' : nextColor;
+        }
     toast('Color selected', 'info', 800);
 };
 
@@ -629,68 +643,96 @@ window.renderNotes = function() {
         const el = document.createElement('div');
         
         let txtLen = n.text ? n.text.length : 0;
-                let spanClass = ' span-small'; // default: small notes take 1/3 of the row
+        let spanClass = ' span-small'; // default 50% Mobile / 33% PC
         
-                // Dynamically assign grid footprint based on content mass
-                if (n.imageUrl) {
-                    spanClass = ' span-half'; // Image notes strictly take half the row
-                    if (txtLen > 200) spanClass += ' span-row-2'; // Increase height if text is long
-                } else if (txtLen > 300) {
-                    spanClass = ' span-half'; // Long text notes take half the row
-                } else if (txtLen > 100) {
-                    spanClass += ' span-row-2'; // Short text but needs height
-                }
+        // Advanced sizing logic
+        if (n.imageUrl) {
+            spanClass = ' span-half'; // Strict 50%
+        } else if (txtLen > 300) {
+            spanClass = ' span-half'; // Strict 50%
+        } else if (txtLen < 60 && (!n.title || n.title.length < 20)) {
+            spanClass = ' span-tiny'; // Strict 25% (Mobile) / 33% (PC)
+        }
         
         el.className = 'note-card' + spanClass;
-        el.style.background = n.color || noteColors[0];
-        if (n.color === 'var(--bg-surface)' || !n.color) el.style.border = '1px solid rgba(139,137,132,0.2)';
-                el.setAttribute('data-id', n.id);
+                // Ensure legacy colors upgrade to the new brighter glass
+                let cardColor = (n.color === 'var(--bg-surface)' || n.color === 'rgba(139, 137, 132, 0.15)' || n.color === 'rgba(165, 163, 158, 0.22)' || !n.color) ? noteColors[0] : n.color;
+                el.style.background = cardColor;
+        
+        el.setAttribute('data-id', n.id);
                 el.setAttribute('draggable', 'true');
                 el.ondragstart = (e) => { e.dataTransfer.setData('text/plain', n.id); el.style.opacity = '0.5'; };
-        el.ondragend = (e) => { el.style.opacity = '1'; };
-        el.onclick = () => window.openNoteModal(n.id);
+                el.ondragend = (e) => { el.style.opacity = '1'; };
+                el.onclick = () => window.openNoteModal(n.id);
+                el.oncontextmenu = (e) => { e.preventDefault(); return false; }; // Double-layer protection against popups
 
-        let html = '';
+                let html = '';
         if (n.pinned) html += `<div style="position:absolute; top:12px; right:12px; color:var(--amber);"><i class="fa-solid fa-thumbtack"></i></div>`;
         if (n.title) html += `<div class="note-card-title">${String(n.title).replace(/</g,'&lt;')}</div>`;
         
         // Inject image preview dynamically on the grid if available
-                if (n.imageUrl) html += `<div style="width:100%; border-radius:8px; overflow:hidden; margin-bottom:8px; cursor:pointer;" onclick="window.previewImage(event, '${n.imageUrl}')" title="Click to enlarge"><img src="${n.imageUrl}" style="width:100%; max-height:200px; object-fit:cover; display:block; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></div>`;
+        if (n.imageUrl) html += `<div style="width:100%; border-radius:8px; overflow:hidden; margin-bottom:8px; cursor:pointer;" onclick="window.previewImage(event, '${n.imageUrl}')" title="Click to enlarge"><img src="${n.imageUrl}" onload="window.packMasonry()" style="width:100%; max-height:200px; object-fit:cover; display:block; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></div>`;
         
-                if (n.text) {
-            // Expand text cutoff logic if the footprint is dynamically larger
-            let maxLen = spanClass ? 800 : 200;
-            let textPreview = n.text.length > maxLen ? n.text.substring(0, maxLen) + '...' : n.text;
-            html += `<div style="white-space:pre-wrap; word-break:break-word;">${String(textPreview).replace(/</g,'&lt;')}</div>`;
-        }
-        el.innerHTML = html;
+        if (n.text) {
+                    let maxLen = spanClass ? 800 : 200;
+                    let textPreview = n.text.length > maxLen ? n.text.substring(0, maxLen) + '...' : n.text;
+                    html += `<div style="white-space:pre-wrap; word-break:break-word;">${String(textPreview).replace(/</g,'<')}</div>`;
+                }
+                el.innerHTML = html;
                 nContainer.appendChild(el);
-            });
+    });
 
-            if (typeof Sortable !== 'undefined') {
-                if (window.notesSortable) window.notesSortable.destroy();
-                window.notesSortable = new Sortable(nContainer, {
-                    animation: 200,
-                    delay: 150,
-                    delayOnTouchOnly: true,
-                    ghostClass: 'sortable-ghost',
-                    dragClass: 'sortable-drag',
-                    setData: function (dataTransfer, dragEl) {
-                        dataTransfer.setData('text/plain', dragEl.getAttribute('data-id'));
-                    },
-                    onEnd: function (evt) {
-                        let items = Array.from(nContainer.children);
-                        let total = items.length;
-                        items.forEach((item, index) => {
-                            let id = item.getAttribute('data-id');
-                            let note = S.notes.find(n => n.id === id);
-                            if (note) note.order = total - index;
-                        });
-                        window.saveNotesData();
-                    }
+    if (typeof Sortable !== 'undefined') {
+            if (window.notesSortable) window.notesSortable.destroy();
+            window.notesSortable = new Sortable(nContainer, {
+                animation: 250,
+                delay: 200, // Slightly longer hold required to pick up the note
+                delayOnTouchOnly: true,
+                touchStartThreshold: 5, // Forgives slight finger movement without cancelling drag
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                setData: function (dataTransfer, dragEl) {
+                dataTransfer.setData('text/plain', dragEl.getAttribute('data-id'));
+            },
+            onEnd: function (evt) {
+                let items = Array.from(nContainer.children);
+                let total = items.length;
+                items.forEach((item, index) => {
+                    let id = item.getAttribute('data-id');
+                    let note = S.notes.find(n => n.id === id);
+                    if (note) note.order = total - index;
                 });
+                window.saveNotesData();
+                window.packMasonry();
             }
-        };
+        });
+    }
+            
+    // Trigger masonry once dom paints
+    setTimeout(() => window.packMasonry(), 50);
+};
+
+// Rock-solid masonry calculator
+window.packMasonry = function() {
+    const container = document.getElementById('notes-container');
+    if (!container) return;
+    
+    const items = container.querySelectorAll('.note-card');
+    const rowHeight = 12; // Matches grid-auto-rows
+    const gap = 16;       // Matches gap
+    
+    // Pass 1: reset all limits
+    for (let i = 0; i < items.length; i++) {
+        items[i].style.gridRowEnd = 'auto';
+    }
+    
+    // Pass 2: calculate absolute heights
+    for (let i = 0; i < items.length; i++) {
+        const height = items[i].scrollHeight; // Accurate internal measurement
+        const spans = Math.ceil((height + gap) / (rowHeight + gap));
+        items[i].style.gridRowEnd = `span ${spans}`;
+    }
+};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CLOUD STORAGE FILE MANAGER
@@ -737,10 +779,10 @@ window.loadFiles = async function() {
         let cleanName = file.name.includes('_') ? file.name.substring(file.name.indexOf('_') + 1) : file.name;
 
         let previewHtml = isImage 
-                    ? `<div style="width:42px; height:42px; border-radius:10px; overflow:hidden; flex-shrink:0; background:var(--bg-base); cursor:pointer;" onclick="window.previewImage(event, '${fileUrl}')" title="Preview Image"><img src="${fileUrl}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" loading="lazy"></div>`
-                    : `<div style="width:42px; height:42px; border-radius:10px; background:var(--bg-base); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:18px; flex-shrink:0;"><i class="fa-solid ${icon}"></i></div>`;
+            ? `<div style="width:42px; height:42px; border-radius:10px; overflow:hidden; flex-shrink:0; background:var(--bg-base); cursor:pointer;" onclick="window.previewImage(event, '${fileUrl}')" title="Preview Image"><img src="${fileUrl}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" loading="lazy"></div>`
+            : `<div style="width:42px; height:42px; border-radius:10px; background:var(--bg-base); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:18px; flex-shrink:0;"><i class="fa-solid ${icon}"></i></div>`;
 
-                const card = document.createElement('div');
+        const card = document.createElement('div');
         card.className = 'file-card';
         card.innerHTML = `
             <div style="display:flex; gap:12px; align-items:center;">
@@ -853,7 +895,25 @@ window.executeRename = async function() {
 window.onload = () => {
   window.loadFiles();
   window.loadNotesData();
+  
+  // Debounced real-time grid monitoring to prevent ResizeObserver loop crashes
+  let roTimer;
+  const resizeObserver = new ResizeObserver(() => {
+      window.requestAnimationFrame(() => {
+          clearTimeout(roTimer);
+          roTimer = setTimeout(() => window.packMasonry(), 40);
+      });
+  });
+  const gridNode = document.getElementById('notes-container');
+  if (gridNode) resizeObserver.observe(gridNode);
 };
+
+// Globally suppress the benign ResizeObserver loop warning overlay
+window.addEventListener('error', function(e) {
+    if (e.message && e.message.includes('ResizeObserver loop')) {
+        e.stopImmediatePropagation();
+    }
+});
 </script>
 </body>
 </html>
