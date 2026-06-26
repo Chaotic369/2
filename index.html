@@ -1314,42 +1314,47 @@ window.loadFiles = async function() {
     document.getElementById('sb-storage').textContent = (totalBytes / (1024 * 1024)).toFixed(2) + ' MB utilized';
     document.getElementById('sb-count').textContent = allFiles.length + ' files';
 
-    if (window.isFormatFilterMode && !window.activeFormatType) {
-        let catStats = {};
-        Object.keys(window.fileCategories).forEach(c => catStats[c] = { count: 0, size: 0 });
+    // Remove duplicates from allFiles based on full path so search doesn't show multiples
+        const uniqueFilesMap = new Map();
+        allFiles.forEach(f => uniqueFilesMap.set(f._fullPath, f));
+        allFiles = Array.from(uniqueFilesMap.values());
 
-        allFiles.forEach(f => {
-            let ext = (f.name.includes('.') ? f.name.split('.').pop() : 'unknown').toLowerCase();
-            let matched = false;
-            for (let cat in window.fileCategories) {
-                if (window.fileCategories[cat].exts.includes(ext)) {
-                    catStats[cat].count++;
-                    catStats[cat].size += (f.metadata?.size || 0);
-                    matched = true;
-                    break;
+        if (window.isFormatFilterMode && !window.activeFormatType) {
+            let catStats = {};
+            Object.keys(window.fileCategories).forEach(c => catStats[c] = { count: 0, size: 0 });
+
+            allFiles.forEach(f => {
+                let ext = (f.name.includes('.') ? f.name.split('.').pop() : 'unknown').toLowerCase();
+                let matched = false;
+                for (let cat in window.fileCategories) {
+                    if (window.fileCategories[cat].exts.includes(ext)) {
+                        catStats[cat].count++;
+                        catStats[cat].size += (f.metadata?.size || 0);
+                        matched = true;
+                        break;
+                    }
                 }
-            }
-            if (!matched) { catStats['Others'].count++; catStats['Others'].size += (f.metadata?.size || 0); }
-        });
+                if (!matched) { catStats['Others'].count++; catStats['Others'].size += (f.metadata?.size || 0); }
+            });
         
-        Object.keys(catStats).forEach(cat => {
-            if (catStats[cat].count === 0) return;
-            const card = document.createElement('div');
-            card.className = 'category-card';
-            card.onclick = () => window.enterFormatFolder(cat);
-            card.innerHTML = `
-                <div class="category-icon-wrapper" style="color:${window.fileCategories[cat].color};">
-                    <i class="${window.fileCategories[cat].icon}"></i>
-                </div>
-                <div style="font-weight:600; font-size:13px; color:var(--text-main);">${cat}</div>
-                <div style="font-size:11px; color:var(--text-muted);">${formatBytes(catStats[cat].size)}<br>(${catStats[cat].count})</div>
-            `;
-            if (fContainer) fContainer.appendChild(card);
-        });
-        container.innerHTML = '';
-        if (fContainer && fContainer.children.length === 0) emptyState.style.display = 'flex';
-        return;
-    }
+            Object.keys(catStats).forEach(cat => {
+                if (catStats[cat].count === 0) return;
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                card.onclick = () => window.enterFormatFolder(cat);
+                card.innerHTML = `
+                    <div class="category-icon-wrapper" style="color:${window.fileCategories[cat].color};">
+                        <i class="${window.fileCategories[cat].icon}"></i>
+                    </div>
+                    <div style="font-weight:600; font-size:13px; color:var(--text-main);">${cat}</div>
+                    <div style="font-size:11px; color:var(--text-muted);">${formatBytes(catStats[cat].size)}<br>(${catStats[cat].count})</div>
+                `;
+                if (fContainer) fContainer.appendChild(card);
+            });
+            container.innerHTML = '';
+            if (fContainer && fContainer.children.length === 0) emptyState.style.display = 'flex';
+            return;
+        }
 
     if (window.isFormatFilterMode && window.activeFormatType) {
         allFiles = allFiles.filter(f => {
