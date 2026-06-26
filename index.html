@@ -1439,11 +1439,14 @@ window.loadFiles = async function() {
                         <span>${timeStr}</span>
                     </div>
                     ${locHtml}
-                </div>
-            </div>
-            <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px; flex-shrink:0;" onclick="window.openFileContextMenu('${file.name}', '${fileUrl}', event)"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-        `;
-        container.appendChild(card);
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:4px; flex-shrink:0; align-items:center;">
+                                    <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px; color:var(--blue);" onclick="window.triggerDownload('${fileUrl}', '${cleanName}')" title="Quick Download"><i class="fa-solid fa-download"></i></button>
+                                    <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px;" onclick="window.openFileContextMenu('${file.name}', '${fileUrl}', event)" title="More Options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                </div>
+                            `;
+                            container.appendChild(card);
     });
 };
 
