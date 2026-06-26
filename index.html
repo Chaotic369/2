@@ -258,7 +258,7 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 .md-preview code { font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.2); padding: 2px 4px; border-radius: 4px; font-size: 11px; }
 
 #multiSelectBar {
-  position: fixed; bottom: -80px; left: 50%; transform: translateX(-50%);
+  position: fixed; bottom: -250px; left: 50%; transform: translateX(-50%);
   background: var(--bg-surface); padding: 12px 24px; border-radius: 32px;
   display: flex; gap: 16px; align-items: center; box-shadow: 0 16px 48px rgba(0,0,0,0.4);
   z-index: 45000; transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(139, 137, 132, 0.1);
@@ -363,12 +363,13 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   <span>DROP TO UPLOAD TO CURRENT FOLDER</span>
 </div>
 
-<div id="multiSelectBar">
-  <div style="font-size: 13px; font-weight: 600; color: var(--text-main); margin-right: 8px;"><span id="ms-count">0</span> Selected</div>
-    <button class="btn" style="padding: 8px 16px; background: var(--bg-base); gap: 8px;" onclick="window.msDownloadZip()"><i class="fa-solid fa-file-zipper" style="color:var(--teal)"></i> Zip</button>
-    <button class="btn" style="padding: 8px 16px; background: var(--bg-base); gap: 8px;" onclick="window.msMove()"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--amber)"></i> Move</button>
-    <button class="btn" style="padding: 8px 16px; background: var(--bg-base); gap: 8px;" onclick="window.msDelete()"><i class="fa-solid fa-trash" style="color:var(--red)"></i> Delete</button>
-    <button class="action-mini-btn" style="margin-left:8px;" onclick="window.clearMultiSelect()"><i class="fa-solid fa-xmark"></i></button>
+<div id="multiSelectBar" style="flex-wrap: wrap; justify-content: center; max-width: 95vw; padding: 12px 16px; gap: 10px;">
+  <div style="font-size: 13px; font-weight: 600; color: var(--text-main); margin-right: 4px;"><span id="ms-count">0</span> Selected</div>
+    <button class="btn" style="padding: 8px 12px; background: var(--bg-base); gap: 6px;" onclick="window.msDownload()"><i class="fa-solid fa-download" style="color:var(--blue)"></i> DL</button>
+    <button class="btn" style="padding: 8px 12px; background: var(--bg-base); gap: 6px;" onclick="window.msDownloadZip()"><i class="fa-solid fa-file-zipper" style="color:var(--teal)"></i> Zip</button>
+    <button class="btn" style="padding: 8px 12px; background: var(--bg-base); gap: 6px;" onclick="window.msMove()"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--amber)"></i> Move</button>
+    <button class="btn" style="padding: 8px 12px; background: var(--bg-base); gap: 6px;" onclick="window.msDelete()"><i class="fa-solid fa-trash" style="color:var(--red)"></i> Delete</button>
+    <button class="action-mini-btn" style="margin-left:4px;" onclick="window.clearMultiSelect()"><i class="fa-solid fa-xmark"></i></button>
   </div>
 
 <div id="fileContextMenu" class="modal-base" style="width: 250px; padding: 16px; gap: 8px; transition: opacity 0.1s;">
@@ -1168,8 +1169,8 @@ window.fileCmDelete = function() { document.getElementById('fileContextMenu').cl
 window.fileCmMove = function() {
     document.getElementById('fileContextMenu').classList.remove('open');
     window.pendingMove = { type: 'file', name: window.fileCmTarget.name, path: window.currentStoragePath };
-    if (window.showMoveToast) window.showMoveToast(`Tap destination for "${window.fileCmTarget.name}"`);
-    else toast('Tap destination folder...', 'info');
+    if (window.showMoveToast) window.showMoveToast(`Maps to folder, then Paste`);
+    else toast('Navigate to destination, then tap Paste', 'info');
 };
 
 window.enterStorageFolder = function(folderName) {
@@ -1534,11 +1535,25 @@ window.msDelete = async function() {
     toast('Batch purged cleanly.', 'ok'); window.loadFiles(); hideProgress();
 };
 
+window.msDownload = async function() {
+    if (window.selectedFiles.size === 0) return;
+    toast(`Downloading ${window.selectedFiles.size} files...`, 'info');
+    const prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+    for (let fileName of window.selectedFiles) {
+        const fullPath = prefix + fileName;
+        const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(fullPath);
+        let cleanName = fileName.includes('_') ? fileName.substring(fileName.indexOf('_') + 1) : fileName;
+        window.triggerDownload(urlData.publicUrl, cleanName);
+        await new Promise(r => setTimeout(r, 400)); // Stagger to prevent browser from blocking multiple popups
+    }
+    window.clearMultiSelect();
+};
+
 window.msMove = function() {
     if (window.selectedFiles.size === 0) return;
     window.pendingMove = { type: 'batch', items: Array.from(window.selectedFiles), path: window.currentStoragePath };
-    if (window.showMoveToast) window.showMoveToast(`Moving ${window.selectedFiles.size} items...`);
-    else toast('Tap destination folder...', 'info');
+    if (window.showMoveToast) window.showMoveToast(`Moving ${window.selectedFiles.size} files. Go to folder, then Paste.`);
+    else toast('Navigate to destination, then tap Paste', 'info');
 };
 
 window.executeTapMove = async function(destFolderName) {
@@ -1834,11 +1849,6 @@ window.bindFolderEvents = function(card, type, id, name, clickHandler) {
     
     card.onclick = (e) => { 
         if(isLong) { e.preventDefault(); e.stopPropagation(); return; } 
-        if(type === 'storage' && window.pendingMove) {
-            e.preventDefault(); e.stopPropagation();
-            window.executeTapMove(id); 
-            return;
-        }
         clickHandler(e); 
     };
 };
@@ -1888,7 +1898,7 @@ window.fcmMove = async function() {
         return toast('Note folders are root-level only right now.', 'warn');
     } 
     window.pendingMove = { type: t.type, name: t.name, path: window.currentStoragePath };
-    if (window.showMoveToast) window.showMoveToast(`Tap folder to move "${t.name}" into`);
+    if (window.showMoveToast) window.showMoveToast(`Maps to destination, then Paste`);
 };
 
 window.cancelTapMove = function() {
