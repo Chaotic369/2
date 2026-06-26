@@ -365,10 +365,11 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 
 <div id="multiSelectBar">
   <div style="font-size: 13px; font-weight: 600; color: var(--text-main); margin-right: 8px;"><span id="ms-count">0</span> Selected</div>
-  <button class="btn" style="padding: 8px 16px; background: var(--bg-base); gap: 8px;" onclick="window.msDownloadZip()"><i class="fa-solid fa-file-zipper" style="color:var(--teal)"></i> Zip</button>
-  <button class="btn" style="padding: 8px 16px; background: var(--bg-base); gap: 8px;" onclick="window.msDelete()"><i class="fa-solid fa-trash" style="color:var(--red)"></i> Delete</button>
-  <button class="action-mini-btn" style="margin-left:8px;" onclick="window.clearMultiSelect()"><i class="fa-solid fa-xmark"></i></button>
-</div>
+    <button class="btn" style="padding: 8px 16px; background: var(--bg-base); gap: 8px;" onclick="window.msDownloadZip()"><i class="fa-solid fa-file-zipper" style="color:var(--teal)"></i> Zip</button>
+    <button class="btn" style="padding: 8px 16px; background: var(--bg-base); gap: 8px;" onclick="window.msMove()"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--amber)"></i> Move</button>
+    <button class="btn" style="padding: 8px 16px; background: var(--bg-base); gap: 8px;" onclick="window.msDelete()"><i class="fa-solid fa-trash" style="color:var(--red)"></i> Delete</button>
+    <button class="action-mini-btn" style="margin-left:8px;" onclick="window.clearMultiSelect()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
 
 <div id="fileContextMenu" class="modal-base" style="width: 250px; padding: 16px; gap: 8px; transition: opacity 0.1s;">
   <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 4px;" id="file-cm-title">File Actions</div>
@@ -376,8 +377,9 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmRename()"><i class="fa-solid fa-pen" style="color:var(--teal)"></i> Rename</button>
   <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmCopyLink()"><i class="fa-solid fa-link" style="color:var(--text-main)"></i> Copy Link</button>
   <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmDelete()"><i class="fa-solid fa-trash" style="color:var(--red)"></i> Delete</button>
-  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px; margin-top: 8px; background: var(--bg-base);" onclick="document.getElementById('fileContextMenu').classList.remove('open')"><i class="fa-solid fa-xmark"></i> Cancel</button>
-</div>
+    <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmMove()"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--amber)"></i> Move To</button>
+    <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px; margin-top: 8px; background: var(--bg-base);" onclick="document.getElementById('fileContextMenu').classList.remove('open')"><i class="fa-solid fa-xmark"></i> Cancel</button>
+  </div>
 
 <div id="folderContextMenu" class="modal-base" style="width: 250px; padding: 16px; gap: 8px; transition: opacity 0.1s;">
   <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 4px;" id="fcm-title">Folder Actions</div>
@@ -1163,6 +1165,11 @@ window.fileCmDownload = function() { document.getElementById('fileContextMenu').
 window.fileCmRename = function() { document.getElementById('fileContextMenu').classList.remove('open'); window.openRenameModal(window.fileCmTarget.name); };
 window.fileCmCopyLink = function() { document.getElementById('fileContextMenu').classList.remove('open'); window.copyLink(window.fileCmTarget.url); };
 window.fileCmDelete = function() { document.getElementById('fileContextMenu').classList.remove('open'); window.deleteFile(window.fileCmTarget.name); };
+window.fileCmMove = function() {
+    document.getElementById('fileContextMenu').classList.remove('open');
+    window.pendingMove = { type: 'file', name: window.fileCmTarget.name, path: window.currentStoragePath };
+    toast('Tap destination folder...', 'info');
+};
 
 window.enterStorageFolder = function(folderName) {
     window.currentStoragePath = window.currentStoragePath ? window.currentStoragePath + '/' + folderName : folderName;
@@ -1524,6 +1531,54 @@ window.msDelete = async function() {
     if(error) { hideProgress(); return toast('Batch purge failure', 'err'); }
     window.clearMultiSelect();
     toast('Batch purged cleanly.', 'ok'); window.loadFiles(); hideProgress();
+};
+
+window.msMove = function() {
+    if (window.selectedFiles.size === 0) return;
+    window.pendingMove = { type: 'batch', items: Array.from(window.selectedFiles), path: window.currentStoragePath };
+    toast('Tap destination folder...', 'info');
+};
+
+window.executeTapMove = async function(destFolderName) {
+    let pm = window.pendingMove;
+    if (!pm) return;
+    
+    let destPath = window.currentStoragePath || '';
+    if (destFolderName) {
+        destPath = destPath ? destPath + '/' + destFolderName : destFolderName;
+    }
+    
+    let sourcePrefix = pm.path ? pm.path + '/' : '';
+    let destPrefix = destPath ? destPath + '/' : '';
+    
+    window.cancelTapMove();
+    showProgress(50); toast('Moving items...', 'info');
+
+    try {
+        if (pm.type === 'file') {
+            await supabaseClient.storage.from(BUCKET_NAME).move(sourcePrefix + pm.name, destPrefix + pm.name);
+        } else if (pm.type === 'batch') {
+            for (let fileName of pm.items) {
+                await supabaseClient.storage.from(BUCKET_NAME).move(sourcePrefix + fileName, destPrefix + fileName);
+            }
+            window.clearMultiSelect();
+        } else { // Folder move logic
+            let oldPath = sourcePrefix + pm.name;
+            let newPath = destPrefix + pm.name;
+            if (oldPath === newPath || newPath.startsWith(oldPath + '/')) return toast('Cannot move folder into itself', 'warn');
+            const { data } = await supabaseClient.storage.from(BUCKET_NAME).list(oldPath);
+            if (data) {
+                for (let file of data) await supabaseClient.storage.from(BUCKET_NAME).move(oldPath + '/' + file.name, newPath + '/' + file.name);
+            }
+            await supabaseClient.storage.from(BUCKET_NAME).remove([oldPath + '/.emptyFolderPlaceholder']);
+            await supabaseClient.storage.from(BUCKET_NAME).upload(newPath + '/.emptyFolderPlaceholder', new Blob([''], { type: 'text/plain' }));
+        }
+        window.loadFiles();
+        toast('Moved successfully', 'ok');
+    } catch(e) {
+        toast('Move failed', 'err');
+    }
+    hideProgress();
 };
 
 window.msDownloadZip = async function() {
