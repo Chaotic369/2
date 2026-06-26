@@ -332,10 +332,14 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
                              <span id="storage-path-display" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);"></span>
                      
                                                   <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
-                                                                                                        <div id="search-container" style="display:flex; align-items:center; background:var(--bg-base); border-radius:16px; padding:2px; transition:max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-width:30px; overflow:hidden;">
-                                                                                                           <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="document.getElementById('search-container').style.maxWidth = document.getElementById('search-container').style.maxWidth === '160px' ? '30px' : '160px'; document.getElementById('storage-search-input').focus();" title="Search Files"><i class="fa-solid fa-magnifying-glass" style="font-size:14px;"></i></button>
+                                                                                                        <div id="search-container" style="display:flex; align-items:center; background:var(--bg-base); border-radius:16px; padding:2px; max-width:160px; overflow:hidden;">
+                                                                                                           <div style="width:26px; height:26px; display:flex; align-items:center; justify-content:center; color:var(--text-muted); margin-left:4px;"><i class="fa-solid fa-magnifying-glass" style="font-size:14px;"></i></div>
                                                                                                            <input type="text" id="storage-search-input" style="background:transparent; border:none; color:var(--text-main); width:120px; font-size:12px; outline:none; padding:0 8px;" placeholder="Search..." onkeyup="window.loadFiles()">
                                                                                                         </div>
+                                                                                                        <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="window.toggleFormatFilter()" title="Filter by Format"><i class="fa-solid fa-table-cells-large" id="filter-icon" style="font-size:16px;"></i></button>
+                                                                                                        <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--teal);" onclick="window.downloadCurrentViewAsZip()" title="Download View as Zip"><i class="fa-solid fa-file-zipper" style="font-size:16px;"></i></button>
+                                                                                                        <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="window.toggleSort()" title="Toggle Sort"><i class="fa-solid fa-arrow-down-a-z" id="sort-icon" style="font-size:16px;"></i></button>
+                                                                                                    </div>
                                                                                                         <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="window.toggleFormatFilter()" title="Filter by Format"><i class="fa-solid fa-table-cells-large" id="filter-icon" style="font-size:16px;"></i></button>
                                                                                                         <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--teal);" onclick="window.downloadCurrentViewAsZip()" title="Download View as Zip"><i class="fa-solid fa-file-zipper" style="font-size:16px;"></i></button>
                                                                                                         <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="window.toggleSort()" title="Toggle Sort"><i class="fa-solid fa-arrow-down-a-z" id="sort-icon" style="font-size:16px;"></i></button>
@@ -470,6 +474,7 @@ window.fileCategories = {
     'Images': { icon: 'fa-solid fa-image', color: 'var(--teal)', exts: ['png','jpg','jpeg','gif','webp','svg'] },
     'Videos': { icon: 'fa-solid fa-film', color: 'var(--red)', exts: ['mp4','webm','mov'] },
     'Audio': { icon: 'fa-solid fa-music', color: 'var(--green)', exts: ['mp3','wav','ogg','m4a'] },
+    'Code': { icon: 'fa-solid fa-code', color: 'var(--amber)', exts: ['html','css','js','ts','jsx','tsx','py','java','c','cpp','cs','php','json','xml','sql','sh','bat','go','rs','rb','swift'] },
     'Documents': { icon: 'fa-solid fa-file-lines', color: 'var(--blue)', exts: ['pdf','doc','docx','xls','xlsx','ppt','pptx','txt','rtf','csv','md'] },
     'Apps': { icon: 'fa-brands fa-android', color: 'var(--green)', exts: ['apk'] },
     'Archives': { icon: 'fa-solid fa-box-archive', color: 'var(--amber)', exts: ['zip','rar','tar','gz','exe','deb','msi'] },
@@ -1256,10 +1261,11 @@ window.getIconForExt = function(ext) {
     if(['doc','docx'].includes(ext)) return 'fa-solid fa-file-word';
     if(['ppt','pptx'].includes(ext)) return 'fa-solid fa-file-powerpoint';
     if(['zip','rar','tar','gz'].includes(ext)) return 'fa-solid fa-file-zipper';
-    if(['txt','rtf','csv','log','json','md'].includes(ext)) return 'fa-solid fa-file-lines';
+    if(['txt','rtf','csv','log','md'].includes(ext)) return 'fa-solid fa-file-lines';
     if(['mp3','wav','ogg','m4a'].includes(ext)) return 'fa-solid fa-file-audio';
     if(['mp4','webm','mov'].includes(ext)) return 'fa-solid fa-file-video';
     if(['exe','deb','apk','msi'].includes(ext)) return 'fa-solid fa-box-archive';
+    if(['html','css','js','ts','jsx','tsx','py','java','c','cpp','cs','php','json','xml','sql','sh','bat','go','rs','rb','swift'].includes(ext)) return 'fa-solid fa-code';
     return 'fa-solid fa-file';
 };
 
