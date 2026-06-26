@@ -1169,7 +1169,7 @@ window.fileCmDelete = function() { document.getElementById('fileContextMenu').cl
 window.fileCmMove = function() {
     document.getElementById('fileContextMenu').classList.remove('open');
     window.pendingMove = { type: 'file', name: window.fileCmTarget.name, path: window.currentStoragePath };
-    if (window.showMoveToast) window.showMoveToast(`Maps to folder, then Paste`);
+    if (window.showMoveToast) window.showMoveToast(`Moving "${window.fileCmTarget.name}"`);
     else toast('Navigate to destination, then tap Paste', 'info');
 };
 
@@ -1552,7 +1552,7 @@ window.msDownload = async function() {
 window.msMove = function() {
     if (window.selectedFiles.size === 0) return;
     window.pendingMove = { type: 'batch', items: Array.from(window.selectedFiles), path: window.currentStoragePath };
-    if (window.showMoveToast) window.showMoveToast(`Moving ${window.selectedFiles.size} files. Go to folder, then Paste.`);
+    if (window.showMoveToast) window.showMoveToast(`Moving ${window.selectedFiles.size} items`);
     else toast('Navigate to destination, then tap Paste', 'info');
 };
 
@@ -1774,13 +1774,13 @@ window.showMoveToast = function(title) {
     if (!mToast) {
         mToast = document.createElement('div');
         mToast.id = 'moveToast';
-        mToast.style.cssText = "position:fixed; bottom:110px; left:50%; transform:translateX(-50%); background:var(--blue); color:#fff; padding:12px 24px; border-radius:32px; z-index:50000; display:flex; gap:12px; align-items:center; font-size:13px; font-weight:600; box-shadow:0 8px 32px rgba(0,0,0,0.3);";
+        mToast.style.cssText = "position:fixed; bottom:110px; left:50%; transform:translateX(-50%); background:var(--blue); color:#fff; padding:8px 16px; border-radius:32px; z-index:50000; display:flex; gap:10px; align-items:center; font-size:12px; font-weight:600; box-shadow:0 8px 32px rgba(0,0,0,0.3); white-space:nowrap; max-width:90vw;";
         document.body.appendChild(mToast);
     }
     mToast.innerHTML = `
-        <span>${title}</span>
-        <button class="btn" onclick="window.executeTapMove(null)" style="background:rgba(255,255,255,0.2); color:#fff; padding:6px 12px; font-size:12px;">Paste Here</button>
-        <button class="btn" onclick="window.cancelTapMove()" style="background:transparent; color:rgba(255,255,255,0.8); width:28px; height:28px;"><i class="fa-solid fa-xmark"></i></button>
+        <span style="overflow:hidden; text-overflow:ellipsis;">${title}</span>
+        <button class="btn" onclick="window.executeTapMove(null)" style="background:#fff; color:var(--blue); padding:4px 10px; font-size:11px; font-weight:700;"><i class="fa-solid fa-paste" style="margin-right:4px;"></i>Paste</button>
+        <button class="btn" onclick="window.cancelTapMove()" style="background:transparent; color:rgba(255,255,255,0.8); width:24px; height:24px; padding:0; box-shadow:none;"><i class="fa-solid fa-xmark"></i></button>
     `;
     mToast.style.display = 'flex';
 };
@@ -1898,7 +1898,7 @@ window.fcmMove = async function() {
         return toast('Note folders are root-level only right now.', 'warn');
     } 
     window.pendingMove = { type: t.type, name: t.name, path: window.currentStoragePath };
-    if (window.showMoveToast) window.showMoveToast(`Maps to destination, then Paste`);
+    if (window.showMoveToast) window.showMoveToast(`Moving "${t.name}"`);
 };
 
 window.cancelTapMove = function() {
