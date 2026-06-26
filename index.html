@@ -1440,56 +1440,57 @@ window.loadFiles = async function() {
         let cleanName = file.name.includes('_') ? file.name.substring(file.name.indexOf('_') + 1) : file.name;
 
         let previewHtml = '';
-        if (isImage) {
-            previewHtml = `<div style="width:42px; height:42px; border-radius:14px; overflow:hidden; flex-shrink:0; background:var(--bg-base); cursor:pointer;" onclick="window.previewImage(event, '${fileUrl}')"><img src="${fileUrl}" style="width:100%; height:100%; object-fit:cover;" loading="lazy"></div>`;
-        } else {
-            let docColor = window.getColorForExt(ext);
-            previewHtml = `<div style="width:42px; height:42px; border-radius:14px; background:var(--bg-base); display:flex; align-items:center; justify-content:center; color:${docColor}; font-size:18px; flex-shrink:0; cursor:pointer;" onclick="window.previewUniversal(event, '${fileUrl}', '${ext}')"><i class="${icon}"></i></div>`;
-        }
+                if (isImage) {
+                    previewHtml = `<div style="width:42px; height:42px; border-radius:14px; overflow:hidden; flex-shrink:0; background:var(--bg-base);"><img src="${fileUrl}" style="width:100%; height:100%; object-fit:cover;" loading="lazy"></div>`;
+                } else {
+                    let docColor = window.getColorForExt(ext);
+                    previewHtml = `<div style="width:42px; height:42px; border-radius:14px; background:var(--bg-base); display:flex; align-items:center; justify-content:center; color:${docColor}; font-size:18px; flex-shrink:0;"><i class="${icon}"></i></div>`;
+                }
 
-        let timeStr = '';
-        if (file.created_at) {
-            const dt = new Date(file.created_at);
-            timeStr = dt.toLocaleDateString(undefined, {month:'short', day:'numeric'}) + ' ' + dt.toLocaleTimeString(undefined, {hour:'2-digit', minute:'2-digit'});
-        }
+                let timeStr = '';
+                if (file.created_at) {
+                    const dt = new Date(file.created_at);
+                    timeStr = dt.toLocaleDateString(undefined, {month:'short', day:'numeric'}) + ' ' + dt.toLocaleTimeString(undefined, {hour:'2-digit', minute:'2-digit'});
+                }
 
-        const card = document.createElement('div');
-        card.className = 'file-card';
-        card.setAttribute('draggable', 'true');
-        card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', file.name); card.style.opacity = '0.5'; };
-        card.ondragend = (e) => { card.style.opacity = '1'; };
+                const card = document.createElement('div');
+                card.className = 'file-card';
+                card.setAttribute('draggable', 'true');
+                card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', file.name); card.style.opacity = '0.5'; };
+                card.ondragend = (e) => { card.style.opacity = '1'; };
         
-        // Context Menu Bind
-        card.oncontextmenu = (e) => window.openFileContextMenu(file.name, fileUrl, e);
-        let pressTimer;
-        card.addEventListener('touchstart', (e) => { pressTimer = setTimeout(() => window.openFileContextMenu(file.name, fileUrl, e), 550); }, {passive:true});
-        card.addEventListener('touchend', () => clearTimeout(pressTimer));
-        card.addEventListener('touchmove', () => clearTimeout(pressTimer));
+                // Context Menu Bind
+                card.oncontextmenu = (e) => window.openFileContextMenu(file.name, fileUrl, e);
+                let pressTimer;
+                card.addEventListener('touchstart', (e) => { pressTimer = setTimeout(() => window.openFileContextMenu(file.name, fileUrl, e), 550); }, {passive:true});
+                card.addEventListener('touchend', () => clearTimeout(pressTimer));
+                card.addEventListener('touchmove', () => clearTimeout(pressTimer));
 
-        let isChecked = window.selectedFiles.has(file.name);
-        let locHtml = window.isFormatFilterMode ? `<div style="font-size:9px; color:var(--amber); margin-top:2px;">📁 ${file._parentPath}</div>` : '';
+                let isChecked = window.selectedFiles.has(file.name);
+                let locHtml = window.isFormatFilterMode ? `<div style="font-size:9px; color:var(--amber); margin-top:2px;">📁 ${file._parentPath}</div>` : '';
+                let openAction = isImage ? `window.previewImage(event, '${fileUrl}')` : `window.previewUniversal(event, '${fileUrl}', '${ext}')`;
 
-        card.innerHTML = `
-            <div style="display:flex; gap:12px; align-items:center; flex:1; overflow:hidden;">
-                <input type="checkbox" class="file-checkbox" ${isChecked ? 'checked' : ''} onclick="window.toggleFileSelection('${file.name}', event)">
-                ${previewHtml}
-                <div style="overflow:hidden; display:flex; flex-direction:column; cursor:pointer;" onclick="window.toggleFileSelection('${file.name}', event)">
-                    <div style="font-weight:600; font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${cleanName}">${cleanName}</div>
-                    <div style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">
-                        <span>${formatBytes(file.metadata?.size || 0)}</span>
-                        <span style="opacity:0.4; margin:0 4px;">|</span>
-                        <span>${timeStr}</span>
-                    </div>
-                    ${locHtml}
-                                    </div>
-                                </div>
-                                <div style="display:flex; gap:4px; flex-shrink:0; align-items:center;">
-                                    <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px; color:var(--blue);" onclick="window.triggerDownload('${fileUrl}', '${cleanName}')" title="Quick Download"><i class="fa-solid fa-download"></i></button>
-                                    <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px;" onclick="window.openFileContextMenu('${file.name}', '${fileUrl}', event)" title="More Options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                                </div>
-                            `;
-                            container.appendChild(card);
-    });
+                card.innerHTML = `
+                    <div style="display:flex; gap:12px; align-items:center; flex:1; overflow:hidden; cursor:pointer;" onclick="${openAction}">
+                        <input type="checkbox" class="file-checkbox" ${isChecked ? 'checked' : ''} onclick="window.toggleFileSelection('${file.name}', event)">
+                        ${previewHtml}
+                        <div style="overflow:hidden; display:flex; flex-direction:column;">
+                            <div style="font-weight:600; font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${cleanName}">${cleanName}</div>
+                            <div style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">
+                                <span>${formatBytes(file.metadata?.size || 0)}</span>
+                                <span style="opacity:0.4; margin:0 4px;">|</span>
+                                <span>${timeStr}</span>
+                            </div>
+                            ${locHtml}
+                                            </div>
+                                        </div>
+                                        <div style="display:flex; gap:4px; flex-shrink:0; align-items:center;">
+                                            <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px; color:var(--blue);" onclick="event.stopPropagation(); window.triggerDownload('${fileUrl}', '${cleanName}')" title="Quick Download"><i class="fa-solid fa-download"></i></button>
+                                            <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px;" onclick="window.openFileContextMenu('${file.name}', '${fileUrl}', event)" title="More Options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                        </div>
+                                    `;
+                                    container.appendChild(card);
+            });
 };
 
 window.uploadFilesRealtime = async function(files) {
