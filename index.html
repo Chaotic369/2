@@ -1168,7 +1168,8 @@ window.fileCmDelete = function() { document.getElementById('fileContextMenu').cl
 window.fileCmMove = function() {
     document.getElementById('fileContextMenu').classList.remove('open');
     window.pendingMove = { type: 'file', name: window.fileCmTarget.name, path: window.currentStoragePath };
-    toast('Tap destination folder...', 'info');
+    if (window.showMoveToast) window.showMoveToast(`Tap destination for "${window.fileCmTarget.name}"`);
+    else toast('Tap destination folder...', 'info');
 };
 
 window.enterStorageFolder = function(folderName) {
@@ -1536,7 +1537,8 @@ window.msDelete = async function() {
 window.msMove = function() {
     if (window.selectedFiles.size === 0) return;
     window.pendingMove = { type: 'batch', items: Array.from(window.selectedFiles), path: window.currentStoragePath };
-    toast('Tap destination folder...', 'info');
+    if (window.showMoveToast) window.showMoveToast(`Moving ${window.selectedFiles.size} items...`);
+    else toast('Tap destination folder...', 'info');
 };
 
 window.executeTapMove = async function(destFolderName) {
@@ -1618,10 +1620,20 @@ window.msDownloadZip = async function() {
 // Global Drag and Drop Hook
 const dropOverlay = document.getElementById('global-drop-overlay');
 let dragCounter = 0;
-window.addEventListener('dragenter', (e) => { e.preventDefault(); dragCounter++; dropOverlay.style.display = 'flex'; });
-window.addEventListener('dragleave', (e) => { dragCounter--; if (dragCounter === 0) dropOverlay.style.display = 'none'; });
-window.addEventListener('dragover', (e) => { e.preventDefault(); });
+window.addEventListener('dragenter', (e) => { 
+    if (e.dataTransfer && e.dataTransfer.types && !e.dataTransfer.types.includes('Files')) return;
+    e.preventDefault(); dragCounter++; dropOverlay.style.display = 'flex'; 
+});
+window.addEventListener('dragleave', (e) => { 
+    if (e.dataTransfer && e.dataTransfer.types && !e.dataTransfer.types.includes('Files')) return;
+    dragCounter--; if (dragCounter <= 0) { dragCounter = 0; dropOverlay.style.display = 'none'; }
+});
+window.addEventListener('dragover', (e) => { 
+    if (e.dataTransfer && e.dataTransfer.types && !e.dataTransfer.types.includes('Files')) return;
+    e.preventDefault(); 
+});
 window.addEventListener('drop', (e) => {
+    if (e.dataTransfer && e.dataTransfer.types && !e.dataTransfer.types.includes('Files')) return;
     e.preventDefault(); dragCounter = 0; dropOverlay.style.display = 'none';
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
         window.uploadFilesRealtime(e.dataTransfer.files);
@@ -1742,6 +1754,22 @@ window.executeRename = async function() {
 window.fcmTarget = { type: null, id: null, name: null };
 window.pendingMove = null;
 
+window.showMoveToast = function(title) {
+    let mToast = document.getElementById('moveToast');
+    if (!mToast) {
+        mToast = document.createElement('div');
+        mToast.id = 'moveToast';
+        mToast.style.cssText = "position:fixed; bottom:110px; left:50%; transform:translateX(-50%); background:var(--blue); color:#fff; padding:12px 24px; border-radius:32px; z-index:50000; display:flex; gap:12px; align-items:center; font-size:13px; font-weight:600; box-shadow:0 8px 32px rgba(0,0,0,0.3);";
+        document.body.appendChild(mToast);
+    }
+    mToast.innerHTML = `
+        <span>${title}</span>
+        <button class="btn" onclick="window.executeTapMove(null)" style="background:rgba(255,255,255,0.2); color:#fff; padding:6px 12px; font-size:12px;">Paste Here</button>
+        <button class="btn" onclick="window.cancelTapMove()" style="background:transparent; color:rgba(255,255,255,0.8); width:28px; height:28px;"><i class="fa-solid fa-xmark"></i></button>
+    `;
+    mToast.style.display = 'flex';
+};
+
 window.openFolderMenu = function(type, id, name, event) {
     if (event) { event.preventDefault(); event.stopPropagation(); }
     window.fcmTarget = { type, id, name };
@@ -1860,55 +1888,7 @@ window.fcmMove = async function() {
         return toast('Note folders are root-level only right now.', 'warn');
     } 
     window.pendingMove = { type: t.type, name: t.name, path: window.currentStoragePath };
-    
-    let mToast = document.getElementById('moveToast');
-    if (!mToast) {
-        mToast = document.createElement('div');
-        mToast.id = 'moveToast';
-        mToast.style.cssText = "position:fixed; bottom:110px; left:50%; transform:translateX(-50%); background:var(--blue); color:#fff; padding:12px 24px; border-radius:32px; z-index:50000; display:flex; gap:12px; align-items:center; font-size:13px; font-weight:600; box-shadow:0 8px 32px rgba(0,0,0,0.3);";
-        document.body.appendChild(mToast);
-    }
-    mToast.innerHTML = `
-        <span>Tap folder to move "${t.name}" into</span>
-        <button class="btn" onclick="window.executeTapMove(null)" style="background:rgba(255,255,255,0.2); color:#fff; padding:6px 12px; font-size:12px;">Paste Here</button>
-        <button class="btn" onclick="window.cancelTapMove()" style="background:transparent; color:rgba(255,255,255,0.8); width:28px; height:28px;"><i class="fa-solid fa-xmark"></i></button>
-    `;
-    mToast.style.display = 'flex';
-};
-
-window.executeTapMove = async function(destFolderName) {
-    let pm = window.pendingMove;
-    if (!pm) return;
-    
-    let destPath = window.currentStoragePath || '';
-    if (destFolderName) {
-        destPath = destPath ? destPath + '/' + destFolderName : destFolderName;
-    }
-    
-    let sourcePrefix = pm.path ? pm.path + '/' : '';
-    let oldPath = sourcePrefix + pm.name;
-    let destPrefix = destPath ? destPath + '/' : '';
-    let newPath = destPrefix + pm.name;
-    
-    if (oldPath === newPath || newPath.startsWith(oldPath + '/')) {
-        window.cancelTapMove();
-        return toast('Cannot move a folder into itself', 'warn');
-    }
-    
-    window.cancelTapMove();
-    showProgress(50); toast('Moving folder...', 'info');
-    
-    const { data } = await supabaseClient.storage.from(BUCKET_NAME).list(oldPath);
-    if (data && data.length > 0) {
-        for (let file of data) {
-             await supabaseClient.storage.from(BUCKET_NAME).move(oldPath + '/' + file.name, newPath + '/' + file.name);
-        }
-    }
-    await supabaseClient.storage.from(BUCKET_NAME).remove([oldPath + '/.emptyFolderPlaceholder']);
-    await supabaseClient.storage.from(BUCKET_NAME).upload(newPath + '/.emptyFolderPlaceholder', new Blob([''], { type: 'text/plain' }));
-    window.loadFiles();
-    hideProgress();
-    toast('Folder moved', 'ok');
+    if (window.showMoveToast) window.showMoveToast(`Tap folder to move "${t.name}" into`);
 };
 
 window.cancelTapMove = function() {
