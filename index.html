@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <style>
 :root {
@@ -255,7 +256,7 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   </button>
 </div>
 
-<input type="file" id="fileUploadInput" style="display:none;" onchange="window.uploadFile(event)">
+<input type="file" id="fileUploadInput" style="display:none;" multiple onchange="window.uploadFile(event)">
 <button id="uploadSquircleBtn" onclick="document.getElementById('fileUploadInput').click()" title="Upload Document">
   <i class="fa-solid fa-cloud-arrow-up"></i>
 </button>
@@ -285,12 +286,13 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 
   <div class="workspace-panel">
         <div class="panel-header" style="border-bottom: 1px solid rgba(139, 137, 132, 0.1); margin-bottom: 12px; min-height: 34px;">
-                   <div style="display: flex; align-items: center; gap: 8px; height: 26px;">
-                     <button id="btn-back-storage" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.goBackStorage()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)';" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)';" ondrop="window.dropOutStorage(event)" title="Drop file here to move out"><i class="fa-solid fa-arrow-left"></i></button>
-                     <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
-                     <span id="storage-path-display" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);"></span>
-                   </div>
-                </div>
+                           <div style="display: flex; align-items: center; gap: 8px; height: 26px; flex: 1;">
+                             <button id="btn-back-storage" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.goBackStorage()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)';" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)';" ondrop="window.dropOutStorage(event)" title="Drop file here to move out"><i class="fa-solid fa-arrow-left"></i></button>
+                             <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
+                             <span id="storage-path-display" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);"></span>
+                             <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; color:var(--teal); margin-left:auto;" onclick="window.downloadCurrentViewAsZip()" title="Download View as Zip"><i class="fa-solid fa-file-zipper"></i></button>
+                           </div>
+                        </div>
     
     
 
@@ -310,9 +312,10 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 
 <div id="folderContextMenu" class="modal-base" style="width: 250px; padding: 16px; gap: 8px; transition: opacity 0.1s;">
   <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 4px;" id="fcm-title">Folder Actions</div>
-  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fcmRename()"><i class="fa-solid fa-pen" style="color:var(--blue)"></i> Rename</button>
-  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fcmMove()"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--amber)"></i> Move To</button>
-  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fcmDelete()"><i class="fa-solid fa-trash" style="color:var(--red)"></i> Delete</button>
+    <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fcmRename()"><i class="fa-solid fa-pen" style="color:var(--blue)"></i> Rename</button>
+    <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fcmMove()"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--amber)"></i> Move To</button>
+    <button id="fcm-download-btn" class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fcmDownloadZip()"><i class="fa-solid fa-file-zipper" style="color:var(--teal)"></i> Download Zip</button>
+    <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fcmDelete()"><i class="fa-solid fa-trash" style="color:var(--red)"></i> Delete</button>
   <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px; margin-top: 8px; background: var(--bg-base);" onclick="document.getElementById('folderContextMenu').classList.remove('open')"><i class="fa-solid fa-xmark"></i> Cancel</button>
 </div>
 
@@ -1127,12 +1130,17 @@ window.loadFiles = async function() {
 };
 
 window.uploadFile = async function(event) {
-    const file = event.target.files[0]; if(!file) return;
-    event.target.value = ''; showProgress(20); toast('Injecting payload...', 'info');
+    const files = event.target.files; if(!files || files.length === 0) return;
+    let fileArray = Array.from(files);
+    event.target.value = ''; showProgress(20); toast(`Injecting ${fileArray.length} payload(s)...`, 'info');
     let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
-    const uniqueName = prefix + `${Date.now()}_${file.name}`;
-    const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, file, { cacheControl: '3600', upsert: false });
-    if (error) { hideProgress(); return toast('Upload rejected: ' + error.message, 'err'); }
+    let successCount = 0;
+    for (let file of fileArray) {
+        const uniqueName = prefix + `${Date.now()}_${file.name}`;
+        const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, file, { cacheControl: '3600', upsert: false });
+        if (!error) successCount++;
+    }
+    if (successCount < fileArray.length) { hideProgress(); return toast(`Uploaded ${successCount}/${fileArray.length}, some failed`, 'warn'); }
     toast('Upload confirmed!', 'ok'); window.loadFiles(); hideProgress();
 };
 
@@ -1146,8 +1154,94 @@ window.deleteFile = async function(fileName) {
 };
 
 window.copyLink = function(url) { navigator.clipboard.writeText(url).then(() => { toast('Link copied!', 'info'); }); };
-window.triggerDownload = function(url, name) {
-    toast('Downloading...', 'info'); const a = document.createElement('a'); a.href = url; a.download = name; a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+window.triggerDownload = async function(url, name) {
+    toast('Downloading...', 'info');
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = blobUrl; a.download = name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    } catch(e) {
+        toast('Direct download failed, falling back...', 'warn');
+        const a = document.createElement('a'); a.href = url; a.download = name; a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+};
+
+window.downloadCurrentViewAsZip = async function() {
+    if (typeof JSZip === 'undefined') return toast('Zip library not loaded', 'err');
+    toast('Bundling files into zip...', 'info');
+    showProgress(50);
+    try {
+        const zip = new JSZip();
+        const prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+        const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list(window.currentStoragePath || '', { limit: 1000 });
+        if (error || !data) throw error;
+        const files = data.filter(f => f.id && f.name !== '.emptyFolderPlaceholder' && !f.name.startsWith('note_img_'));
+        if (files.length === 0) { hideProgress(); return toast('No files to zip', 'warn'); }
+        let downloaded = 0;
+        for (let file of files) {
+            const fullPath = prefix + file.name;
+            const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(fullPath);
+            const response = await fetch(urlData.publicUrl);
+            if (response.ok) {
+                const blob = await response.blob();
+                let cleanName = file.name.includes('_') ? file.name.substring(file.name.indexOf('_') + 1) : file.name;
+                zip.file(cleanName, blob);
+                downloaded++;
+            }
+        }
+        if (downloaded === 0) { hideProgress(); return toast('Failed to fetch files', 'err'); }
+        const content = await zip.generateAsync({ type: 'blob' });
+        const zipName = (window.currentStoragePath ? window.currentStoragePath.split('/').pop() : 'Root_Files') + '.zip';
+        const blobUrl = URL.createObjectURL(content);
+        const a = document.createElement('a'); a.href = blobUrl; a.download = zipName; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+        toast('Zip download complete!', 'ok');
+    } catch(e) {
+        console.error(e); toast('Zip bundle failed', 'err');
+    }
+    hideProgress();
+};
+
+window.fcmDownloadZip = async function() {
+    document.getElementById('folderContextMenu').classList.remove('open');
+    let t = window.fcmTarget;
+    if (t.type !== 'storage') return toast('Only storage folders can be zipped', 'warn');
+    if (typeof JSZip === 'undefined') return toast('Zip library not loaded', 'err');
+    toast(`Bundling ${t.name} into zip...`, 'info');
+    showProgress(50);
+    try {
+        const zip = new JSZip();
+        const prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+        const targetPath = prefix + t.name;
+        const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list(targetPath, { limit: 1000 });
+        if (error || !data) throw error;
+        const files = data.filter(f => f.id && f.name !== '.emptyFolderPlaceholder');
+        if (files.length === 0) { hideProgress(); return toast('Folder is empty', 'warn'); }
+        let downloaded = 0;
+        for (let file of files) {
+            const fullPath = targetPath + '/' + file.name;
+            const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(fullPath);
+            const response = await fetch(urlData.publicUrl);
+            if (response.ok) {
+                const blob = await response.blob();
+                let cleanName = file.name.includes('_') ? file.name.substring(file.name.indexOf('_') + 1) : file.name;
+                zip.file(cleanName, blob);
+                downloaded++;
+            }
+        }
+        if (downloaded === 0) { hideProgress(); return toast('Failed to fetch files', 'err'); }
+        const content = await zip.generateAsync({ type: 'blob' });
+        const blobUrl = URL.createObjectURL(content);
+        const a = document.createElement('a'); a.href = blobUrl; a.download = t.name + '.zip'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+        toast('Zip download complete!', 'ok');
+    } catch (e) {
+        console.error(e); toast('Folder zip failed', 'err');
+    }
+    hideProgress();
 };
 
 window.openRenameModal = function(name) {
@@ -1177,6 +1271,9 @@ window.openFolderMenu = function(type, id, name, event) {
     if (event) { event.preventDefault(); event.stopPropagation(); }
     window.fcmTarget = { type, id, name };
     document.getElementById('fcm-title').innerText = name;
+    
+    const zipBtn = document.getElementById('fcm-download-btn');
+    if (zipBtn) zipBtn.style.display = type === 'storage' ? 'flex' : 'none';
     
     const menu = document.getElementById('folderContextMenu');
     let x = window.innerWidth / 2;
