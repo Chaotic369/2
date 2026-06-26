@@ -326,26 +326,21 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 
   <div class="workspace-panel">
         <div class="panel-header" style="border-bottom: 1px solid rgba(139, 137, 132, 0.1); margin-bottom: 12px; min-height: 34px;">
-                           <div style="display: flex; align-items: center; gap: 8px; height: 26px; flex: 1;">
-                             <button id="btn-back-storage" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.goBackStorage()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)';" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)';" ondrop="window.dropOutStorage(event)" title="Drop file here to move out"><i class="fa-solid fa-arrow-left"></i></button>
-                             <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
-                             <span id="storage-path-display" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);"></span>
-                     
-                                                  <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
-                                                                                                        <div id="search-container" style="display:flex; align-items:center; background:var(--bg-base); border-radius:16px; padding:2px; max-width:160px; overflow:hidden;">
-                                                                                                           <div style="width:26px; height:26px; display:flex; align-items:center; justify-content:center; color:var(--text-muted); margin-left:4px;"><i class="fa-solid fa-magnifying-glass" style="font-size:14px;"></i></div>
-                                                                                                           <input type="text" id="storage-search-input" style="background:transparent; border:none; color:var(--text-main); width:120px; font-size:12px; outline:none; padding:0 8px;" placeholder="Search..." onkeyup="window.loadFiles()">
-                                                                                                        </div>
-                                                                                                        <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="window.toggleFormatFilter()" title="Filter by Format"><i class="fa-solid fa-table-cells-large" id="filter-icon" style="font-size:16px;"></i></button>
-                                                                                                        <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--teal);" onclick="window.downloadCurrentViewAsZip()" title="Download View as Zip"><i class="fa-solid fa-file-zipper" style="font-size:16px;"></i></button>
-                                                                                                        <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="window.toggleSort()" title="Toggle Sort"><i class="fa-solid fa-arrow-down-a-z" id="sort-icon" style="font-size:16px;"></i></button>
-                                                                                                    </div>
-                                                                                                        <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="window.toggleFormatFilter()" title="Filter by Format"><i class="fa-solid fa-table-cells-large" id="filter-icon" style="font-size:16px;"></i></button>
-                                                                                                        <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--teal);" onclick="window.downloadCurrentViewAsZip()" title="Download View as Zip"><i class="fa-solid fa-file-zipper" style="font-size:16px;"></i></button>
-                                                                                                        <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="window.toggleSort()" title="Toggle Sort"><i class="fa-solid fa-arrow-down-a-z" id="sort-icon" style="font-size:16px;"></i></button>
-                                                                                                    </div>
-                                                </div>
+                    <div style="display: flex; align-items: center; gap: 8px; height: 26px; flex: 1;">
+                        <button id="btn-back-storage" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.goBackStorage()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)';" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)';" ondrop="window.dropOutStorage(event)" title="Drop file here to move out"><i class="fa-solid fa-arrow-left"></i></button>
+                        <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
+                        <span id="storage-path-display" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);"></span>
+        
+                        <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+                            <div id="search-container" style="display:flex; align-items:center; background:var(--bg-base); border-radius:16px; padding:2px; overflow:hidden;">
+                                <input type="text" id="storage-search-input" style="background:transparent; border:none; color:var(--text-main); width:140px; font-size:13px; outline:none; padding:4px 12px;" placeholder="Search..." autocomplete="off" onkeyup="window.loadFiles()">
+                            </div>
+                            <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="window.toggleFormatFilter()" title="Filter by Format"><i class="fa-solid fa-table-cells-large" id="filter-icon" style="font-size:16px;"></i></button>
+                            <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--teal);" onclick="window.downloadCurrentViewAsZip()" title="Download View as Zip"><i class="fa-solid fa-file-zipper" style="font-size:16px;"></i></button>
+                            <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="window.toggleSort()" title="Toggle Sort"><i class="fa-solid fa-arrow-down-a-z" id="sort-icon" style="font-size:16px;"></i></button>
                         </div>
+                    </div>
+                </div>
     
     
 
@@ -474,7 +469,7 @@ window.fileCategories = {
     'Images': { icon: 'fa-solid fa-image', color: 'var(--teal)', exts: ['png','jpg','jpeg','gif','webp','svg'] },
     'Videos': { icon: 'fa-solid fa-film', color: 'var(--red)', exts: ['mp4','webm','mov'] },
     'Audio': { icon: 'fa-solid fa-music', color: 'var(--green)', exts: ['mp3','wav','ogg','m4a'] },
-    'Code': { icon: 'fa-solid fa-code', color: 'var(--amber)', exts: ['html','css','js','ts','jsx','tsx','py','java','c','cpp','cs','php','json','xml','sql','sh','bat','go','rs','rb','swift'] },
+    'Codes': { icon: 'fa-solid fa-code', color: 'var(--amber)', exts: ['html','css','js','ts','jsx','tsx','py','java','c','cpp','cs','php','json','xml','sql','sh','bat','go','rs','rb','swift'] },
     'Documents': { icon: 'fa-solid fa-file-lines', color: 'var(--blue)', exts: ['pdf','doc','docx','xls','xlsx','ppt','pptx','txt','rtf','csv','md'] },
     'Apps': { icon: 'fa-brands fa-android', color: 'var(--green)', exts: ['apk'] },
     'Archives': { icon: 'fa-solid fa-box-archive', color: 'var(--amber)', exts: ['zip','rar','tar','gz','exe','deb','msi'] },
