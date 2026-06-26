@@ -238,9 +238,39 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 
 #progressBar {
   position: fixed; top: 0; left: 0; height: 3px; background: var(--blue); z-index: 50000;
-  width: 0%; display: none; box-shadow: none; border: none !important;
+  width: 0%; display: none; box-shadow: none; border: none !important; transition: width 0.1s linear;
 }
 #progressBar.active { display: block; }
+
+.md-preview pre { background: rgba(0,0,0,0.2) !important; padding: 8px; border-radius: 8px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 11px; margin: 4px 0; border: 1px solid rgba(255,255,255,0.05); }
+.md-preview strong { color: var(--amber); font-weight: 700; }
+.md-preview em { color: var(--teal); font-style: italic; }
+.md-preview code { font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.2); padding: 2px 4px; border-radius: 4px; font-size: 11px; }
+
+#multiSelectBar {
+  position: fixed; bottom: -80px; left: 50%; transform: translateX(-50%);
+  background: var(--bg-surface); padding: 12px 24px; border-radius: 32px;
+  display: flex; gap: 16px; align-items: center; box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+  z-index: 45000; transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(139, 137, 132, 0.1);
+}
+#multiSelectBar.active { bottom: 32px; }
+
+.file-checkbox {
+  appearance: none; width: 18px; height: 18px; border: 2px solid var(--text-muted);
+  border-radius: 6px; background: transparent; cursor: pointer; transition: all 0.2s; position: relative; flex-shrink:0;
+}
+.file-checkbox:checked { background: var(--blue); border-color: var(--blue); }
+.file-checkbox:checked::after {
+  content: ''; position: absolute; left: 5px; top: 2px; width: 4px; height: 8px;
+  border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
+
+#global-drop-overlay {
+  position: fixed; inset: 0; background: rgba(24, 24, 23, 0.85); backdrop-filter: blur(12px);
+  z-index: 99999; display: none; align-items: center; justify-content: center;
+  color: var(--teal); font-size: 28px; font-weight: 700; flex-direction: column; gap: 20px;
+  border: 4px dashed var(--teal); margin: 16px; border-radius: 40px; pointer-events: none;
+}
 </style>
 </head>
 <body>
@@ -290,8 +320,17 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
                              <button id="btn-back-storage" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.goBackStorage()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)';" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)';" ondrop="window.dropOutStorage(event)" title="Drop file here to move out"><i class="fa-solid fa-arrow-left"></i></button>
                              <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
                              <span id="storage-path-display" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);"></span>
-                             <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; color:var(--teal); margin-left:auto;" onclick="window.downloadCurrentViewAsZip()" title="Download View as Zip"><i class="fa-solid fa-file-zipper"></i></button>
-                           </div>
+                     
+                                                  <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+                                                      <div id="search-container" style="display:flex; align-items:center; background:var(--bg-base); border-radius:16px; padding:2px; transition:max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-width:30px; overflow:hidden;">
+                                                         <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="document.getElementById('search-container').style.maxWidth = document.getElementById('search-container').style.maxWidth === '160px' ? '30px' : '160px'; document.getElementById('storage-search-input').focus();" title="Search Files"><i class="fa-solid fa-magnifying-glass" style="font-size:12px;"></i></button>
+                                                         <input type="text" id="storage-search-input" style="background:transparent; border:none; color:var(--text-main); width:120px; font-size:12px; outline:none; padding:0 8px;" placeholder="Search..." onkeyup="window.loadFiles()">
+                                                      </div>
+                                                      <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; color:var(--text-main);" onclick="window.toggleSort()" title="Toggle Sort"><i class="fa-solid fa-arrow-down-a-z" id="sort-icon" style="font-size:12px;"></i></button>
+                                                      <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; color:var(--text-main);" onclick="window.toggleFormatFilter()" title="Filter by Format"><i class="fa-solid fa-layer-group" id="filter-icon" style="font-size:12px;"></i></button>
+                                                      <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; color:var(--teal);" onclick="window.downloadCurrentViewAsZip()" title="Download View as Zip"><i class="fa-solid fa-file-zipper" style="font-size:12px;"></i></button>
+                                                  </div>
+                                                </div>
                         </div>
     
     
@@ -309,6 +348,27 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 </div>
 
 <div id="toast"></div>
+
+<div id="global-drop-overlay">
+  <i class="fa-solid fa-cloud-arrow-up" style="font-size: 72px;"></i>
+  <span>DROP TO UPLOAD TO CURRENT FOLDER</span>
+</div>
+
+<div id="multiSelectBar">
+  <div style="font-size: 13px; font-weight: 600; color: var(--text-main); margin-right: 8px;"><span id="ms-count">0</span> Selected</div>
+  <button class="btn" style="padding: 8px 16px; background: var(--bg-base); gap: 8px;" onclick="window.msDownloadZip()"><i class="fa-solid fa-file-zipper" style="color:var(--teal)"></i> Zip</button>
+  <button class="btn" style="padding: 8px 16px; background: var(--bg-base); gap: 8px;" onclick="window.msDelete()"><i class="fa-solid fa-trash" style="color:var(--red)"></i> Delete</button>
+  <button class="action-mini-btn" style="margin-left:8px;" onclick="window.clearMultiSelect()"><i class="fa-solid fa-xmark"></i></button>
+</div>
+
+<div id="fileContextMenu" class="modal-base" style="width: 250px; padding: 16px; gap: 8px; transition: opacity 0.1s;">
+  <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 4px;" id="file-cm-title">File Actions</div>
+  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmDownload()"><i class="fa-solid fa-download" style="color:var(--blue)"></i> Download</button>
+  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmRename()"><i class="fa-solid fa-pen" style="color:var(--teal)"></i> Rename</button>
+  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmCopyLink()"><i class="fa-solid fa-link" style="color:var(--text-main)"></i> Copy Link</button>
+  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmDelete()"><i class="fa-solid fa-trash" style="color:var(--red)"></i> Delete</button>
+  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px; margin-top: 8px; background: var(--bg-base);" onclick="document.getElementById('fileContextMenu').classList.remove('open')"><i class="fa-solid fa-xmark"></i> Cancel</button>
+</div>
 
 <div id="folderContextMenu" class="modal-base" style="width: 250px; padding: 16px; gap: 8px; transition: opacity 0.1s;">
   <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 4px;" id="fcm-title">Folder Actions</div>
@@ -391,6 +451,46 @@ var $progress = document.getElementById('progressBar');
 var $toast = document.getElementById('toast');
 let S = { notes: [], folders: [] };
 window.currentFolderView = null;
+window.selectedFiles = new Set();
+window.currentSort = 'date';
+window.isFormatFilterMode = false;
+window.activeFormatType = null;
+
+window.parseMarkdown = function(text, noteId) {
+    if (!text) return '';
+    let html = String(text).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    html = html.replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
+    html = html.replace(/`(.*?)`/g, '<code>$1</code>');
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    let taskIndex = 0;
+    html = html.replace(/-\s\[([xX ])\]\s(.*?)(\n|$)/g, (match, state, label, newline) => {
+        let isChecked = state.toLowerCase() === 'x';
+        let chk = `<input type="checkbox" ${isChecked ? 'checked' : ''} onchange="window.toggleTaskState('${noteId}', ${taskIndex}, this.checked)" onclick="event.stopPropagation()" style="margin-right:8px; cursor:pointer; accent-color:var(--amber);">`;
+        let txt = `<span style="${isChecked ? 'text-decoration:line-through;opacity:0.5;' : ''}">${label}</span>`;
+        taskIndex++;
+        return `<div style="display:flex;align-items:center;margin:2px 0;">${chk}${txt}</div>` + newline;
+    });
+    return `<div class="md-preview" style="white-space:pre-wrap; word-break:break-word;">${html}</div>`;
+};
+
+window.toggleTaskState = function(noteId, targetIndex, isChecked) {
+    let n = S.notes.find(x => x.id === noteId);
+    if (!n) return;
+    let currIndex = 0;
+    n.text = n.text.replace(/-\s\[([xX ])\]\s/g, (match) => {
+        if (currIndex === targetIndex) {
+            currIndex++;
+            return isChecked ? '- [x] ' : '- [ ] ';
+        }
+        currIndex++;
+        return match;
+    });
+    window.saveNotesData();
+    window.renderNotes();
+    let nmId = document.getElementById('nm-id');
+    if (nmId && nmId.value === noteId) document.getElementById('nm-text').value = n.text;
+};
 
 const noteColors = [
   'var(--note-base)',
@@ -896,12 +996,12 @@ window.renderNotes = function() {
         }
         
         if (n.text) {
-            let maxLen = spanClass ? 800 : 200;
-            let textPreview = n.text.length > maxLen ? n.text.substring(0, maxLen) + '...' : n.text;
-            html += `<div style="white-space:pre-wrap; word-break:break-word;">${String(textPreview).replace(/</g,'&lt;')}</div>`;
-        }
-        el.innerHTML = html;
-        nContainer.appendChild(el);
+                    let maxLen = spanClass ? 800 : 200;
+                    let textPreview = n.text.length > maxLen ? n.text.substring(0, maxLen) + '...' : n.text;
+                    html += window.parseMarkdown(textPreview, n.id);
+                }
+                el.innerHTML = html;
+                nContainer.appendChild(el);
     });
 
     if (typeof Sortable !== 'undefined') {
@@ -941,6 +1041,108 @@ window.packMasonry = function() {
 };
 
 window.currentStoragePath = '';
+window.fileCmTarget = { name: null, url: null };
+
+window.toggleSort = function() {
+    if (window.currentSort === 'date') window.currentSort = 'size';
+    else if (window.currentSort === 'size') window.currentSort = 'alpha';
+    else window.currentSort = 'date';
+    
+    const icon = document.getElementById('sort-icon');
+    if (icon) {
+        icon.className = window.currentSort === 'date' ? 'fa-solid fa-arrow-down-a-z' : 
+                         (window.currentSort === 'size' ? 'fa-solid fa-arrow-down-9-1' : 'fa-solid fa-arrow-down-z-a');
+    }
+    toast('Sorted by ' + window.currentSort, 'info', 1500);
+    window.loadFiles();
+};
+
+window.toggleFormatFilter = function() {
+    window.isFormatFilterMode = !window.isFormatFilterMode;
+    window.activeFormatType = null;
+    const icon = document.getElementById('filter-icon');
+    if (icon) icon.style.color = window.isFormatFilterMode ? 'var(--amber)' : 'var(--text-main)';
+    toast(window.isFormatFilterMode ? 'Global Format View Active' : 'Standard Folder View', 'info', 2000);
+    window.loadFiles();
+};
+
+window.enterFormatFolder = function(type) {
+    window.activeFormatType = type;
+    document.getElementById('btn-back-storage').style.display = 'flex';
+    document.getElementById('storage-path-display').textContent = 'Formats / ' + type;
+    window.loadFiles();
+};
+
+window.fetchAllRecursive = async function(path = '') {
+    let all = [];
+    const { data } = await supabaseClient.storage.from(BUCKET_NAME).list(path, { limit: 1000 });
+    if (!data) return [];
+    for (let f of data) {
+        if (!f.id && f.name !== '.emptyFolderPlaceholder') {
+            let subPath = path ? path + '/' + f.name : f.name;
+            let subs = await window.fetchAllRecursive(subPath);
+            all = all.concat(subs);
+        } else if (f.id && f.name !== '.emptyFolderPlaceholder' && !f.name.startsWith('note_img_')) {
+            f._fullPath = path ? path + '/' + f.name : f.name;
+            f._parentPath = path || 'Root';
+            all.push(f);
+        }
+    }
+    return all;
+};
+
+window.toggleFileSelection = function(fileName, event) {
+    if (event) event.stopPropagation();
+    if (window.selectedFiles.has(fileName)) window.selectedFiles.delete(fileName);
+    else window.selectedFiles.add(fileName);
+    window.updateMultiSelectUI();
+    
+    // Sync the visual checkbox if the user clicked the file text row instead of the box itself
+    if (event && event.currentTarget && event.currentTarget.tagName !== 'INPUT') {
+        let cb = event.currentTarget.parentElement.querySelector('.file-checkbox');
+        if (cb) cb.checked = window.selectedFiles.has(fileName);
+    }
+};
+
+window.clearMultiSelect = function() {
+    window.selectedFiles.clear();
+    window.updateMultiSelectUI();
+    document.querySelectorAll('.file-checkbox').forEach(cb => cb.checked = false);
+};
+
+window.updateMultiSelectUI = function() {
+    const bar = document.getElementById('multiSelectBar');
+    const count = document.getElementById('ms-count');
+    count.textContent = window.selectedFiles.size;
+    if (window.selectedFiles.size > 0) bar.classList.add('active');
+    else bar.classList.remove('active');
+};
+
+window.openFileContextMenu = function(name, url, event) {
+    event.preventDefault(); event.stopPropagation();
+    window.fileCmTarget = { name, url };
+    document.getElementById('file-cm-title').innerText = name;
+    
+    const menu = document.getElementById('fileContextMenu');
+    let x = window.innerWidth / 2, y = window.innerHeight / 2;
+    if (event.touches && event.touches.length > 0) { x = event.touches[0].clientX; y = event.touches[0].clientY; } 
+    else if (event.clientX !== undefined) { x = event.clientX; y = event.clientY; }
+    
+    menu.style.top = y + 'px'; menu.style.left = x + 'px'; menu.style.transform = 'none'; menu.style.margin = '0'; menu.style.opacity = '0';
+    menu.classList.add('open');
+    
+    setTimeout(() => {
+        const rect = menu.getBoundingClientRect();
+        if (x + rect.width > window.innerWidth) x = window.innerWidth - rect.width - 16;
+        if (y + rect.height > window.innerHeight) y = window.innerHeight - rect.height - 16;
+        menu.style.left = x + 'px'; menu.style.top = y + 'px'; menu.style.opacity = '1';
+    }, 0);
+};
+
+window.fileCmDownload = function() { document.getElementById('fileContextMenu').classList.remove('open'); window.triggerDownload(window.fileCmTarget.url, window.fileCmTarget.name); };
+window.fileCmRename = function() { document.getElementById('fileContextMenu').classList.remove('open'); window.openRenameModal(window.fileCmTarget.name); };
+window.fileCmCopyLink = function() { document.getElementById('fileContextMenu').classList.remove('open'); window.copyLink(window.fileCmTarget.url); };
+window.fileCmDelete = function() { document.getElementById('fileContextMenu').classList.remove('open'); window.deleteFile(window.fileCmTarget.name); };
 
 window.enterStorageFolder = function(folderName) {
     window.currentStoragePath = window.currentStoragePath ? window.currentStoragePath + '/' + folderName : folderName;
@@ -950,6 +1152,14 @@ window.enterStorageFolder = function(folderName) {
 };
 
 window.goBackStorage = function() {
+    if (window.isFormatFilterMode && window.activeFormatType) {
+        window.activeFormatType = null;
+        document.getElementById('btn-back-storage').style.display = 'none';
+        document.getElementById('storage-path-display').textContent = 'Global Formats';
+        window.loadFiles();
+        return;
+    }
+
     let parts = window.currentStoragePath.split('/');
     parts.pop();
     window.currentStoragePath = parts.join('/');
@@ -1139,19 +1349,51 @@ window.loadFiles = async function() {
     });
 };
 
-window.uploadFile = async function(event) {
-    const files = event.target.files; if(!files || files.length === 0) return;
+window.uploadFilesRealtime = async function(files) {
     let fileArray = Array.from(files);
-    event.target.value = ''; showProgress(20); toast(`Injecting ${fileArray.length} payload(s)...`, 'info');
+    if (!fileArray.length) return;
+    toast(`Injecting ${fileArray.length} payload(s)...`, 'info');
     let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
     let successCount = 0;
+
     for (let file of fileArray) {
         const uniqueName = prefix + `${Date.now()}_${file.name}`;
-        const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, file, { cacheControl: '3600', upsert: false });
-        if (!error) successCount++;
+        try {
+            await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `${SUPABASE_URL}/storage/v1/object/${BUCKET_NAME}/${uniqueName}`, true);
+                xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
+                xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
+                
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        const pct = Math.round((e.loaded / e.total) * 100);
+                        $progress.style.width = pct + '%';
+                        $progress.classList.add('active');
+                    }
+                };
+                
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) { successCount++; resolve(); }
+                    else reject(xhr.responseText);
+                };
+                xhr.onerror = () => reject('Network Error');
+                xhr.send(file);
+            });
+        } catch (e) {
+            console.error("Upload Error", e);
+        }
     }
-    if (successCount < fileArray.length) { hideProgress(); return toast(`Uploaded ${successCount}/${fileArray.length}, some failed`, 'warn'); }
-    toast('Upload confirmed!', 'ok'); window.loadFiles(); hideProgress();
+    
+    hideProgress();
+    if (successCount < fileArray.length) toast(`Uploaded ${successCount}/${fileArray.length} failed`, 'warn');
+    else toast('Uploads complete!', 'ok');
+    window.loadFiles();
+};
+
+window.uploadFile = function(event) {
+    window.uploadFilesRealtime(event.target.files);
+    event.target.value = '';
 };
 
 window.deleteFile = async function(fileName) {
@@ -1160,8 +1402,69 @@ window.deleteFile = async function(fileName) {
     let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
     const { error } = await supabaseClient.storage.from(BUCKET_NAME).remove([prefix + fileName]);
     if(error) { hideProgress(); return toast('Purge failure', 'err'); }
+    window.selectedFiles.delete(fileName);
+    window.updateMultiSelectUI();
     toast('Asset cleanly purged.', 'ok'); window.loadFiles(); hideProgress();
 };
+
+window.msDelete = async function() {
+    if (window.selectedFiles.size === 0) return;
+    if(!confirm(`Purge ${window.selectedFiles.size} assets permanently?`)) return;
+    showProgress(40); toast('Purging batch...', 'info');
+    let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+    let pathsToRemove = Array.from(window.selectedFiles).map(name => prefix + name);
+    const { error } = await supabaseClient.storage.from(BUCKET_NAME).remove(pathsToRemove);
+    if(error) { hideProgress(); return toast('Batch purge failure', 'err'); }
+    window.clearMultiSelect();
+    toast('Batch purged cleanly.', 'ok'); window.loadFiles(); hideProgress();
+};
+
+window.msDownloadZip = async function() {
+    if (window.selectedFiles.size === 0) return;
+    if (typeof JSZip === 'undefined') return toast('Zip library not loaded', 'err');
+    toast(`Bundling ${window.selectedFiles.size} files into zip...`, 'info');
+    showProgress(50);
+    try {
+        const zip = new JSZip();
+        const prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+        let downloaded = 0;
+        for (let fileName of window.selectedFiles) {
+            const fullPath = prefix + fileName;
+            const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(fullPath);
+            const response = await fetch(urlData.publicUrl);
+            if (response.ok) {
+                const blob = await response.blob();
+                let cleanName = fileName.includes('_') ? fileName.substring(fileName.indexOf('_') + 1) : fileName;
+                zip.file(cleanName, blob);
+                downloaded++;
+            }
+        }
+        if (downloaded === 0) throw new Error('No files fetched');
+        const content = await zip.generateAsync({ type: 'blob' });
+        const zipName = 'Sovereign_Batch_' + Date.now() + '.zip';
+        const blobUrl = URL.createObjectURL(content);
+        const a = document.createElement('a'); a.href = blobUrl; a.download = zipName; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+        window.clearMultiSelect();
+        toast('Batch zip downloaded!', 'ok');
+    } catch(e) {
+        console.error(e); toast('Batch zip failed', 'err');
+    }
+    hideProgress();
+};
+
+// Global Drag and Drop Hook
+const dropOverlay = document.getElementById('global-drop-overlay');
+let dragCounter = 0;
+window.addEventListener('dragenter', (e) => { e.preventDefault(); dragCounter++; dropOverlay.style.display = 'flex'; });
+window.addEventListener('dragleave', (e) => { dragCounter--; if (dragCounter === 0) dropOverlay.style.display = 'none'; });
+window.addEventListener('dragover', (e) => { e.preventDefault(); });
+window.addEventListener('drop', (e) => {
+    e.preventDefault(); dragCounter = 0; dropOverlay.style.display = 'none';
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        window.uploadFilesRealtime(e.dataTransfer.files);
+    }
+});
 
 window.copyLink = function(url) { navigator.clipboard.writeText(url).then(() => { toast('Link copied!', 'info'); }); };
 window.triggerDownload = async function(url, name) {
@@ -1453,16 +1756,16 @@ window.cancelTapMove = function() {
 };
 
 document.addEventListener('click', (e) => {
-    const menu = document.getElementById('folderContextMenu');
-    if (menu && menu.classList.contains('open') && !menu.contains(e.target)) {
-        menu.classList.remove('open');
-    }
+    const fMenu = document.getElementById('folderContextMenu');
+    const fileMenu = document.getElementById('fileContextMenu');
+    if (fMenu && fMenu.classList.contains('open') && !fMenu.contains(e.target)) fMenu.classList.remove('open');
+    if (fileMenu && fileMenu.classList.contains('open') && !fileMenu.contains(e.target)) fileMenu.classList.remove('open');
 });
 document.addEventListener('touchstart', (e) => {
-    const menu = document.getElementById('folderContextMenu');
-    if (menu && menu.classList.contains('open') && !menu.contains(e.target)) {
-        menu.classList.remove('open');
-    }
+    const fMenu = document.getElementById('folderContextMenu');
+    const fileMenu = document.getElementById('fileContextMenu');
+    if (fMenu && fMenu.classList.contains('open') && !fMenu.contains(e.target)) fMenu.classList.remove('open');
+    if (fileMenu && fileMenu.classList.contains('open') && !fileMenu.contains(e.target)) fileMenu.classList.remove('open');
 }, {passive: true});
 
 window.onload = () => {
