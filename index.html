@@ -1105,26 +1105,36 @@ window.loadFiles = async function() {
                             previewHtml = `<div style="width:42px; height:42px; border-radius:14px; background:var(--bg-base); display:flex; align-items:center; justify-content:center; color:${docColor}; font-size:18px; flex-shrink:0; cursor:pointer;" onclick="window.previewUniversal(event, '${fileUrl}', '${ext}')"><i class="fa-solid ${icon}" style="transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></i></div>`;
                         }
 
-                        const card = document.createElement('div');
-                                card.className = 'file-card';
-                                card.setAttribute('draggable', 'true');
-                                card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', file.name); card.style.opacity = '0.5'; };
-                                card.ondragend = (e) => { card.style.opacity = '1'; };
-                                card.innerHTML = `
-                                    <div style="display:flex; gap:12px; align-items:center; flex:1; overflow:hidden;">
-                                        ${previewHtml}
-                                        <div style="overflow:hidden; display:flex; flex-direction:column;">
-                                            <div style="font-weight:600; font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${cleanName}">${cleanName}</div>
-                                            <div style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">${formatBytes(file.metadata?.size || 0)}</div>
-                                        </div>
-                                    </div>
-                                    <div class="card-actions" style="display:flex; gap:8px; flex-shrink:0;">
-                                        <button class="btn" style="width:32px; border-radius:50%; font-size:12px; height:32px; color:var(--text-main);" onclick="window.copyLink('${fileUrl}')"><i class="fa-solid fa-link"></i></button>
-                                        <button class="btn" style="width:32px; border-radius:50%; font-size:12px; height:32px; color:var(--blue);" onclick="window.triggerDownload('${fileUrl}', '${cleanName}')"><i class="fa-solid fa-download"></i></button>
-                                        <button class="btn" style="width:32px; border-radius:50%; font-size:12px; height:32px; color:var(--teal);" onclick="window.openRenameModal('${file.name}')"><i class="fa-solid fa-pen-to-square"></i></button>
-                                        <button class="btn" style="width:32px; border-radius:50%; font-size:12px; height:32px; color:var(--red);" onclick="window.deleteFile('${file.name}')"><i class="fa-solid fa-trash-can"></i></button>
-                                    </div>
-                                `;
+                        let timeStr = '';
+                                        if (file.created_at) {
+                                            const dt = new Date(file.created_at);
+                                            timeStr = dt.toLocaleDateString(undefined, {month:'short', day:'numeric'}) + ' ' + dt.toLocaleTimeString(undefined, {hour:'2-digit', minute:'2-digit'});
+                                        }
+
+                                        const card = document.createElement('div');
+                                                        card.className = 'file-card';
+                                                        card.setAttribute('draggable', 'true');
+                                                        card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', file.name); card.style.opacity = '0.5'; };
+                                                        card.ondragend = (e) => { card.style.opacity = '1'; };
+                                                        card.innerHTML = `
+                                                            <div style="display:flex; gap:12px; align-items:center; flex:1; overflow:hidden;">
+                                                                ${previewHtml}
+                                                                <div style="overflow:hidden; display:flex; flex-direction:column;">
+                                                                    <div style="font-weight:600; font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${cleanName}">${cleanName}</div>
+                                                                    <div style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">
+                                                                        <span>${formatBytes(file.metadata?.size || 0)}</span>
+                                                                        <span style="opacity:0.4; margin:0 4px;">|</span>
+                                                                        <span>${timeStr}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-actions" style="display:flex; gap:8px; flex-shrink:0;">
+                                                                <button class="btn" style="width:32px; border-radius:50%; font-size:12px; height:32px; color:var(--text-main);" onclick="window.copyLink('${fileUrl}')"><i class="fa-solid fa-link"></i></button>
+                                                                <button class="btn" style="width:32px; border-radius:50%; font-size:12px; height:32px; color:var(--blue);" onclick="window.triggerDownload('${fileUrl}', '${cleanName}')"><i class="fa-solid fa-download"></i></button>
+                                                                <button class="btn" style="width:32px; border-radius:50%; font-size:12px; height:32px; color:var(--teal);" onclick="window.openRenameModal('${file.name}')"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                                <button class="btn" style="width:32px; border-radius:50%; font-size:12px; height:32px; color:var(--red);" onclick="window.deleteFile('${file.name}')"><i class="fa-solid fa-trash-can"></i></button>
+                                                            </div>
+                                                        `;
                 container.appendChild(card);
     });
 };
