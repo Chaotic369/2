@@ -432,12 +432,19 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   </div>
 </div>
 
-<div id="mediaPreviewModal" style="display:none; position:fixed; z-index:60000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px);" onclick="this.style.display='none'; window.stopMedia && window.stopMedia();">
-  <img id="imagePreviewSrc" style="display:none; max-width:90vw; max-height:90vh; object-fit:contain; border-radius:24px; box-shadow:0 24px 64px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
+<div id="mediaPreviewModal" style="display:none; position:fixed; z-index:60000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); overflow:hidden;" onclick="this.style.display='none'; window.stopMedia && window.stopMedia();">
+  <img id="imagePreviewSrc" style="display:none; max-width:90vw; max-height:90vh; object-fit:contain; border-radius:24px; box-shadow:0 24px 64px rgba(0,0,0,0.5); transform-origin:center; transition:transform 0.1s ease-out; cursor:grab;" onclick="event.stopPropagation()" ondragstart="event.preventDefault()">
   <iframe id="pdfPreviewSrc" style="display:none; width:90vw; height:90vh; border:none; border-radius:24px; box-shadow:0 24px 64px rgba(0,0,0,0.5); background:#ffffff;" onclick="event.stopPropagation()"></iframe>
   <audio id="audioPreviewSrc" controls style="display:none; width:90vw; max-width:400px; box-shadow:0 24px 64px rgba(0,0,0,0.5); border-radius:32px;" onclick="event.stopPropagation()"></audio>
   <video id="videoPreviewSrc" controls style="display:none; max-width:90vw; max-height:90vh; border-radius:24px; box-shadow:0 24px 64px rgba(0,0,0,0.5);" onclick="event.stopPropagation()"></video>
-  <button style="position:absolute; top:24px; right:24px; background:var(--bg-surface); color:var(--text-main); border:none; width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.3);" onclick="document.getElementById('mediaPreviewModal').style.display='none'; window.stopMedia && window.stopMedia(); event.stopPropagation();"><i class="fa-solid fa-xmark"></i></button>
+  <button style="position:absolute; top:24px; right:24px; background:var(--bg-surface); color:var(--text-main); border:none; width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.3); z-index:60002;" onclick="document.getElementById('mediaPreviewModal').style.display='none'; window.stopMedia && window.stopMedia(); event.stopPropagation();"><i class="fa-solid fa-xmark"></i></button>
+
+  <div id="mediaControlsBar" style="display:none; position:absolute; bottom:32px; left:50%; transform:translateX(-50%); background:var(--bg-surface); padding:8px 16px; border-radius:32px; gap:16px; align-items:center; z-index:60005; box-shadow:0 12px 48px rgba(0,0,0,0.6); border: 1px solid rgba(139, 137, 132, 0.1);" onclick="event.stopPropagation()">
+     <button id="btn-zoom-in" class="action-mini-btn" style="box-shadow:none; width:36px; height:36px; color:var(--teal);" onclick="window.mediaZoom(0.5)"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+     <button id="btn-zoom-out" class="action-mini-btn" style="box-shadow:none; width:36px; height:36px; color:var(--amber);" onclick="window.mediaZoom(-0.5)"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+     <button id="btn-zoom-reset" class="action-mini-btn" style="box-shadow:none; width:36px; height:36px; color:var(--text-main);" onclick="window.mediaZoomReset()"><i class="fa-solid fa-expand"></i></button>
+     <button id="btn-fs-video" class="action-mini-btn" style="box-shadow:none; width:36px; height:36px; color:var(--blue); display:none;" onclick="window.mediaToggleFS()"><i class="fa-solid fa-expand"></i></button>
+  </div>
 </div>
 
 <div id="statusBar">
@@ -571,6 +578,16 @@ window.previewImage = function(event, url) {
     document.getElementById('imagePreviewSrc').style.display = 'block';
     document.getElementById('imagePreviewSrc').src = url;
     document.getElementById('mediaPreviewModal').style.display = 'flex';
+    
+    let mb = document.getElementById('mediaControlsBar');
+    if(mb) {
+        mb.style.display = 'flex';
+        document.getElementById('btn-zoom-in').style.display = 'flex';
+        document.getElementById('btn-zoom-out').style.display = 'flex';
+        document.getElementById('btn-zoom-reset').style.display = 'flex';
+        document.getElementById('btn-fs-video').style.display = 'none';
+    }
+    if(window.mediaZoomReset) window.mediaZoomReset();
 };
 
 window.toggleTheme = function() {
@@ -609,13 +626,23 @@ window.previewUniversal = function(event, url, ext) {
     const audioExt = ['mp3', 'wav', 'ogg', 'm4a'];
     const videoExt = ['mp4', 'webm', 'mov'];
 
-    if (audioExt.includes(ext)) {
-        const a = document.getElementById('audioPreviewSrc');
-        a.style.display = 'block'; a.src = url; a.play();
-    } else if (videoExt.includes(ext)) {
-        const v = document.getElementById('videoPreviewSrc');
-        v.style.display = 'block'; v.src = url; v.play();
-    } else if (gDocs.includes(ext)) {
+    let mb = document.getElementById('mediaControlsBar');
+        if(mb) mb.style.display = 'none';
+
+        if (audioExt.includes(ext)) {
+            const a = document.getElementById('audioPreviewSrc');
+            a.style.display = 'block'; a.src = url; a.play();
+        } else if (videoExt.includes(ext)) {
+            const v = document.getElementById('videoPreviewSrc');
+            v.style.display = 'block'; v.src = url; v.play();
+            if(mb) {
+                mb.style.display = 'flex';
+                document.getElementById('btn-zoom-in').style.display = 'none';
+                document.getElementById('btn-zoom-out').style.display = 'none';
+                document.getElementById('btn-zoom-reset').style.display = 'none';
+                document.getElementById('btn-fs-video').style.display = 'flex';
+            }
+        } else if (gDocs.includes(ext)) {
         const i = document.getElementById('pdfPreviewSrc');
         i.style.display = 'block';
         i.src = 'https://docs.google.com/gview?embedded=true&url=' + encodeURIComponent(url);
@@ -1919,6 +1946,107 @@ document.addEventListener('touchstart', (e) => {
     if (fMenu && fMenu.classList.contains('open') && !fMenu.contains(e.target)) fMenu.classList.remove('open');
     if (fileMenu && fileMenu.classList.contains('open') && !fileMenu.contains(e.target)) fileMenu.classList.remove('open');
 }, {passive: true});
+
+// Media Pan, Zoom & FS Engine
+window._mediaScale = 1;
+window._mediaPointX = 0;
+window._mediaPointY = 0;
+let _mediaPanning = false;
+let _mediaStartX = 0, _mediaStartY = 0;
+let _initialPinchDist = null;
+let _initialScale = 1;
+
+window.setImgTransform = function() {
+    const img = document.getElementById('imagePreviewSrc');
+    if(img) img.style.transform = `translate(${window._mediaPointX}px, ${window._mediaPointY}px) scale(${window._mediaScale})`;
+};
+
+window.mediaZoom = function(step) {
+    window._mediaScale += step;
+    if(window._mediaScale < 0.5) window._mediaScale = 0.5;
+    if(window._mediaScale > 8) window._mediaScale = 8;
+    window.setImgTransform();
+};
+
+window.mediaZoomReset = function() {
+    window._mediaScale = 1;
+    window._mediaPointX = 0;
+    window._mediaPointY = 0;
+    window.setImgTransform();
+};
+
+window.mediaToggleFS = function() {
+    let v = document.getElementById('videoPreviewSrc');
+    if (!v) return;
+    if (v.requestFullscreen) { v.requestFullscreen(); }
+    else if (v.webkitRequestFullscreen) { v.webkitRequestFullscreen(); }
+    else if (v.msRequestFullscreen) { v.msRequestFullscreen(); }
+};
+
+const _imgSrc = document.getElementById('imagePreviewSrc');
+if(_imgSrc) {
+    _imgSrc.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        _mediaStartX = e.clientX - window._mediaPointX;
+        _mediaStartY = e.clientY - window._mediaPointY;
+        _mediaPanning = true;
+        _imgSrc.style.cursor = 'grabbing';
+    });
+    _imgSrc.addEventListener('mouseup', function() { _mediaPanning = false; _imgSrc.style.cursor = 'grab'; });
+    _imgSrc.addEventListener('mouseleave', function() { _mediaPanning = false; _imgSrc.style.cursor = 'grab'; });
+    _imgSrc.addEventListener('mousemove', function(e) {
+        if (!_mediaPanning) return;
+        e.preventDefault();
+        window._mediaPointX = (e.clientX - _mediaStartX);
+        window._mediaPointY = (e.clientY - _mediaStartY);
+        window.setImgTransform();
+    });
+
+    _imgSrc.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        const delta = Math.sign(e.deltaY) * -0.2;
+        window.mediaZoom(delta);
+    }, {passive: false});
+
+    _imgSrc.addEventListener('touchstart', function(e) {
+        if(e.touches.length === 1) {
+            _mediaStartX = e.touches[0].clientX - window._mediaPointX;
+            _mediaStartY = e.touches[0].clientY - window._mediaPointY;
+            _mediaPanning = true;
+        } else if (e.touches.length === 2) {
+            _mediaPanning = false;
+            _initialPinchDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            _initialScale = window._mediaScale;
+        }
+    }, {passive: false});
+
+    _imgSrc.addEventListener('touchmove', function(e) {
+        if(e.touches.length === 1 && _mediaPanning) {
+            e.preventDefault();
+            window._mediaPointX = (e.touches[0].clientX - _mediaStartX);
+            window._mediaPointY = (e.touches[0].clientY - _mediaStartY);
+            window.setImgTransform();
+        } else if (e.touches.length === 2 && _initialPinchDist) {
+            e.preventDefault();
+            let dist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            window._mediaScale = _initialScale * (dist / _initialPinchDist);
+            if(window._mediaScale < 0.5) window._mediaScale = 0.5;
+            if(window._mediaScale > 8) window._mediaScale = 8;
+            window.setImgTransform();
+        }
+    }, {passive: false});
+
+    _imgSrc.addEventListener('touchend', function(e) {
+        if(e.touches.length < 2) _initialPinchDist = null;
+        if(e.touches.length === 0) _mediaPanning = false;
+    });
+}
 
 window.onload = () => {
   window.loadFiles(); window.loadNotesData();
