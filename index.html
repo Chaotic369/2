@@ -435,8 +435,13 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 <div id="mediaPreviewModal" style="display:none; position:fixed; z-index:60000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); overflow:hidden;" onclick="this.style.display='none'; window.stopMedia && window.stopMedia();">
   <img id="imagePreviewSrc" style="display:none; max-width:90vw; max-height:90vh; object-fit:contain; border-radius:24px; box-shadow:0 24px 64px rgba(0,0,0,0.5); transform-origin:center; transition:transform 0.1s ease-out; cursor:grab;" onclick="event.stopPropagation()" ondragstart="event.preventDefault()">
   <iframe id="pdfPreviewSrc" style="display:none; width:90vw; height:90vh; border:none; border-radius:24px; box-shadow:0 24px 64px rgba(0,0,0,0.5); background:#ffffff;" onclick="event.stopPropagation()"></iframe>
-  <audio id="audioPreviewSrc" controls style="display:none; width:90vw; max-width:400px; box-shadow:0 24px 64px rgba(0,0,0,0.5); border-radius:32px;" onclick="event.stopPropagation()"></audio>
-  <video id="videoPreviewSrc" controls style="display:none; max-width:90vw; max-height:90vh; border-radius:24px; box-shadow:0 24px 64px rgba(0,0,0,0.5);" onclick="event.stopPropagation()"></video>
+  
+    <div id="audioPreviewContainer" style="display:none; flex-direction:column; gap:16px; width:90vw; max-width:400px; z-index:60002;" onclick="event.stopPropagation()">
+      <canvas id="audioVisualizer" style="width:100%; height:120px; border-radius:24px; pointer-events:none;"></canvas>
+      <audio id="audioPreviewSrc" controls crossorigin="anonymous" style="width:100%; box-shadow:0 24px 64px rgba(0,0,0,0.5); border-radius:32px;"></audio>
+    </div>
+
+    <video id="videoPreviewSrc" controls style="display:none; max-width:90vw; max-height:90vh; border-radius:24px; box-shadow:0 24px 64px rgba(0,0,0,0.5);" onclick="event.stopPropagation()"></video>
   <button style="position:absolute; top:24px; right:24px; background:var(--bg-surface); color:var(--text-main); border:none; width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.3); z-index:60002;" onclick="document.getElementById('mediaPreviewModal').style.display='none'; window.stopMedia && window.stopMedia(); event.stopPropagation();"><i class="fa-solid fa-xmark"></i></button>
 
   <div id="mediaControlsBar" style="display:none; position:absolute; bottom:32px; left:50%; transform:translateX(-50%); background:var(--bg-surface); padding:8px 16px; border-radius:32px; gap:16px; align-items:center; z-index:60005; box-shadow:0 12px 48px rgba(0,0,0,0.6); border: 1px solid rgba(139, 137, 132, 0.1);" onclick="event.stopPropagation()">
@@ -573,7 +578,7 @@ window.previewImage = function(event, url) {
     if (event) event.stopPropagation();
     window.stopMedia();
     document.getElementById('pdfPreviewSrc').style.display = 'none';
-    document.getElementById('audioPreviewSrc').style.display = 'none';
+    const aC = document.getElementById('audioPreviewContainer'); if(aC) aC.style.display='none';
     document.getElementById('videoPreviewSrc').style.display = 'none';
     document.getElementById('imagePreviewSrc').style.display = 'block';
     document.getElementById('imagePreviewSrc').src = url;
@@ -605,6 +610,7 @@ window.stopMedia = function() {
     const a = document.getElementById('audioPreviewSrc'); if(a) { a.pause(); a.src=''; }
     const v = document.getElementById('videoPreviewSrc'); if(v) { v.pause(); v.src=''; }
     document.getElementById('pdfPreviewSrc').src='';
+    const aC = document.getElementById('audioPreviewContainer'); if(aC) aC.style.display='none';
 };
 
 window.previewUniversal = function(event, url, ext) {
@@ -617,10 +623,10 @@ window.previewUniversal = function(event, url, ext) {
     }
 
     window.stopMedia();
-    document.getElementById('imagePreviewSrc').style.display = 'none';
-    document.getElementById('pdfPreviewSrc').style.display = 'none';
-    document.getElementById('audioPreviewSrc').style.display = 'none';
-    document.getElementById('videoPreviewSrc').style.display = 'none';
+        document.getElementById('imagePreviewSrc').style.display = 'none';
+        document.getElementById('pdfPreviewSrc').style.display = 'none';
+        const aC = document.getElementById('audioPreviewContainer'); if(aC) aC.style.display='none';
+        document.getElementById('videoPreviewSrc').style.display = 'none';
     
     const gDocs = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'rtf'];
     const audioExt = ['mp3', 'wav', 'ogg', 'm4a'];
@@ -630,9 +636,12 @@ window.previewUniversal = function(event, url, ext) {
         if(mb) mb.style.display = 'none';
 
         if (audioExt.includes(ext)) {
-            const a = document.getElementById('audioPreviewSrc');
-            a.style.display = 'block'; a.src = url; a.play();
-        } else if (videoExt.includes(ext)) {
+                    document.getElementById('audioPreviewContainer').style.display = 'flex';
+                    const a = document.getElementById('audioPreviewSrc');
+                    a.src = url; a.play();
+                    if(!window.audioCtx) window.initAudioVisualizer();
+                    else window.audioCtx.resume();
+                } else if (videoExt.includes(ext)) {
             const v = document.getElementById('videoPreviewSrc');
             v.style.display = 'block'; v.src = url; v.play();
             if(mb) {
@@ -653,9 +662,55 @@ window.previewUniversal = function(event, url, ext) {
     }
     
     document.getElementById('mediaPreviewModal').style.display = 'flex';
-};
+    };
 
-window.saveNotesData = async function() {
+    window.audioCtx = null;
+    window.initAudioVisualizer = function() {
+        const audio = document.getElementById('audioPreviewSrc');
+        const canvas = document.getElementById('audioVisualizer');
+        const ctx = canvas.getContext('2d');
+    
+        window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const analyser = window.audioCtx.createAnalyser();
+        const source = window.audioCtx.createMediaElementSource(audio);
+    
+        source.connect(analyser);
+        analyser.connect(window.audioCtx.destination);
+    
+        analyser.fftSize = 128;
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+    
+        function renderFrame() {
+            requestAnimationFrame(renderFrame);
+            const container = document.getElementById('audioPreviewContainer');
+            if(container && container.style.display === 'none') return;
+        
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        
+            analyser.getByteFrequencyData(dataArray);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+            const barWidth = (canvas.width / bufferLength) * 2.5;
+            let x = 0;
+        
+            for (let i = 0; i < bufferLength; i++) {
+                let barHeight = (dataArray[i] / 255) * canvas.height;
+                // Themed gradient rendering (Teal -> Blue)
+                let r = 45 + (dataArray[i]/255)*47;
+                let g = 212 - (dataArray[i]/255)*55;
+                let b = 191 + (dataArray[i]/255)*64;
+            
+                ctx.fillStyle = `rgb(${r},${g},${b})`;
+                ctx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
+                x += barWidth;
+            }
+        }
+        renderFrame();
+    };
+
+    window.saveNotesData = async function() {
     const { error } = await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { notes: S.notes, folders: S.folders } });
     if (error) { console.error("Cloud save error:", error); toast("Failed to sync note data", "err"); }
 };
@@ -964,40 +1019,65 @@ window.moveNoteToRoot = function(noteId) {
 window.renderNotes = function() {
     const fContainer = document.getElementById('folders-container');
     const nContainer = document.getElementById('notes-container');
+    
+    if (window.notesFoldersSortable) { window.notesFoldersSortable.destroy(); window.notesFoldersSortable = null; }
+    if (window.notesSortable) { window.notesSortable.destroy(); window.notesSortable = null; }
+    
     fContainer.innerHTML = ''; nContainer.innerHTML = '';
 
     if (!window.currentFolderView) {
         if (S.folders.length > 0) {
-            S.folders.forEach(f => {
-                const fel = document.createElement('div');
-                fel.className = 'folder-card';
-                fel.setAttribute('draggable', 'true');
-                fel.ondragover = (e) => { e.preventDefault(); fel.style.transform = 'scale(1.05)'; };
-                fel.ondragleave = (e) => { fel.style.transform = 'scale(1)'; };
-                fel.ondrop = (e) => {
-                    e.preventDefault();
-                    var data = e.dataTransfer.getData('text/plain');
-                                    if(data && data.startsWith('n_')) window.dropNoteIntoFolder(data, f.id, e);
-                                    fel.style.transform = 'scale(1)';
-                                };
-                                window.bindFolderEvents(fel, 'note', f.id, f.name, (e) => window.viewFolder(f.id, f.name, e));
-                                            fel.innerHTML = `
-                                                <i class="fa-solid fa-folder" style="color:var(--amber); font-size:16px;"></i>
-                                                <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${f.name}</div>
-                                            `;
-                                            fContainer.appendChild(fel);
-            });
-        }
+                    S.folders.sort((a,b) => (a.order || 0) - (b.order || 0));
+                    S.folders.forEach(f => {
+                        const fel = document.createElement('div');
+                        fel.className = 'folder-card';
+                        fel.setAttribute('data-id', f.id);
+                        fel.ondragover = (e) => { e.preventDefault(); fel.style.transform = 'scale(1.05)'; };
+                        fel.ondragleave = (e) => { fel.style.transform = 'scale(1)'; };
+                        fel.ondrop = (e) => {
+                            e.preventDefault();
+                            var data = e.dataTransfer.getData('text/plain');
+                            if(data && data.startsWith('n_')) window.dropNoteIntoFolder(data, f.id, e);
+                            fel.style.transform = 'scale(1)';
+                        };
+                        window.bindFolderEvents(fel, 'note', f.id, f.name, (e) => window.viewFolder(f.id, f.name, e));
+                        fel.innerHTML = `
+                            <i class="fa-solid fa-folder" style="color:var(--amber); font-size:16px;"></i>
+                            <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${f.name}</div>
+                        `;
+                        fContainer.appendChild(fel);
+                    });
+                }
         
-        const addBtn = document.createElement('button');
-                            addBtn.style.cssText = "background:transparent; border:none; box-shadow:none; color:var(--amber); cursor:pointer; font-size:18px; transition:transform 0.2s; outline:none; display:flex; align-items:center; justify-content:center; padding:4px 8px;";
-                            addBtn.onmouseover = (e) => e.currentTarget.style.transform='scale(1.1)';
-                            addBtn.onmouseout = (e) => e.currentTarget.style.transform='scale(1)';
-                            addBtn.onclick = window.createNewFolder;
-                            addBtn.title = "New Folder";
-                            addBtn.innerHTML = '<i class="fa-solid fa-folder-plus"></i>';
-                            fContainer.appendChild(addBtn);
-    }
+                const addBtn = document.createElement('button');
+                addBtn.style.cssText = "background:transparent; border:none; box-shadow:none; color:var(--amber); cursor:pointer; font-size:18px; transition:transform 0.2s; outline:none; display:flex; align-items:center; justify-content:center; padding:4px 8px;";
+                addBtn.onmouseover = (e) => e.currentTarget.style.transform='scale(1.1)';
+                addBtn.onmouseout = (e) => e.currentTarget.style.transform='scale(1)';
+                addBtn.onclick = window.createNewFolder;
+                addBtn.title = "New Folder";
+                addBtn.innerHTML = '<i class="fa-solid fa-folder-plus"></i>';
+                fContainer.appendChild(addBtn);
+
+                if (typeof Sortable !== 'undefined') {
+                    window.notesFoldersSortable = new Sortable(fContainer, {
+                        animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5, filter: 'button',
+                        onStart: () => {
+                            window.isDraggingFolder = true;
+                            document.getElementById('folderContextMenu').classList.remove('open');
+                        },
+                        onEnd: function () {
+                            window.isDraggingFolder = false;
+                            let items = Array.from(fContainer.querySelectorAll('.folder-card'));
+                            items.forEach((item, index) => {
+                                let id = item.getAttribute('data-id');
+                                let folder = S.folders.find(x => x.id === id);
+                                if (folder) folder.order = index;
+                            });
+                            window.saveNotesData();
+                        }
+                    });
+                }
+            }
 
     let visibleNotes = S.notes.filter(n => window.currentFolderView ? n.folderId === window.currentFolderView : !n.folderId);
     visibleNotes.sort((a, b) => {
@@ -1051,29 +1131,28 @@ window.renderNotes = function() {
                     html += window.parseMarkdown(textPreview, n.id);
                 }
                 el.innerHTML = html;
-                nContainer.appendChild(el);
-    });
+                                nContainer.appendChild(el);
+                    });
 
-    if (typeof Sortable !== 'undefined') {
-        if (window.notesSortable) window.notesSortable.destroy();
-        window.notesSortable = new Sortable(nContainer, {
-            animation: 250, delay: 200, delayOnTouchOnly: true, touchStartThreshold: 5,
-            ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
-            setData: function (dataTransfer, dragEl) { dataTransfer.setData('text/plain', dragEl.getAttribute('data-id')); },
-            onEnd: function () {
-                let items = Array.from(nContainer.children);
-                let total = items.length;
-                items.forEach((item, index) => {
-                    let id = item.getAttribute('data-id');
-                    let note = S.notes.find(n => n.id === id);
-                    if (note) note.order = total - index;
-                });
-                window.saveNotesData(); window.packMasonry();
-            }
-        });
-    }
-    setTimeout(() => window.packMasonry(), 50);
-};
+                    if (typeof Sortable !== 'undefined') {
+                        window.notesSortable = new Sortable(nContainer, {
+                            animation: 250, delay: 200, delayOnTouchOnly: true, touchStartThreshold: 5,
+                            ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
+                            setData: function (dataTransfer, dragEl) { dataTransfer.setData('text/plain', dragEl.getAttribute('data-id')); },
+                            onEnd: function () {
+                                let items = Array.from(nContainer.children);
+                                let total = items.length;
+                                items.forEach((item, index) => {
+                                    let id = item.getAttribute('data-id');
+                                    let note = S.notes.find(n => n.id === id);
+                                    if (note) note.order = total - index;
+                                });
+                                window.saveNotesData(); window.packMasonry();
+                            }
+                        });
+                    }
+                    setTimeout(() => window.packMasonry(), 50);
+                };
 
 window.packMasonry = function() {
     const container = document.getElementById('notes-container');
@@ -1270,19 +1349,28 @@ window.dropIntoStorageFolder = async function(fileName, folderName) {
 
 window.dropOutStorage = async function(event) {
     event.preventDefault();
+    event.stopPropagation();
     event.currentTarget.style.transform = 'scale(1)';
     event.currentTarget.style.color = 'var(--text-main)';
     var fileName = event.dataTransfer.getData('text/plain');
-    if (!fileName || fileName.startsWith('n_') || !window.currentStoragePath) return;
+    
+    if (!fileName || fileName.startsWith('n_') || fileName === 'drag_folder' || !window.currentStoragePath) return;
+    
     let parts = window.currentStoragePath.split('/');
     parts.pop();
     let parentPath = parts.length > 0 ? parts.join('/') + '/' : '';
     let currentPrefix = window.currentStoragePath + '/';
+    
     showProgress(30); toast('Moving file...', 'info');
-    const { error } = await supabaseClient.storage.from(BUCKET_NAME).move(currentPrefix + fileName, parentPath + fileName);
-    if (error) { hideProgress(); return toast('Move failed', 'err'); }
-    toast('File moved out', 'ok');
-    window.loadFiles();
+    
+    try {
+        const { error } = await supabaseClient.storage.from(BUCKET_NAME).move(currentPrefix + fileName, parentPath + fileName);
+        if (error) throw error;
+        toast('File moved out', 'ok');
+        window.loadFiles();
+    } catch(e) {
+        toast('Move failed', 'err');
+    }
     hideProgress();
 };
 
@@ -1313,6 +1401,8 @@ window.loadFiles = async function() {
     const fContainer = document.getElementById('storage-folders-container');
     const emptyState = document.getElementById('emptyState');
     const searchVal = document.getElementById('storage-search-input')?.value.toLowerCase() || '';
+    
+    if (window.storageFoldersSortable) { window.storageFoldersSortable.destroy(); window.storageFoldersSortable = null; }
     
     container.innerHTML = '<div style="color:var(--text-muted); font-family:monospace; grid-column: 1/-1;">Synchronizing with cloud array...</div>';
     if (fContainer) fContainer.innerHTML = '';
@@ -1400,29 +1490,40 @@ window.loadFiles = async function() {
             return window.fileCategories[window.activeFormatType].exts.includes(ext);
         });
     } else {
-        folders.forEach(folder => {
-            const card = document.createElement('div');
-            card.className = 'folder-card';
-            card.ondragover = (e) => { e.preventDefault(); card.style.transform = 'scale(1.02)'; };
-            card.ondragleave = (e) => { card.style.transform = 'scale(1)'; };
-            card.ondrop = (e) => {
-                e.preventDefault(); card.style.transform = 'scale(1)';
-                var fileName = e.dataTransfer.getData('text/plain');
-                if (fileName && !fileName.startsWith('n_')) window.dropIntoStorageFolder(fileName, folder.name);
-            };
-            window.bindFolderEvents(card, 'storage', folder.name, folder.name, () => window.enterStorageFolder(folder.name));
-            card.innerHTML = `<i class="fa-solid fa-folder" style="color:var(--amber); font-size:16px;"></i><div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${folder.name}</div>`;
-            if (fContainer) fContainer.appendChild(card); else container.appendChild(card);
-        });
+            folders.forEach(folder => {
+                const card = document.createElement('div');
+                card.className = 'folder-card';
+                card.ondragover = (e) => { e.preventDefault(); card.style.transform = 'scale(1.02)'; };
+                card.ondragleave = (e) => { card.style.transform = 'scale(1)'; };
+                card.ondrop = (e) => {
+                    e.preventDefault(); card.style.transform = 'scale(1)';
+                    var fileName = e.dataTransfer.getData('text/plain');
+                    if (fileName && !fileName.startsWith('n_') && fileName !== 'drag_folder') window.dropIntoStorageFolder(fileName, folder.name);
+                };
+                window.bindFolderEvents(card, 'storage', folder.name, folder.name, () => window.enterStorageFolder(folder.name));
+                card.innerHTML = `<i class="fa-solid fa-folder" style="color:var(--amber); font-size:16px;"></i><div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${folder.name}</div>`;
+                if (fContainer) fContainer.appendChild(card); else container.appendChild(card);
+            });
         
-        if (fContainer && !searchVal) {
-            const addBtn = document.createElement('button');
-            addBtn.style.cssText = "background:transparent; border:none; box-shadow:none; color:var(--amber); cursor:pointer; font-size:18px; outline:none; display:flex; padding:4px 8px;";
-            addBtn.onclick = window.createStorageFolder;
-            addBtn.innerHTML = '<i class="fa-solid fa-folder-plus"></i>';
-            fContainer.appendChild(addBtn);
+            if (fContainer && !searchVal) {
+                const addBtn = document.createElement('button');
+                addBtn.style.cssText = "background:transparent; border:none; box-shadow:none; color:var(--amber); cursor:pointer; font-size:18px; outline:none; display:flex; padding:4px 8px;";
+                addBtn.onclick = window.createStorageFolder;
+                addBtn.innerHTML = '<i class="fa-solid fa-folder-plus"></i>';
+                fContainer.appendChild(addBtn);
+            
+                if (typeof Sortable !== 'undefined') {
+                    window.storageFoldersSortable = new Sortable(fContainer, {
+                        animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5, filter: 'button',
+                        onStart: () => {
+                            window.isDraggingFolder = true;
+                            document.getElementById('folderContextMenu').classList.remove('open');
+                        },
+                        onEnd: () => { window.isDraggingFolder = false; }
+                    });
+                }
+            }
         }
-    }
 
     if (folders.length === 0 && allFiles.length === 0) { container.innerHTML = ''; emptyState.style.display = 'flex'; return; }
     container.innerHTML = '';
@@ -1454,10 +1555,14 @@ window.loadFiles = async function() {
                 }
 
                 const card = document.createElement('div');
-                card.className = 'file-card';
-                card.setAttribute('draggable', 'true');
-                card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', file.name); card.style.opacity = '0.5'; };
-                card.ondragend = (e) => { card.style.opacity = '1'; };
+                        card.className = 'file-card';
+                        card.setAttribute('draggable', 'true');
+                        card.ondragstart = (e) => { 
+                            document.getElementById('fileContextMenu').classList.remove('open');
+                            e.dataTransfer.setData('text/plain', file.name); 
+                            card.style.opacity = '0.5'; 
+                        };
+                        card.ondragend = (e) => { card.style.opacity = '1'; };
         
                 // Context Menu Bind
                 card.oncontextmenu = (e) => window.openFileContextMenu(file.name, fileUrl, e);
@@ -1796,6 +1901,7 @@ window.executeRename = async function() {
 
 window.fcmTarget = { type: null, id: null, name: null };
 window.pendingMove = null;
+window.isDraggingFolder = false;
 
 window.showMoveToast = function(title) {
     let mToast = document.getElementById('moveToast');
@@ -1814,6 +1920,7 @@ window.showMoveToast = function(title) {
 };
 
 window.openFolderMenu = function(type, id, name, event) {
+    if (window.isDraggingFolder) return;
     if (event) { event.preventDefault(); event.stopPropagation(); }
     window.fcmTarget = { type, id, name };
     document.getElementById('fcm-title').innerText = name;
