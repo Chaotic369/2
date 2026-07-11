@@ -426,7 +426,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
         
                         <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
                             <div id="search-container" style="display:flex; align-items:center; background:var(--bg-base); border-radius:16px; padding:2px; overflow:hidden;">
-                                <input type="text" id="storage-search-input" style="background:transparent; border:none; color:var(--text-main); width:140px; font-size:13px; outline:none; padding:4px 12px;" placeholder="Search..." autocomplete="off" onkeyup="window.loadFiles()">
+                                <input type="text" id="storage-search-input" style="background:transparent; border:none; color:var(--text-main); width:140px; font-size:13px; outline:none; padding:4px 12px;" placeholder="Search..." autocomplete="off" onkeyup="clearTimeout(window._searchDebounce); window._searchDebounce = setTimeout(window.loadFiles, 300)">
                             </div>
                             <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="window.toggleFormatFilter()" title="Filter by Format"><i class="fa-solid fa-table-cells-large" id="filter-icon" style="font-size:16px;"></i></button>
                             <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--teal);" onclick="window.downloadCurrentViewAsZip()" title="Download View as Zip"><i class="fa-solid fa-file-zipper" style="font-size:16px;"></i></button>
