@@ -1230,7 +1230,7 @@ window.renderNotes = function() {
                 let extraStyle = (imgs.length === 3 && i === 0) ? 'grid-column: span 2; max-height: 160px;' : 'max-height: ' + (imgs.length === 1 ? '200px' : '100px') + ';';
                 let isOverlay = (imgs.length > 4 && i === 3);
                 html += `<div class="note-gallery-item" style="${extraStyle}" onclick="window.previewImage(event, '${src}')">
-                                           <img src="${src}" onload="clearTimeout(window._packMasonryDebounce); window._packMasonryDebounce = setTimeout(window.packMasonry, 60)">
+                                           <img src="${src}" loading="lazy" onload="clearTimeout(window._packMasonryDebounce); window._packMasonryDebounce = setTimeout(window.packMasonry, 60)">
                                            ${isOverlay ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:24px;">+${imgs.length-3}</div>` : ''}
                                          </div>`;
             });
