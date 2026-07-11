@@ -6,6 +6,13 @@
   (function() {
     var theme = localStorage.getItem('sovereign_theme');
     if (theme === 'light' || !theme) document.documentElement.classList.add('light-theme');
+    
+    var wp = localStorage.getItem('sovereign_wallpaper');
+    if (wp) {
+        var style = document.createElement('style');
+        style.innerHTML = '#mainWorkspace { background: transparent !important; } #bgOverlay { background-image: url(' + wp + '); }';
+        document.head.appendChild(style);
+    }
   })();
 </script>
 <meta charset="UTF-8">
@@ -285,9 +292,15 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 </head>
 <body>
 
+<div id="bgOverlay" style="position:fixed; inset:0; z-index:-1; background-size:cover; background-position:center; filter:blur(15px); transform:scale(1.1); transition:background-image 0.3s ease;"></div>
+<input type="file" id="bgUploadInput" accept="image/*" style="display:none;" onchange="window.setWallpaper(event)">
+
 <div id="progressBar"></div>
 
 <div class="top-bar-actions">
+  <button class="action-mini-btn" onclick="document.getElementById('bgUploadInput').click()" title="Set Wallpaper">
+    <i class="fa-solid fa-image"></i>
+  </button>
   <button class="action-mini-btn" onclick="window.checkStorage()" title="Storage Info">
     <i class="fa-solid fa-hard-drive"></i>
   </button>
@@ -466,6 +479,19 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 <script>
 const SUPABASE_URL = 'https://fxnrugbvbfyamtrfmjea.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_FnWYWD7C9Tvc1YNtVYQ1dA_aPwVsCmE';
+
+window.setWallpaper = function(e) {
+  const file = e.target.files[0];
+  if(file) {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      document.getElementById('bgOverlay').style.backgroundImage = `url(${ev.target.result})`;
+      localStorage.setItem('sovereign_wallpaper', ev.target.result);
+      document.getElementById('mainWorkspace').style.setProperty('background', 'transparent', 'important');
+    };
+    reader.readAsDataURL(file);
+  }
+};
 const BUCKET_NAME = 'docs';
 const USER_DOC_ID = 'global_user_1';
 
