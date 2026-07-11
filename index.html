@@ -319,6 +319,15 @@ html.has-wallpaper .category-card {
   contain-intrinsic-size: auto 80px;
   border: none !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+  transform: translateZ(0);
+  will-change: transform;
+}
+html.is-scrolling.has-wallpaper .note-card,
+html.is-scrolling.has-wallpaper .file-card,
+html.is-scrolling.has-wallpaper .folder-card,
+html.is-scrolling.has-wallpaper .category-card {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* Fixed UI: High quality blur, hardware accelerated */
@@ -2279,6 +2288,15 @@ window.onload = () => {
   });
   const gridNode = document.getElementById('notes-container');
   if (gridNode) resizeObserver.observe(gridNode);
+
+  let scrollTimer;
+  const workspaceEl = document.getElementById('mainWorkspace');
+  const onScrollActivity = () => {
+      document.documentElement.classList.add('is-scrolling');
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => document.documentElement.classList.remove('is-scrolling'), 150);
+  };
+  if (workspaceEl) workspaceEl.addEventListener('scroll', onScrollActivity, {passive: true});
 };
 
 window.addEventListener('error', function(e) {
