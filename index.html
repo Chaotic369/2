@@ -9,8 +9,9 @@
     
     var wp = localStorage.getItem('sovereign_wallpaper');
     if (wp) {
+        document.documentElement.classList.add('has-wallpaper');
         var style = document.createElement('style');
-        style.innerHTML = '#mainWorkspace { background: transparent !important; } #bgOverlay { background-image: url(' + wp + '); }';
+        style.innerHTML = '#bgOverlay { background-image: url(' + wp + '); }';
         document.head.appendChild(style);
     }
   })();
@@ -288,11 +289,56 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   color: var(--teal); font-size: 28px; font-weight: 700; flex-direction: column; gap: 20px;
   border: 4px dashed var(--teal); margin: 16px; border-radius: 40px; pointer-events: none;
 }
+
+/* Glassmorphism Wallpaper UI */
+html.has-wallpaper {
+  --bg-base: rgba(24, 24, 23, 0.4);
+  --bg-surface: rgba(38, 38, 37, 0.6);
+}
+html.has-wallpaper.light-theme {
+  --bg-base: rgba(248, 247, 243, 0.3);
+  --bg-surface: rgba(255, 255, 255, 0.6);
+}
+html.has-wallpaper body, html.has-wallpaper #mainWorkspace { 
+  background: transparent !important; 
+}
+html.has-wallpaper .file-card,
+html.has-wallpaper .folder-card,
+html.has-wallpaper .category-card,
+html.has-wallpaper .quick-input-bar,
+html.has-wallpaper .modal-base,
+html.has-wallpaper #multiSelectBar,
+html.has-wallpaper #statusBar,
+html.has-wallpaper .action-mini-btn,
+html.has-wallpaper button.btn {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+html.has-wallpaper.light-theme .file-card,
+html.has-wallpaper.light-theme .folder-card,
+html.has-wallpaper.light-theme .category-card,
+html.has-wallpaper.light-theme .quick-input-bar,
+html.has-wallpaper.light-theme .modal-base,
+html.has-wallpaper.light-theme #multiSelectBar,
+html.has-wallpaper.light-theme #statusBar,
+html.has-wallpaper.light-theme .action-mini-btn,
+html.has-wallpaper.light-theme button.btn {
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+html.has-wallpaper #uploadSquircleBtn {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  background: rgba(229, 224, 218, 0.85) !important;
+}
+html.has-wallpaper.light-theme #uploadSquircleBtn {
+  background: rgba(25, 24, 19, 0.85) !important;
+}
 </style>
 </head>
 <body>
 
-<div id="bgOverlay" style="position:fixed; inset:0; z-index:-1; background-size:cover; background-position:center; filter:blur(15px); transform:scale(1.1); transition:background-image 0.3s ease;"></div>
+<div id="bgOverlay" style="position:fixed; inset:0; z-index:-1; background-size:cover; background-position:center; transition:background-image 0.3s ease;"></div>
 <input type="file" id="bgUploadInput" accept="image/*" style="display:none;" onchange="window.setWallpaper(event)">
 
 <div id="progressBar"></div>
@@ -487,7 +533,7 @@ window.setWallpaper = function(e) {
     reader.onload = (ev) => {
       document.getElementById('bgOverlay').style.backgroundImage = `url(${ev.target.result})`;
       localStorage.setItem('sovereign_wallpaper', ev.target.result);
-      document.getElementById('mainWorkspace').style.setProperty('background', 'transparent', 'important');
+      document.documentElement.classList.add('has-wallpaper');
     };
     reader.readAsDataURL(file);
   }
