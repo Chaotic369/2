@@ -618,9 +618,9 @@ window.fileCategories = {
     'Others': { icon: 'fa-solid fa-file', color: 'var(--text-muted)', exts: [] }
 };
 
-window.parseMarkdown = function(text, noteId) {
+window.parseMarkdown = function(text, noteId, alreadyEscaped) {
     if (!text) return '';
-    let html = String(text).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    let html = alreadyEscaped ? String(text) : String(text).replace(/</g, '&lt;').replace(/>/g, '&gt;');
     html = html.replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
     html = html.replace(/`(.*?)`/g, '<code>$1</code>');
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -756,6 +756,7 @@ window.previewUniversal = function(event, url, ext) {
         document.getElementById('videoPreviewSrc').style.display = 'none';
     
     const gDocs = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'rtf'];
+    const webExt = ['html', 'htm'];
     const audioExt = ['mp3', 'wav', 'ogg', 'm4a'];
     const videoExt = ['mp4', 'webm', 'mov'];
 
@@ -778,15 +779,19 @@ window.previewUniversal = function(event, url, ext) {
                 document.getElementById('btn-zoom-reset').style.display = 'none';
                 document.getElementById('btn-fs-video').style.display = 'flex';
             }
-        } else if (gDocs.includes(ext)) {
-        const i = document.getElementById('pdfPreviewSrc');
-        i.style.display = 'block';
-        i.src = 'https://docs.google.com/gview?embedded=true&url=' + encodeURIComponent(url);
-    } else {
-        const i = document.getElementById('pdfPreviewSrc');
-        i.style.display = 'block';
-        i.src = url;
-    }
+        } else if (webExt.includes(ext)) {
+                const i = document.getElementById('pdfPreviewSrc');
+                i.style.display = 'block';
+                i.src = url;
+            } else if (gDocs.includes(ext)) {
+                const i = document.getElementById('pdfPreviewSrc');
+                i.style.display = 'block';
+                i.src = 'https://docs.google.com/gview?embedded=true&url=' + encodeURIComponent(url);
+            } else {
+                const i = document.getElementById('pdfPreviewSrc');
+                i.style.display = 'block';
+                i.src = url;
+            }
     
     document.getElementById('mediaPreviewModal').style.display = 'flex';
     };
@@ -1258,10 +1263,11 @@ window.renderNotes = function() {
         }
         
         if (n.text) {
-                    let maxLen = spanClass ? 800 : 200;
-                    let textPreview = n.text.length > maxLen ? n.text.substring(0, maxLen) + '...' : n.text;
-                    html += window.parseMarkdown(textPreview, n.id);
-                }
+                            let maxLen = spanClass ? 800 : 200;
+                            let safeText = String(n.text).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                            let textPreview = safeText.length > maxLen ? safeText.substring(0, maxLen) + '...' : safeText;
+                            html += window.parseMarkdown(textPreview, n.id, true);
+                        }
                 el.innerHTML = html;
                                 nContainer.appendChild(el);
                     });
