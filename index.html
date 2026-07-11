@@ -487,17 +487,17 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   </div>
 </div>
 
-<div id="fullNoteModal" style="display:none; position:fixed; z-index:40000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.9);">
+<div id="fullNoteModal" style="display:none; position:fixed; z-index:40000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.9);" onclick="if(event.target === this) window.saveNoteModal()">
   <div style="background:var(--bg-surface); width:90vw; max-width:600px; border-radius:32px; padding:24px; box-shadow:0 24px 64px rgba(0,0,0,0.4); display:flex; flex-direction:column; gap:16px; border:none !important;">
     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-           <input type="text" id="nm-title" style="flex:1; background:transparent; border:none; font-size:22px; font-weight:700; color:var(--text-main); outline:none; margin-right:12px;" placeholder="Note Title...">
+           <input type="text" id="nm-title" style="flex:1; background:transparent; border:none; font-size:22px; font-weight:700; color:var(--text-main); outline:none; margin-right:12px;" placeholder="Note Title..." oninput="window.autoSaveNote()">
            <div style="display:flex; gap:8px;">
              <button class="action-mini-btn" onclick="window.toggleModalPin()" id="nm-pin-btn" title="Pin Note"><i class="fa-solid fa-thumbtack"></i></button>
              <button class="action-mini-btn" onclick="window.copyModalNote()" title="Copy Text"><i class="fa-regular fa-copy"></i></button>
            </div>
         </div>
         <div id="nm-gallery" style="display:none; flex-wrap:wrap; gap:8px; margin-bottom:12px;"></div>
-        <textarea id="nm-text" style="width:100%; min-height:250px; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:15px; line-height:1.6; resize:vertical; outline:none;" placeholder="Start typing..."></textarea>
+        <textarea id="nm-text" style="width:100%; min-height:250px; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:15px; line-height:1.6; resize:vertical; outline:none;" placeholder="Start typing..." oninput="window.autoSaveNote()"></textarea>
         <div id="nm-timestamp" style="font-size:11px; color:var(--text-muted); opacity:0.7; text-align:right; font-family:'JetBrains Mono', monospace; margin-top:4px;"></div>
     <input type="hidden" id="nm-id"><input type="hidden" id="nm-color"><input type="hidden" id="nm-pinned">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:16px; border:none !important;">
@@ -508,9 +508,9 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
                  <button class="action-mini-btn" style="color:var(--red);" onclick="window.deleteModalNote()" title="Delete Note"><i class="fa-solid fa-trash"></i></button>
               </div>
        <div style="display:flex; gap:12px;">
-          <button class="btn" style="padding:10px 20px;" onclick="document.getElementById('fullNoteModal').style.display='none'">Cancel</button>
-          <button class="btn" style="padding:10px 20px; background:var(--amber); color:#000;" onclick="window.saveNoteModal()">Save Note</button>
-       </div>
+                 <button class="btn" style="padding:10px 20px;" onclick="window.saveNoteModal()">Close</button>
+                 <button class="btn" style="padding:10px 20px; background:var(--amber); color:#000;" onclick="window.saveNoteModal()">Save Note</button>
+              </div>
     </div>
   </div>
 </div>
@@ -1087,6 +1087,24 @@ window.saveNoteModal = function() {
     document.getElementById('fullNoteModal').style.display = 'none';
 };
 
+window.autoSaveNote = function() {
+    const id = document.getElementById('nm-id').value;
+    const n = S.notes.find(x => x.id === id);
+    if(n) {
+        n.title = window.sanitizeNoteText(document.getElementById('nm-title').value.trim());
+        n.text = window.sanitizeNoteText(document.getElementById('nm-text').value.trim());
+        n.color = document.getElementById('nm-color').value;
+        n.pinned = document.getElementById('nm-pinned').value === 'true';
+        n.updatedAt = Date.now();
+        
+        clearTimeout(window._autoSaveTimer);
+        window._autoSaveTimer = setTimeout(() => {
+            window.saveNotesData();
+            window.renderNotes();
+        }, 1000);
+    }
+};
+
 window.deleteModalNote = async function() {
     if(!confirm('Delete this note?')) return;
     const id = document.getElementById('nm-id').value;
@@ -1115,6 +1133,7 @@ window.toggleModalPin = function() {
     const isPinned = pinInp.value === 'true';
     pinInp.value = isPinned ? 'false' : 'true';
     document.getElementById('nm-pin-btn').style.color = !isPinned ? 'var(--amber)' : 'var(--text-main)';
+    if(typeof window.autoSaveNote === 'function') window.autoSaveNote();
 };
 
 window.cycleModalColor = function() {
@@ -1133,6 +1152,7 @@ window.cycleModalColor = function() {
                 modalWrapper.style.background = `linear-gradient(${nextColor}, ${nextColor}), var(--bg-box)`;
             }
         }
+    if(typeof window.autoSaveNote === 'function') window.autoSaveNote();
     toast('Color selected', 'info', 800);
 };
 
