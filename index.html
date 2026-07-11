@@ -943,7 +943,10 @@ window.attachImageToNote = async function(event) {
 };
 
 window.createNewFolder = function() {
-    S.folders.push({id: 'f_'+Date.now(), name: 'New Folder', createdAt: Date.now()});
+    let folderName = prompt('Enter folder name:');
+    if (!folderName || !folderName.trim()) return;
+    folderName = folderName.trim();
+    S.folders.push({id: 'f_'+Date.now(), name: folderName, createdAt: Date.now()});
     window.saveNotesData(); window.renderNotes(); toast('Folder created', 'ok');
 };
 
