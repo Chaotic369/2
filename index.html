@@ -1271,12 +1271,13 @@ window.packMasonry = function() {
     if (!container) return;
     const items = container.querySelectorAll('.note-card');
     const rowHeight = 12;
-    const gap = parseFloat(window.getComputedStyle(container).gap) || 16; 
-    
+    const gap = parseFloat(window.getComputedStyle(container).gap) || 16;
+
     for (let i = 0; i < items.length; i++) items[i].style.gridRowEnd = 'auto';
+    const heights = [];
+    for (let i = 0; i < items.length; i++) heights.push(items[i].getBoundingClientRect().height);
     for (let i = 0; i < items.length; i++) {
-        const height = items[i].getBoundingClientRect().height; 
-        const spans = Math.ceil((height + gap) / (rowHeight + gap));
+        const spans = Math.ceil((heights[i] + gap) / (rowHeight + gap));
         items[i].style.gridRowEnd = `span ${spans}`;
     }
 };
