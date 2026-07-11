@@ -574,10 +574,36 @@ window.setWallpaper = function(e) {
   if(file) {
     const reader = new FileReader();
     reader.onload = (ev) => {
-      document.getElementById('bgOverlay').style.backgroundImage = `url(${ev.target.result})`;
-      localStorage.setItem('sovereign_wallpaper', ev.target.result);
-      document.documentElement.classList.add('has-wallpaper');
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 1600;
+        let w = img.width, h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) { h = Math.round(h * (maxDim / w)); w = maxDim; }
+          else { w = Math.round(w * (maxDim / h)); h = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        let compressed;
+        try {
+          compressed = canvas.toDataURL('image/jpeg', 0.75);
+        } catch(err) {
+          compressed = ev.target.result;
+        }
+        document.getElementById('bgOverlay').style.backgroundImage = `url(${compressed})`;
+        try {
+          localStorage.setItem('sovereign_wallpaper', compressed);
+        } catch(storageErr) {
+          toast('Wallpaper set, but too large to save for next visit', 'warn');
+        }
+        document.documentElement.classList.add('has-wallpaper');
+      };
+      img.onerror = () => toast('Could not read image', 'err');
+      img.src = ev.target.result;
     };
+    reader.onerror = () => toast('Could not read file', 'err');
     reader.readAsDataURL(file);
   }
 };
