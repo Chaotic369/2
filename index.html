@@ -32,6 +32,7 @@
   /* Claude Dark Theme */
   --bg-base: #101010;
   --bg-surface: #1c1c1b;
+  --bg-box: #000000;
   --text-main: #e5e0da;
   --text-muted: #8b8984;
   --accent: #d8cebc;
@@ -49,6 +50,7 @@ html.light-theme {
   /* Claude Light Theme */
   --bg-base: #f8f7f3;
   --bg-surface: #ffffff;
+  --bg-box: #ffffff;
   --text-main: #191813;
   --text-muted: #8b8984;
   --accent: #e5e0da;
@@ -123,7 +125,7 @@ button.btn:active { transform: scale(0.96); }
 }
 
 .file-card {
-  background: #000000; border: none !important;
+  background: var(--bg-box); border: none !important;
   border-radius: 24px; padding: 12px 16px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 16px;
   transition: transform 0.15s ease;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -193,7 +195,7 @@ button.btn:active { transform: scale(0.96); }
 .note-gallery-item:hover img { transform: scale(1.05); }
 
 .folder-card {
-  background: #000000; padding: 12px 16px; border-radius: 24px; display: flex; align-items: center; gap: 12px;
+  background: var(--bg-box); padding: 12px 16px; border-radius: 24px; display: flex; align-items: center; gap: 12px;
   cursor: pointer; transition: transform 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   font-weight: 600; font-size: 13px; border: none !important;
   contain: layout style paint;
@@ -201,7 +203,7 @@ button.btn:active { transform: scale(0.96); }
 .folder-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
 
 .category-card {
-  background: #000000; padding: 16px 8px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  background: var(--bg-box); padding: 16px 8px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
   cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: none !important;
   width: 106px; text-align: center; flex-shrink: 0;
 }
@@ -1014,9 +1016,9 @@ window.openNoteModal = function(id) {
     const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
         if (modalWrapper) {
             if (upgradedColor === 'var(--note-base)') {
-                modalWrapper.style.background = '#000000';
+                modalWrapper.style.background = 'var(--bg-box)';
             } else {
-                modalWrapper.style.background = `linear-gradient(${upgradedColor}, ${upgradedColor}), #000000`;
+                modalWrapper.style.background = `linear-gradient(${upgradedColor}, ${upgradedColor}), var(--bg-box)`;
             }
         
         }
@@ -1123,9 +1125,9 @@ window.cycleModalColor = function() {
     const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
         if (modalWrapper) {
             if (nextColor === 'var(--note-base)') {
-                modalWrapper.style.background = '#000000';
+                modalWrapper.style.background = 'var(--bg-box)';
             } else {
-                modalWrapper.style.background = `linear-gradient(${nextColor}, ${nextColor}), #000000`;
+                modalWrapper.style.background = `linear-gradient(${nextColor}, ${nextColor}), var(--bg-box)`;
             }
         }
     toast('Color selected', 'info', 800);
@@ -1266,9 +1268,9 @@ window.renderNotes = function() {
         
             let upColor = window.getUpgradedColor(n.color);
                         if (upColor === 'var(--note-base)') {
-                            el.style.background = '#000000';
+                            el.style.background = 'var(--bg-box)';
                         } else {
-                            el.style.background = `linear-gradient(${upColor}, ${upColor}), #000000`;
+                            el.style.background = `linear-gradient(${upColor}, ${upColor}), var(--bg-box)`;
                         }
         
         el.setAttribute('data-id', n.id);
