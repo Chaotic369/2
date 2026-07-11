@@ -30,8 +30,8 @@
 <style>
 :root {
   /* Claude Dark Theme */
-  --bg-base: #181817;
-  --bg-surface: #262625;
+  --bg-base: #101010;
+  --bg-surface: #1c1c1b;
   --text-main: #e5e0da;
   --text-muted: #8b8984;
   --accent: #d8cebc;
@@ -346,6 +346,8 @@ html.has-wallpaper #search-container {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
 }
 html.has-wallpaper .quick-input-bar {
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
   transform: translateZ(0);
   border: none !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
