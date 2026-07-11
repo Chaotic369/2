@@ -123,7 +123,7 @@ button.btn:active { transform: scale(0.96); }
 }
 
 .file-card {
-  background: var(--bg-surface); border: none !important;
+  background: #000000; border: none !important;
   border-radius: 24px; padding: 12px 16px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 16px;
   transition: transform 0.15s ease;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -193,7 +193,7 @@ button.btn:active { transform: scale(0.96); }
 .note-gallery-item:hover img { transform: scale(1.05); }
 
 .folder-card {
-  background: var(--bg-surface); padding: 12px 16px; border-radius: 24px; display: flex; align-items: center; gap: 12px;
+  background: #000000; padding: 12px 16px; border-radius: 24px; display: flex; align-items: center; gap: 12px;
   cursor: pointer; transition: transform 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   font-weight: 600; font-size: 13px; border: none !important;
   contain: layout style paint;
@@ -201,7 +201,7 @@ button.btn:active { transform: scale(0.96); }
 .folder-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
 
 .category-card {
-  background: var(--bg-surface); padding: 16px 8px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  background: #000000; padding: 16px 8px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
   cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: none !important;
   width: 106px; text-align: center; flex-shrink: 0;
 }
@@ -516,8 +516,9 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 <div id="mediaPreviewModal" style="display:none; position:fixed; z-index:60000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); overflow:hidden;" onclick="this.style.display='none'; window.stopMedia && window.stopMedia();">
   <img id="imagePreviewSrc" style="display:none; max-width:90vw; max-height:90vh; object-fit:contain; border-radius:24px; box-shadow:0 24px 64px rgba(0,0,0,0.5); transform-origin:center; transition:transform 0.1s ease-out; cursor:grab;" onclick="event.stopPropagation()" ondragstart="event.preventDefault()">
   <iframe id="pdfPreviewSrc" style="display:none; width:90vw; height:90vh; border:none; border-radius:24px; box-shadow:0 24px 64px rgba(0,0,0,0.5); background:#ffffff;" onclick="event.stopPropagation()"></iframe>
-  
-    <div id="audioPreviewContainer" style="display:none; flex-direction:column; gap:16px; width:90vw; max-width:400px; z-index:60002;" onclick="event.stopPropagation()">
+            <textarea id="textPreviewSrc" readonly style="display:none; width:90vw; height:90vh; border:none; border-radius:24px; box-shadow:0 24px 64px rgba(0,0,0,0.5); background:var(--bg-base); color:var(--text-main); padding:24px; font-family:'JetBrains Mono', monospace; font-size:13px; outline:none; resize:none;" onclick="event.stopPropagation()"></textarea>
+          
+              <div id="audioPreviewContainer" style="display:none; flex-direction:column; gap:16px; width:90vw; max-width:400px; z-index:60002;" onclick="event.stopPropagation()">
       <canvas id="audioVisualizer" style="width:100%; height:120px; border-radius:24px; pointer-events:none; transform: translate3d(0,0,0); will-change: transform; backface-visibility: hidden;"></canvas>
       <audio id="audioPreviewSrc" controls crossorigin="anonymous" style="width:100%; box-shadow:0 24px 64px rgba(0,0,0,0.5); border-radius:32px;"></audio>
     </div>
@@ -697,23 +698,58 @@ function formatBytes(bytes, decimals = 2) {
 window.previewImage = function(event, url) {
     if (event) event.stopPropagation();
     window.stopMedia();
-    document.getElementById('pdfPreviewSrc').style.display = 'none';
-    const aC = document.getElementById('audioPreviewContainer'); if(aC) aC.style.display='none';
-    document.getElementById('videoPreviewSrc').style.display = 'none';
-    document.getElementById('imagePreviewSrc').style.display = 'block';
-    document.getElementById('imagePreviewSrc').src = url;
-    document.getElementById('mediaPreviewModal').style.display = 'flex';
+                    document.getElementById('imagePreviewSrc').style.display = 'none';
+                    document.getElementById('pdfPreviewSrc').style.display = 'none';
+                    const tP = document.getElementById('textPreviewSrc'); if(tP) tP.style.display='none';
+                    const aC = document.getElementById('audioPreviewContainer'); if(aC) aC.style.display='none';
+                    document.getElementById('videoPreviewSrc').style.display = 'none';
+            
+                const gDocs = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'rtf'];
+                const textExt = ['html', 'htm', 'txt', 'md', 'csv', 'json', 'xml', 'js', 'css', 'py', 'cpp', 'c', 'java', 'ts', 'jsx', 'tsx', 'sql', 'sh', 'bat', 'go', 'rs', 'rb', 'swift'];
+                const audioExt = ['mp3', 'wav', 'ogg', 'm4a'];
+                const videoExt = ['mp4', 'webm', 'mov'];
+
+                let mb = document.getElementById('mediaControlsBar');
+                    if(mb) mb.style.display = 'none';
+
+                    if (audioExt.includes(ext)) {
+                                document.getElementById('audioPreviewContainer').style.display = 'flex';
+                                const a = document.getElementById('audioPreviewSrc');
+                                a.src = url; a.play();
+                                if(!window.audioCtx) window.initAudioVisualizer();
+                                else window.audioCtx.resume();
+                            } else if (videoExt.includes(ext)) {
+                const v = document.getElementById('videoPreviewSrc');
+                v.style.display = 'block'; v.src = url; v.play();
+                if(mb) {
+                    mb.style.display = 'flex';
+                    document.getElementById('btn-zoom-in').style.display = 'none';
+                    document.getElementById('btn-zoom-out').style.display = 'none';
+                    document.getElementById('btn-zoom-reset').style.display = 'none';
+                    document.getElementById('btn-fs-video').style.display = 'flex';
+                }
+            } else if (textExt.includes(ext)) {
+                    const i = document.getElementById('textPreviewSrc');
+                    if (i) {
+                        i.style.display = 'block';
+                        i.value = 'Loading source text...';
+                        fetch(url).then(res => res.arrayBuffer()).then(buffer => {
+                            const decoder = new TextDecoder('utf-8');
+                            i.value = decoder.decode(buffer);
+                        }).catch(e => i.value = 'Error loading text content.');
+                    }
+                } else if (gDocs.includes(ext)) {
+                    const i = document.getElementById('pdfPreviewSrc');
+                    i.style.display = 'block';
+                    i.src = 'https://docs.google.com/gview?embedded=true&url=' + encodeURIComponent(url);
+                } else {
+                    const i = document.getElementById('pdfPreviewSrc');
+                    i.style.display = 'block';
+                    i.src = url;
+                }
     
-    let mb = document.getElementById('mediaControlsBar');
-    if(mb) {
-        mb.style.display = 'flex';
-        document.getElementById('btn-zoom-in').style.display = 'flex';
-        document.getElementById('btn-zoom-out').style.display = 'flex';
-        document.getElementById('btn-zoom-reset').style.display = 'flex';
-        document.getElementById('btn-fs-video').style.display = 'none';
-    }
-    if(window.mediaZoomReset) window.mediaZoomReset();
-};
+        document.getElementById('mediaPreviewModal').style.display = 'flex';
+        };
 
 window.toggleTheme = function() {
     document.documentElement.classList.toggle('light-theme');
@@ -730,6 +766,7 @@ window.stopMedia = function() {
     const a = document.getElementById('audioPreviewSrc'); if(a) { a.pause(); a.src=''; }
     const v = document.getElementById('videoPreviewSrc'); if(v) { v.pause(); v.src=''; }
     document.getElementById('pdfPreviewSrc').src='';
+    const t = document.getElementById('textPreviewSrc'); if(t) { t.value=''; t.style.display='none'; }
     const aC = document.getElementById('audioPreviewContainer'); if(aC) aC.style.display='none';
 };
 
@@ -975,14 +1012,14 @@ window.openNoteModal = function(id) {
     document.getElementById('nm-timestamp').innerText = `Last saved: ${dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at ${dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
     
     const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
-    if (modalWrapper) {
-        if (upgradedColor === 'var(--note-base)') {
-            modalWrapper.style.background = 'var(--bg-surface)';
-        } else {
-            modalWrapper.style.background = `linear-gradient(${upgradedColor}, ${upgradedColor}), var(--bg-surface)`;
-        }
+        if (modalWrapper) {
+            if (upgradedColor === 'var(--note-base)') {
+                modalWrapper.style.background = '#000000';
+            } else {
+                modalWrapper.style.background = `linear-gradient(${upgradedColor}, ${upgradedColor}), #000000`;
+            }
         
-    }
+        }
 
     const gal = document.getElementById('nm-gallery');
     gal.innerHTML = '';
@@ -1084,13 +1121,13 @@ window.cycleModalColor = function() {
     document.getElementById('nm-color').value = nextColor;
     
     const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
-    if (modalWrapper) {
-        if (nextColor === 'var(--note-base)') {
-            modalWrapper.style.background = 'var(--bg-surface)';
-        } else {
-            modalWrapper.style.background = `linear-gradient(${nextColor}, ${nextColor}), var(--bg-surface)`;
+        if (modalWrapper) {
+            if (nextColor === 'var(--note-base)') {
+                modalWrapper.style.background = '#000000';
+            } else {
+                modalWrapper.style.background = `linear-gradient(${nextColor}, ${nextColor}), #000000`;
+            }
         }
-    }
     toast('Color selected', 'info', 800);
 };
 
@@ -1228,11 +1265,11 @@ window.renderNotes = function() {
             el.className = 'note-card' + spanClass;
         
             let upColor = window.getUpgradedColor(n.color);
-            if (upColor === 'var(--note-base)') {
-                el.style.background = 'var(--bg-surface)';
-            } else {
-                el.style.background = `linear-gradient(${upColor}, ${upColor}), var(--bg-surface)`;
-            }
+                        if (upColor === 'var(--note-base)') {
+                            el.style.background = '#000000';
+                        } else {
+                            el.style.background = `linear-gradient(${upColor}, ${upColor}), #000000`;
+                        }
         
         el.setAttribute('data-id', n.id);
         el.setAttribute('draggable', 'true');
