@@ -325,17 +325,27 @@ html.is-scrolling.has-wallpaper .category-card {
 }
 
 /* Fixed UI: High quality blur, hardware accelerated */
-html.has-wallpaper .quick-input-bar,
 html.has-wallpaper .modal-base,
 html.has-wallpaper #multiSelectBar,
 html.has-wallpaper #statusBar,
 html.has-wallpaper .action-mini-btn,
 html.has-wallpaper button.btn,
-html.has-wallpaper #search-container,
 html.has-wallpaper .file-row-input,
 html.has-wallpaper #mediaControlsBar,
 html.has-wallpaper #fullNoteModal > div,
 html.has-wallpaper #toast {
+  transform: translateZ(0);
+  border: none !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
+html.has-wallpaper #search-container {
+  transform: translateZ(0);
+  border: none !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
+html.has-wallpaper .quick-input-bar {
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
   transform: translateZ(0);
   border: none !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
