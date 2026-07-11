@@ -153,9 +153,7 @@ button.btn:active { transform: scale(0.96); }
   display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 24px;
   cursor: grab; transition: transform 0.2s, box-shadow 0.2s;
   color: var(--text-main); font-size: 13px; line-height: 1.5; position: relative;
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  content-visibility: auto;
-  contain-intrinsic-size: auto 150px;
+  contain: layout style paint;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   -webkit-touch-callout: none;
   user-select: none;
