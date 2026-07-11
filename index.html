@@ -854,9 +854,14 @@ window.loadNotesData = async function() {
     window.renderNotes();
 };
 
+window.sanitizeNoteText = function(str) {
+    if (!str) return str;
+    return str.replace(/[\u200B-\u200F\uFEFF\u202A-\u202E]/g, '');
+};
+
 window.quickAddNote = async function() {
     const input = document.getElementById('quick-note-input');
-    const text = input.value.trim();
+    const text = window.sanitizeNoteText(input.value.trim());
     if (!text) return;
     
     const newNote = {
@@ -1037,8 +1042,8 @@ window.saveNoteModal = function() {
     const id = document.getElementById('nm-id').value;
     const n = S.notes.find(x => x.id === id);
     if(n) {
-        n.title = document.getElementById('nm-title').value.trim();
-        n.text = document.getElementById('nm-text').value.trim();
+        n.title = window.sanitizeNoteText(document.getElementById('nm-title').value.trim());
+        n.text = window.sanitizeNoteText(document.getElementById('nm-text').value.trim());
         n.color = document.getElementById('nm-color').value;
         n.pinned = document.getElementById('nm-pinned').value === 'true';
         n.updatedAt = Date.now();
