@@ -38,13 +38,13 @@
   --accent: #d8cebc;
   --blue: #5c9dff; --green: #39d353; --red: #f85149; --amber: #e3b341; --teal: #2dd4bf;
   
-  /* Dark Mode Note Phases (Darker & Translucent) */
-  --note-base: rgba(255, 255, 255, 0.05);
-  --note-amber: rgba(227, 179, 65, 0.12);
-  --note-blue: rgba(92, 157, 255, 0.12);
-  --note-green: rgba(57, 211, 83, 0.12);
-  --note-red: rgba(248, 81, 73, 0.12);
-  --note-purple: rgba(188, 140, 255, 0.12);
+  /* Dark Mode Note Phases (Balanced Brightness) */
+  --note-base: rgba(255, 255, 255, 0.08);
+  --note-amber: rgba(227, 179, 65, 0.22);
+  --note-blue: rgba(92, 157, 255, 0.22);
+  --note-green: rgba(57, 211, 83, 0.22);
+  --note-red: rgba(248, 81, 73, 0.22);
+  --note-purple: rgba(188, 140, 255, 0.22);
 }
 html.light-theme {
   /* Claude Light Theme */
@@ -212,8 +212,10 @@ button.btn:active { transform: scale(0.96); }
   width: 52px; height: 52px; border-radius: 20px; background: var(--bg-base); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 2px;
 }
 
-.quick-input-bar { position: fixed; bottom: 44px; right: 88px; z-index: 10000; width: calc(100vw - 110px); max-width: 280px; height: 56px; display: flex; align-items: center; gap: 12px; padding: 0 20px; background: var(--bg-surface); border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: none !important; transition: transform 0.2s, box-shadow 0.2s; }
+.quick-input-bar { position: fixed; bottom: 44px; right: 88px; z-index: 10000; width: calc(100vw - 110px); max-width: 280px; height: 56px; display: flex; align-items: center; gap: 12px; padding: 0 20px; background: rgba(22, 22, 22, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08) !important; transition: transform 0.2s, box-shadow 0.2s; }
 .quick-input-bar:focus-within { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+#quick-note-input { color: #ffffff !important; }
+#quick-note-input::placeholder { color: rgba(255, 255, 255, 0.7) !important; opacity: 1; }
 
 /* UTILS & MODALS */
 .file-row-input {
@@ -388,7 +390,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 
 <div class="quick-input-bar">
   <i class="fa-solid fa-bolt" style="color:var(--amber); font-size:16px;"></i>
-  <input id="quick-note-input" type="text" style="flex:1; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:14px; outline:none;" placeholder="Write me !" autocomplete="off" onkeydown="if(event.key==='Enter')window.quickAddNote()">
+  <input id="quick-note-input" type="text" style="flex:1; background:transparent; border:none; color:#ffffff; font-family:inherit; font-size:14px; outline:none;" placeholder="Write me !" autocomplete="off" onkeydown="if(event.key==='Enter')window.quickAddNote()">
   </div>
 
 <div id="mainWorkspace">
