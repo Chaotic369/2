@@ -700,58 +700,27 @@ function formatBytes(bytes, decimals = 2) {
 window.previewImage = function(event, url) {
     if (event) event.stopPropagation();
     window.stopMedia();
-                    document.getElementById('imagePreviewSrc').style.display = 'none';
-                    document.getElementById('pdfPreviewSrc').style.display = 'none';
-                    const tP = document.getElementById('textPreviewSrc'); if(tP) tP.style.display='none';
-                    const aC = document.getElementById('audioPreviewContainer'); if(aC) aC.style.display='none';
-                    document.getElementById('videoPreviewSrc').style.display = 'none';
-            
-                const gDocs = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'rtf'];
-                const textExt = ['html', 'htm', 'txt', 'md', 'csv', 'json', 'xml', 'js', 'css', 'py', 'cpp', 'c', 'java', 'ts', 'jsx', 'tsx', 'sql', 'sh', 'bat', 'go', 'rs', 'rb', 'swift'];
-                const audioExt = ['mp3', 'wav', 'ogg', 'm4a'];
-                const videoExt = ['mp4', 'webm', 'mov'];
+    document.getElementById('pdfPreviewSrc').style.display = 'none';
+    const tP = document.getElementById('textPreviewSrc'); if(tP) tP.style.display='none';
+    const aC = document.getElementById('audioPreviewContainer'); if(aC) aC.style.display='none';
+    document.getElementById('videoPreviewSrc').style.display = 'none';
 
-                let mb = document.getElementById('mediaControlsBar');
-                    if(mb) mb.style.display = 'none';
+    let mb = document.getElementById('mediaControlsBar');
+    if(mb) {
+        mb.style.display = 'flex';
+        document.getElementById('btn-zoom-in').style.display = 'flex';
+        document.getElementById('btn-zoom-out').style.display = 'flex';
+        document.getElementById('btn-zoom-reset').style.display = 'flex';
+        document.getElementById('btn-fs-video').style.display = 'none';
+    }
 
-                    if (audioExt.includes(ext)) {
-                                document.getElementById('audioPreviewContainer').style.display = 'flex';
-                                const a = document.getElementById('audioPreviewSrc');
-                                a.src = url; a.play();
-                                if(!window.audioCtx) window.initAudioVisualizer();
-                                else window.audioCtx.resume();
-                            } else if (videoExt.includes(ext)) {
-                const v = document.getElementById('videoPreviewSrc');
-                v.style.display = 'block'; v.src = url; v.play();
-                if(mb) {
-                    mb.style.display = 'flex';
-                    document.getElementById('btn-zoom-in').style.display = 'none';
-                    document.getElementById('btn-zoom-out').style.display = 'none';
-                    document.getElementById('btn-zoom-reset').style.display = 'none';
-                    document.getElementById('btn-fs-video').style.display = 'flex';
-                }
-            } else if (textExt.includes(ext)) {
-                    const i = document.getElementById('textPreviewSrc');
-                    if (i) {
-                        i.style.display = 'block';
-                        i.value = 'Loading source text...';
-                        fetch(url).then(res => res.arrayBuffer()).then(buffer => {
-                            const decoder = new TextDecoder('utf-8');
-                            i.value = decoder.decode(buffer);
-                        }).catch(e => i.value = 'Error loading text content.');
-                    }
-                } else if (gDocs.includes(ext)) {
-                    const i = document.getElementById('pdfPreviewSrc');
-                    i.style.display = 'block';
-                    i.src = 'https://docs.google.com/gview?embedded=true&url=' + encodeURIComponent(url);
-                } else {
-                    const i = document.getElementById('pdfPreviewSrc');
-                    i.style.display = 'block';
-                    i.src = url;
-                }
-    
-        document.getElementById('mediaPreviewModal').style.display = 'flex';
-        };
+    const img = document.getElementById('imagePreviewSrc');
+    img.src = url;
+    img.style.display = 'block';
+    if(typeof window.mediaZoomReset === 'function') window.mediaZoomReset();
+
+    document.getElementById('mediaPreviewModal').style.display = 'flex';
+};
 
 window.toggleTheme = function() {
     document.documentElement.classList.toggle('light-theme');
