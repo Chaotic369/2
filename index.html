@@ -1240,8 +1240,10 @@ window.copyModalNote = function() {
 };
 
 window.dropNoteIntoFolder = function(noteId, folderId, event) {
-    event.preventDefault();
-    event.currentTarget.style.transform = 'scale(1)';
+    if (event) {
+        event.preventDefault();
+        if (event.currentTarget) event.currentTarget.style.transform = 'scale(1)';
+    }
     var n = S.notes.find(x => x.id === noteId);
     if(n) { n.folderId = folderId; window.saveNotesData(); window.renderNotes(); toast('Note moved', 'ok'); }
 };
@@ -1267,16 +1269,26 @@ window.renderNotes = function() {
         if (S.folders.length > 0) {
                     S.folders.sort((a,b) => (a.order || 0) - (b.order || 0));
                     S.folders.forEach(f => {
-                        const fel = document.createElement('div');
-                        fel.className = 'folder-card';
-                        fel.setAttribute('data-id', f.id);
-                                                window.bindFolderEvents(fel, 'note', f.id, f.name, (e) => window.viewFolder(f.id, f.name, e));
-                        fel.innerHTML = `
-                            <i class="fa-solid fa-folder" style="color:var(--amber); font-size:16px;"></i>
-                            <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${f.name}</div>
-                        `;
-                        fContainer.appendChild(fel);
-                    });
+                                            const fel = document.createElement('div');
+                                            fel.className = 'folder-card';
+                                            fel.setAttribute('data-id', f.id);
+                                                                    window.bindFolderEvents(fel, 'note', f.id, f.name, (e) => window.viewFolder(f.id, f.name, e));
+                                            fel.innerHTML = `
+                                                <i class="fa-solid fa-folder" style="color:var(--amber); font-size:16px;"></i>
+                                                <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${f.name}</div>
+                                            `;
+                                            fContainer.appendChild(fel);
+
+                                            if (typeof Sortable !== 'undefined') {
+                                                new Sortable(fel, {
+                                                    group: { name: 'notes', put: true },
+                                                    onAdd: function(evt) {
+                                                        let noteId = evt.item.getAttribute('data-id');
+                                                        window.dropNoteIntoFolder(noteId, f.id, null);
+                                                    }
+                                                });
+                                            }
+                                        });
                 }
         
                 const addBtn = document.createElement('button');
@@ -1308,16 +1320,18 @@ window.renderNotes = function() {
                                                 });
                                             }
                                         } else {
-                                            backDropzone.style.display = 'flex';
-                                            backDropzone.ondragover = (e) => { e.preventDefault(); backDropzone.style.transform = 'scale(1.02)'; };
-                                            backDropzone.ondragleave = (e) => { backDropzone.style.transform = 'scale(1)'; };
-                                            backDropzone.ondrop = (e) => {
-                                                e.preventDefault();
-                                                backDropzone.style.transform = 'scale(1)';
-                                                var data = e.dataTransfer.getData('text/plain');
-                                                if (data && data.startsWith('n_')) window.moveNoteToRoot(data);
-                                            };
-                                        }
+                                                        backDropzone.style.display = 'flex';
+                                                        if (typeof Sortable !== 'undefined' && !backDropzone._sortableInitialized) {
+                                                            new Sortable(backDropzone, {
+                                                                group: { name: 'notes', put: true },
+                                                                onAdd: function (evt) {
+                                                                    var data = evt.item.getAttribute('data-id');
+                                                                    if (data && data.startsWith('n_')) window.moveNoteToRoot(data);
+                                                                }
+                                                            });
+                                                            backDropzone._sortableInitialized = true;
+                                                        }
+                                                    }
 
                                 let visibleNotes = S.notes.filter(n => window.currentFolderView ? n.folderId === window.currentFolderView : !n.folderId);
     visibleNotes.sort((a, b) => {
@@ -1379,9 +1393,10 @@ window.renderNotes = function() {
                     });
 
                     if (typeof Sortable !== 'undefined') {
-                        window.notesSortable = new Sortable(nContainer, {
-                            animation: 250, delay: 200, delayOnTouchOnly: true, touchStartThreshold: 5,
-                            ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
+                                            window.notesSortable = new Sortable(nContainer, {
+                                                group: 'notes',
+                                                animation: 250, delay: 200, delayOnTouchOnly: true, touchStartThreshold: 5,
+                                                ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
                             setData: function (dataTransfer, dragEl) { dataTransfer.setData('text/plain', dragEl.getAttribute('data-id')); },
                             onEnd: function () {
                                 let items = Array.from(nContainer.children);
