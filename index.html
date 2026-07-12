@@ -289,6 +289,9 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   appearance: none; width: 18px; height: 18px; border: 2px solid var(--text-main);
   border-radius: 50%; background: rgba(0, 0, 0, 0.35); cursor: pointer; transition: all 0.2s; position: relative; flex-shrink:0;
 }
+html.light-theme .file-checkbox {
+  background: #ffffff;
+}
 /* Invisible hit-area expander to prevent accidental file opens */
 .file-checkbox::before {
   content: ''; position: absolute; top: -20px; bottom: -20px; left: -20px; right: -20px; border-radius: 50%;
