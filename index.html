@@ -222,6 +222,12 @@ button.btn:active { transform: scale(0.96); }
 .quick-input-bar:focus-within { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
 #quick-note-input { color: #ffffff !important; }
 #quick-note-input::placeholder { color: rgba(255, 255, 255, 0.7) !important; opacity: 1; }
+html.light-theme .quick-input-bar { background: rgba(255, 255, 255, 0.85); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+html.light-theme #quick-note-input { color: #191813 !important; }
+html.light-theme #quick-note-input::placeholder { color: rgba(25, 24, 19, 0.6) !important; opacity: 1; }
+
+#search-container { background: rgba(22, 22, 22, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+html.light-theme #search-container { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 
 /* UTILS & MODALS */
 .file-row-input {
@@ -317,7 +323,7 @@ html.has-wallpaper #bgOverlay {
 }
 html.has-wallpaper.light-theme {
   --bg-base: rgba(255, 255, 255, 0.5);
-  --bg-surface: rgba(255, 255, 255, 0.75);
+  --bg-surface: #ffffff;
 }
 html.has-wallpaper.light-theme #bgOverlay {
   display: block;
@@ -457,8 +463,8 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
                         <span id="storage-path-display" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);"></span>
         
                         <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
-                            <div id="search-container" style="display:flex; align-items:center; background:rgba(22, 22, 22, 0.45); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-radius:24px; padding:6px; overflow:hidden; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border:none !important;">
-                                                            <label for="storage-search-input" style="margin:0; cursor:pointer; display:flex; justify-content:center; align-items:center; width:20px; height:20px;"><i class="fa-solid fa-magnifying-glass" style="color:var(--text-main); font-size:13px;"></i></label>
+                                                    <div id="search-container" style="display:flex; align-items:center; border-radius:24px; padding:6px; overflow:hidden; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border:none !important;">
+                                                                                    <label for="storage-search-input" style="margin:0; cursor:pointer; display:flex; justify-content:center; align-items:center; width:20px; height:20px;"><i class="fa-solid fa-magnifying-glass" style="color:var(--text-main); font-size:13px;"></i></label>
                                                             <input type="text" id="storage-search-input" required style="background:transparent; border:none; color:var(--text-main); font-size:13px; outline:none; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding:0; width:0; opacity:0; cursor:pointer;" autocomplete="off" onkeyup="clearTimeout(window._searchDebounce); window._searchDebounce = setTimeout(window.loadFiles, 300)">
                                                         </div>
                             <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="window.toggleFormatFilter()" title="Filter by Format"><i class="fa-solid fa-table-cells-large" id="filter-icon" style="font-size:16px;"></i></button>
