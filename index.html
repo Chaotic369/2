@@ -1778,13 +1778,9 @@ window.loadFiles = async function() {
                         card.ondragend = (e) => { card.style.opacity = '1'; };
         
                 // Context Menu Bind
-                card.oncontextmenu = (e) => window.openFileContextMenu(file.name, fileUrl, e);
-                let pressTimer;
-                card.addEventListener('touchstart', (e) => { pressTimer = setTimeout(() => window.openFileContextMenu(file.name, fileUrl, e), 550); }, {passive:true});
-                card.addEventListener('touchend', () => clearTimeout(pressTimer));
-                card.addEventListener('touchmove', () => clearTimeout(pressTimer));
+                                card.oncontextmenu = (e) => window.openFileContextMenu(file.name, fileUrl, e);
 
-                let isChecked = window.selectedFiles.has(file.name);
+                                let isChecked = window.selectedFiles.has(file.name);
                 let locHtml = window.isFormatFilterMode ? `<div style="font-size:9px; color:var(--amber); margin-top:2px;">📁 ${file._parentPath}</div>` : '';
                 let openAction = isImage ? `window.previewImage(event, '${fileUrl}')` : `window.previewUniversal(event, '${fileUrl}', '${ext}')`;
 
@@ -2173,32 +2169,8 @@ window.openFolderMenu = function(type, id, name, event) {
 };
 
 window.bindFolderEvents = function(card, type, id, name, clickHandler) {
-    let pressTimer;
-    let isLong = false;
     card.oncontextmenu = (e) => { e.preventDefault(); window.openFolderMenu(type, id, name, e); };
-    
-    const startPress = (e) => {
-        if(e.type === 'mousedown' && e.button !== 0) return;
-        isLong = false;
-        pressTimer = setTimeout(() => { 
-            isLong = true; 
-            window.openFolderMenu(type, id, name, e); 
-        }, 550);
-    };
-    const cancelPress = () => clearTimeout(pressTimer);
-    
-    card.addEventListener('touchstart', startPress, {passive: true});
-    card.addEventListener('touchend', cancelPress);
-    card.addEventListener('touchmove', cancelPress);
-    card.addEventListener('mousedown', startPress);
-    card.addEventListener('mouseup', cancelPress);
-    card.addEventListener('mouseleave', cancelPress);
-    card.addEventListener('dragstart', cancelPress);
-    
-    card.onclick = (e) => { 
-        if(isLong) { e.preventDefault(); e.stopPropagation(); return; } 
-        clickHandler(e); 
-    };
+    card.onclick = (e) => { clickHandler(e); };
 };
 
 window.fcmRename = async function() {
