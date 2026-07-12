@@ -615,6 +615,189 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 const SUPABASE_URL = 'https://fxnrugbvbfyamtrfmjea.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_FnWYWD7C9Tvc1YNtVYQ1dA_aPwVsCmE';
 
+window.setWallpaper = async function(e) {
+  const files = Array.from(e.target.files);
+  if(!files.length) return;
+  e.target.value = ''; // reset input
+  
+  const file = files[0];
+  if (file) {
+      window.applyWallpaper(file);
+  }
+};
+
+window.openWallpaperModal = async function(event) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    
+    // Concurrency Lock: Prevents the "duplicate spam" if clicked multiple times
+    window._wpModalRenderId = (window._wpModalRenderId || 0) + 1;
+    const currentRenderId = window._wpModalRenderId;
+    
+    let activeWpName = null;
+    let activeUrl = null;
+    
+    try {
+        const { data: stateData } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+        activeWpName = (stateData && stateData.state && stateData.state.wallpaperName);
+        if (activeWpName) {
+            const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(activeWpName);
+            if (urlData && urlData.publicUrl) activeUrl = urlData.publicUrl;
+        }
+    } catch(e) {}
+
+    if (currentRenderId !== window._wpModalRenderId) return; // Drop stale renders
+
+    const gal = document.getElementById('wallpaper-gallery');
+    gal.innerHTML = ''; // Wipe clean
+
+    let clearBtn = document.createElement('div');
+    clearBtn.style.cssText = `height:80px; border-radius:16px; background:var(--bg-surface); border:2px dashed var(--text-muted); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-muted); transition:transform 0.2s; ${!activeWpName ? 'border-color:var(--amber); color:var(--amber);' : ''}`;
+    clearBtn.innerHTML = '<i class="fa-solid fa-ban" style="font-size:24px;"></i>';
+    clearBtn.onclick = () => window.applyWallpaper(null);
+    clearBtn.onmouseover = () => clearBtn.style.transform = 'scale(1.05)';
+    clearBtn.onmouseout = () => clearBtn.style.transform = 'scale(1)';
+    gal.appendChild(clearBtn);
+
+    // Only render the ONE active wallpaper, obliterating the duplicate bug
+    if (activeUrl) {
+        let w = document.createElement('div');
+        w.style.cssText = `position:relative; height:80px; border-radius:16px; overflow:hidden; background:var(--bg-base); cursor:pointer; border:none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s; outline: 2px solid var(--amber);`;
+        w.innerHTML = `
+           <img src="${activeUrl}" style="width:100%;height:100%;object-fit:cover;object-position:center;">
+           <div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;pointer-events:none;"><i class="fa-solid fa-circle-check" style="color:var(--amber);font-size:24px;background:#000;border-radius:50%;"></i></div>
+        `;
+        gal.appendChild(w);
+    }
+    
+    document.getElementById('wallpaperModal').classList.add('open');
+};
+
+window.applyWallpaper = async function(source, existingName = null) {
+    const overlay = document.getElementById('bgOverlay');
+    const modal = document.getElementById('wallpaperModal');
+    
+    if (!source) {
+        overlay.style.backgroundImage = 'none';
+        document.documentElement.classList.remove('has-wallpaper');
+        modal.classList.remove('open'); // Close Modal Instantly
+
+        try {
+            const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+            const latestState = (data && data.state) || {};
+            await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: null } });
+        } catch(e) {}
+        return;
+    }
+    
+    // If it's a File object (brand new upload directly from OS file picker)
+    if (source instanceof File) {
+        modal.classList.remove('open'); // Close immediately so user isn't stuck
+        toast(`Starting Upload... 0%`, 'info', 10000);
+        showProgress(5);
+        
+        const localUrl = URL.createObjectURL(source);
+        overlay.style.backgroundImage = `url(${localUrl})`;
+        document.documentElement.classList.add('has-wallpaper');
+        
+        try {
+            const cleanName = source.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+            const uniqueName = `.system/wallpaper_${Date.now()}_${cleanName}`;
+            
+            // Native XHR connection to wire up the system wide upload progress bar seamlessly
+            await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `${SUPABASE_URL}/storage/v1/object/${BUCKET_NAME}/${uniqueName}`, true);
+                xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
+                xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
+                
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        const pct = Math.round((e.loaded / e.total) * 100);
+                        showProgress(pct);
+                        toast(`Uploading Background... ${pct}%`, 'info', 10000); // Forces progress into the middle of the screen
+                    }
+                };
+                
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) resolve();
+                    else reject(xhr.responseText);
+                };
+                xhr.onerror = () => reject('Network connection broken');
+                xhr.send(source);
+            });
+            
+            hideProgress();
+            
+            const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+            const latestState = (data && data.state) || {};
+            
+            await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: uniqueName } });
+            
+            // --- ORPHAN CLEANUP --- 
+            // This permanently fixes the duplicates issue. It wipes out all other wallpapers in the bucket except the new one!
+            const { data: storageItems } = await supabaseClient.storage.from(BUCKET_NAME).list('.system', { limit: 100 });
+            if (storageItems) {
+                const toDelete = storageItems
+                    .filter(f => f.name.startsWith('wallpaper_') && `.system/${f.name}` !== uniqueName)
+                    .map(f => `.system/${f.name}`);
+                if (toDelete.length > 0) {
+                    await supabaseClient.storage.from(BUCKET_NAME).remove(toDelete);
+                }
+            }
+            
+            toast('Wallpaper live and synced!', 'ok');
+        } catch (e) {
+            hideProgress();
+            console.error("Wallpaper Upload Error:", e);
+            toast("Upload synchronization failed", "err");
+        }
+        return;
+    }
+    
+    // If it's a string URL (selected via built-in grid gallery click)
+    if (typeof source === 'string') {
+        overlay.style.backgroundImage = `url(${source})`;
+        document.documentElement.classList.add('has-wallpaper');
+        modal.classList.remove('open'); // Close Modal Instantly
+        toast('Wallpaper applied!', 'ok');
+        
+        if (existingName) {
+            try {
+                const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+                const latestState = (data && data.state) || {};
+                await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: existingName } });
+            } catch(e) {}
+        }
+    }
+};
+
+window.removeSavedWallpaper = function(event, idx) {
+    event.stopPropagation();
+    window.applyWallpaper(null);
+};
+
+window.syncCloudWallpaper = async function(overrideWpName = undefined) {
+    if (!window.supabaseClient || !window.BUCKET_NAME) return;
+    try {
+        let wpName = overrideWpName;
+        if (wpName === undefined) {
+            const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+            wpName = data && data.state && data.state.wallpaperName;
+        }
+
+        if (wpName) {
+            const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(wpName);
+            if (urlData && urlData.publicUrl) {
+                document.getElementById('bgOverlay').style.backgroundImage = `url(${urlData.publicUrl})`;
+                document.documentElement.classList.add('has-wallpaper');
+            }
+        } else {
+            document.getElementById('bgOverlay').style.backgroundImage = 'none';
+            document.documentElement.classList.remove('has-wallpaper');
+        }
+    } catch(e) { console.error("Could not fetch cloud wallpaper:", e); }
+};
+
 // Auto-trigger sync once app boot is ready
 let _wpSyncInterval = setInterval(() => {
     if (window.supabaseClient && window.BUCKET_NAME) {
