@@ -1105,12 +1105,19 @@ window.saveNoteModal = function() {
     const id = document.getElementById('nm-id').value;
     const n = S.notes.find(x => x.id === id);
     if(n) {
-        n.title = window.sanitizeNoteText(document.getElementById('nm-title').value.trim());
-        n.text = window.sanitizeNoteText(document.getElementById('nm-text').value.trim());
-        n.color = document.getElementById('nm-color').value;
-        n.pinned = document.getElementById('nm-pinned').value === 'true';
-        n.updatedAt = Date.now();
-        window.saveNotesData(); window.renderNotes();
+        let newTitle = window.sanitizeNoteText(document.getElementById('nm-title').value.trim());
+        let newText = window.sanitizeNoteText(document.getElementById('nm-text').value.trim());
+        let newColor = document.getElementById('nm-color').value;
+        let newPinned = document.getElementById('nm-pinned').value === 'true';
+
+        if ((n.title || '') !== newTitle || (n.text || '') !== newText || window.getUpgradedColor(n.color) !== newColor || (!!n.pinned) !== newPinned) {
+            n.title = newTitle;
+            n.text = newText;
+            n.color = newColor;
+            n.pinned = newPinned;
+            n.updatedAt = Date.now();
+            window.saveNotesData(); window.renderNotes();
+        }
     }
     document.getElementById('fullNoteModal').style.display = 'none';
 };
@@ -1124,7 +1131,7 @@ window.autoSaveNote = function() {
         let newColor = document.getElementById('nm-color').value;
         let newPinned = document.getElementById('nm-pinned').value === 'true';
         
-        if (n.title === newTitle && n.text === newText && n.color === newColor && n.pinned === newPinned) return;
+        if ((n.title || '') === newTitle && (n.text || '') === newText && window.getUpgradedColor(n.color) === newColor && (!!n.pinned) === newPinned) return;
         
         n.title = newTitle;
         n.text = newText;
