@@ -1771,24 +1771,27 @@ window.loadFiles = async function() {
                 if (!matched) { catStats['Others'].count++; catStats['Others'].size += (f.metadata?.size || 0); }
             });
         
-            Object.keys(catStats).forEach(cat => {
-                            if (catStats[cat].count === 0) return;
-                            const card = document.createElement('div');
-                            card.className = 'category-card';
-                            card.onclick = () => window.enterFormatFolder(cat);
-                            card.innerHTML = `
-                                <div class="category-icon-wrapper" style="color:${window.fileCategories[cat].color};">
-                                    <i class="${window.fileCategories[cat].icon}"></i>
-                                </div>
-                                <div style="font-weight:600; font-size:13px; color:var(--text-main);">${cat}</div>
-                                <div style="font-size:11px; color:var(--text-muted);">${formatBytes(catStats[cat].size)}<br>(${catStats[cat].count})</div>
-                            `;
-                            if (fContainer) fContainer.appendChild(card);
-                        });
-                        container.innerHTML = '';
-                        if (fContainer && fContainer.children.length === 0) emptyState.style.display = 'flex';
-                        cleanupScroll();
-                        return;
+            const catGrid = document.createElement('div');
+                        catGrid.style.cssText = "display:flex; flex-wrap:wrap; gap:12px; width:100%;";
+                        Object.keys(catStats).forEach(cat => {
+                                        if (catStats[cat].count === 0) return;
+                                        const card = document.createElement('div');
+                                        card.className = 'category-card';
+                                        card.onclick = () => window.enterFormatFolder(cat);
+                                        card.innerHTML = `
+                                            <div class="category-icon-wrapper" style="color:${window.fileCategories[cat].color};">
+                                                <i class="${window.fileCategories[cat].icon}"></i>
+                                            </div>
+                                            <div style="font-weight:600; font-size:13px; color:var(--text-main);">${cat}</div>
+                                            <div style="font-size:11px; color:var(--text-muted);">${formatBytes(catStats[cat].size)}<br>(${catStats[cat].count})</div>
+                                        `;
+                                        catGrid.appendChild(card);
+                                    });
+                                    container.innerHTML = '';
+                                    if (catGrid.children.length === 0) emptyState.style.display = 'flex';
+                                    else container.appendChild(catGrid);
+                                    cleanupScroll();
+                                    return;
                     }
 
                 if (window.isFormatFilterMode && window.activeFormatType) {
