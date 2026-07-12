@@ -106,7 +106,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 /* FLOATING SQUIRCLE UPLOAD BUTTON (BOTTOM RIGHT) */
 #uploadSquircleBtn {
   position: fixed; bottom: 44px; right: 20px; z-index: 10000; width: 56px; height: 56px; border-radius: 50%;
-  background: var(--text-main); color: var(--bg-base); border: none !important;
+  background: var(--bg-surface); color: var(--text-main); border: none !important;
   display: flex; align-items: center; justify-content: center; font-size: 22px;
   cursor: pointer; transition: transform 0.2s; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
 }
@@ -289,6 +289,10 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
 }
 
+#storage-search-input:focus, #storage-search-input:valid {
+  width: 120px !important; opacity: 1 !important; padding: 0 4px !important; margin-left: 4px; cursor: text !important;
+}
+
 #global-drop-overlay {
   position: fixed; inset: 0; background: rgba(24, 24, 23, 0.85);
   will-change: opacity;
@@ -381,13 +385,13 @@ html.has-wallpaper .quick-input-bar {
 
 html.has-wallpaper #uploadSquircleBtn {
   transform: translateZ(0);
-  background: rgba(229, 224, 218, 0.85) !important;
-  color: #181817 !important;
+  background: rgba(25, 24, 19, 0.85) !important;
+  color: #f8f7f3 !important;
   border: none !important;
 }
 html.has-wallpaper.light-theme #uploadSquircleBtn {
-  background: rgba(25, 24, 19, 0.85) !important;
-  color: #f8f7f3 !important;
+  background: rgba(229, 224, 218, 0.85) !important;
+  color: #181817 !important;
 }
 </style>
 </head>
@@ -444,9 +448,10 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
                         <span id="storage-path-display" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);"></span>
         
                         <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
-                            <div id="search-container" style="display:flex; align-items:center; background:var(--bg-base); border-radius:16px; padding:2px; overflow:hidden;">
-                                <input type="text" id="storage-search-input" style="background:transparent; border:none; color:var(--text-main); width:140px; font-size:13px; outline:none; padding:4px 12px;" placeholder="Search..." autocomplete="off" onkeyup="clearTimeout(window._searchDebounce); window._searchDebounce = setTimeout(window.loadFiles, 300)">
-                            </div>
+                            <div id="search-container" style="display:flex; align-items:center; background:rgba(22, 22, 22, 0.45); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-radius:24px; padding:6px; overflow:hidden; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border:none !important;">
+                                                            <label for="storage-search-input" style="margin:0; cursor:pointer; display:flex; justify-content:center; align-items:center; width:20px; height:20px;"><i class="fa-solid fa-magnifying-glass" style="color:var(--text-main); font-size:13px;"></i></label>
+                                                            <input type="text" id="storage-search-input" required style="background:transparent; border:none; color:var(--text-main); font-size:13px; outline:none; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding:0; width:0; opacity:0; cursor:pointer;" autocomplete="off" onkeyup="clearTimeout(window._searchDebounce); window._searchDebounce = setTimeout(window.loadFiles, 300)">
+                                                        </div>
                             <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="window.toggleFormatFilter()" title="Filter by Format"><i class="fa-solid fa-table-cells-large" id="filter-icon" style="font-size:16px;"></i></button>
                             <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--teal);" onclick="window.downloadCurrentViewAsZip()" title="Download View as Zip"><i class="fa-solid fa-file-zipper" style="font-size:16px;"></i></button>
                             <button class="action-mini-btn" style="width:26px; height:26px; box-shadow:none; background:transparent; color:var(--text-main);" onclick="window.toggleSort()" title="Toggle Sort"><i class="fa-solid fa-arrow-down-a-z" id="sort-icon" style="font-size:16px;"></i></button>
