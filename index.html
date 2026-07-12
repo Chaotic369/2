@@ -940,15 +940,36 @@ window.previewImage = function(event, url) {
     document.getElementById('mediaPreviewModal').style.display = 'flex';
 };
 
-window.toggleTheme = function() {
+window.toggleTheme = async function() {
     document.documentElement.classList.toggle('light-theme');
     const isLight = document.documentElement.classList.contains('light-theme');
-    localStorage.setItem('sovereign_theme', isLight ? 'light' : 'dark');
+    const themeVal = isLight ? 'light' : 'dark';
+    localStorage.setItem('sovereign_theme', themeVal);
+    try {
+        const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+        const prevState = (data && data.state) || {};
+        const { error } = await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...prevState, theme: themeVal } });
+        if (error) { console.error("Theme cloud save error:", error); toast('Failed to sync theme', 'err'); }
+    } catch(e) { console.error("Theme sync exception:", e); }
 };
 
 window.checkStorage = function() {
     const storageUsage = document.getElementById('sb-storage').textContent;
     toast(`Cloud Storage: ${storageUsage}`, 'info', 3000);
+};
+
+window.syncCloudTheme = async function() {
+    if (!window.supabaseClient) return;
+    try {
+        const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+        if (error && error.code !== 'PGRST116') { console.error("Theme fetch error:", error); return; }
+        const cloudTheme = data && data.state && data.state.theme;
+        if (cloudTheme) {
+            const isLight = cloudTheme === 'light';
+            document.documentElement.classList.toggle('light-theme', isLight);
+            localStorage.setItem('sovereign_theme', cloudTheme);
+        }
+    } catch(e) { console.error("Could not fetch cloud theme:", e); }
 };
 
 window.stopMedia = function() {
@@ -1062,14 +1083,27 @@ window.previewUniversal = function(event, url, ext) {
     };
 
     window.saveNotesData = async function() {
-    const { error } = await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { notes: S.notes, folders: S.folders } });
-    if (error) { console.error("Cloud save error:", error); toast("Failed to sync note data", "err"); }
-};
+        let existingTheme = null;
+        try {
+            const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+            existingTheme = data && data.state && data.state.theme;
+        } catch(e) {}
+        const { error } = await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { notes: S.notes, folders: S.folders, theme: existingTheme } });
+        if (error) { console.error("Cloud save error:", error); toast("Failed to sync note data", "err"); }
+    };
 
 window.loadNotesData = async function() {
     const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
     if (error && error.code !== 'PGRST116') { console.error("Fetch notes error:", error); } 
-    else if (data && data.state) { S.notes = data.state.notes || []; S.folders = data.state.folders || []; }
+    else if (data && data.state) {
+        S.notes = data.state.notes || [];
+        S.folders = data.state.folders || [];
+        if (data.state.theme) {
+            const isLight = data.state.theme === 'light';
+            document.documentElement.classList.toggle('light-theme', isLight);
+            localStorage.setItem('sovereign_theme', data.state.theme);
+        }
+    }
     window.renderNotes();
 };
 
@@ -2608,7 +2642,7 @@ if(_imgSrc) {
 }
 
 window.onload = () => {
-  window.loadFiles(); window.loadNotesData();
+  window.loadFiles(); window.loadNotesData(); window.syncCloudTheme();
   let roTimer;
   const resizeObserver = new ResizeObserver(() => {
       window.requestAnimationFrame(() => {
