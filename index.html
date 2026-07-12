@@ -52,7 +52,7 @@ html.light-theme {
   --bg-surface: #ffffff;
   --bg-box: #ffffff;
   --text-main: #191813;
-  --text-muted: #8b8984;
+  --text-muted: #5c5a55;
   --accent: #e5e0da;
 
   /* Light Mode Note Phases (Brighter pastel for perfect text contrast) */
@@ -297,9 +297,20 @@ html.has-wallpaper {
   --bg-base: rgba(0, 0, 0, 0.15);
   --bg-surface: rgba(0, 0, 0, 0.30);
 }
+html.has-wallpaper #bgOverlay {
+  filter: brightness(0.45);
+}
 html.has-wallpaper.light-theme {
-  --bg-base: rgba(255, 255, 255, 0.02);
-  --bg-surface: rgba(255, 255, 255, 0.12);
+  --bg-base: rgba(255, 255, 255, 0.5);
+  --bg-surface: rgba(255, 255, 255, 0.75);
+}
+html.has-wallpaper.light-theme #bgOverlay {
+  display: block;
+  filter: brightness(1.8) contrast(0.6) grayscale(0.2);
+}
+html.has-wallpaper.light-theme body, 
+html.has-wallpaper.light-theme #mainWorkspace { 
+  background: transparent !important; 
 }
 html.has-wallpaper body, html.has-wallpaper #mainWorkspace { 
   background: transparent !important; 
@@ -366,7 +377,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 </head>
 <body>
 
-<div id="bgOverlay" style="position:fixed; inset:0; z-index:-1; background-size:cover; background-position:center; transition:background-image 0.3s ease; filter: brightness(0.45);"></div>
+<div id="bgOverlay" style="position:fixed; inset:0; z-index:-1; background-size:cover; background-position:center; transition:background-image 0.3s ease, filter 0.3s ease;"></div>
 <input type="file" id="bgUploadInput" accept="image/*" style="display:none;" onchange="window.setWallpaper(event)">
 
 <div id="progressBar"></div>
