@@ -420,7 +420,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 <div id="progressBar"></div>
 
 <div class="top-bar-actions">
-  <button class="action-mini-btn" onclick="document.getElementById('bgUploadInput').click()" title="Set Wallpaper">
+  <button class="action-mini-btn" onclick="window.openWallpaperModal()" title="Wallpapers">
     <i class="fa-solid fa-image"></i>
   </button>
   <button class="action-mini-btn" onclick="window.checkStorage()" title="Storage Info">
@@ -530,6 +530,15 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px; margin-top: 8px; background: var(--bg-base);" onclick="document.getElementById('folderContextMenu').classList.remove('open')"><i class="fa-solid fa-xmark"></i> Cancel</button>
 </div>
 
+<div id="wallpaperModal" class="modal-base">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <h4 style="color:var(--text-main); font-size:16px; font-weight:600;">🎨 Backgrounds</h4>
+    <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:28px; height:28px;" onclick="document.getElementById('wallpaperModal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div id="wallpaper-gallery" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; max-height:50vh; overflow-y:auto; padding-bottom:8px;"></div>
+  <button class="btn" style="padding:12px; background:var(--bg-surface); color:var(--text-main); font-weight:600; border: 1px dashed var(--amber) !important;" onclick="document.getElementById('bgUploadInput').click()">+ Add New Wallpaper</button>
+</div>
+
 <div id="renameModal" class="modal-base">
   <h4 style="color:var(--text-main); margin-bottom:16px; font-size:16px; font-weight:600; padding-bottom:12px;">📁 Rename Cloud Asset</h4>
   <div style="display:flex; flex-direction:column; gap:4px;">
@@ -631,13 +640,20 @@ window.setWallpaper = function(e) {
         } catch(err) {
           compressed = ev.target.result;
         }
-        document.getElementById('bgOverlay').style.backgroundImage = `url(${compressed})`;
-        try {
-          localStorage.setItem('sovereign_wallpaper', compressed);
+        
+        let hist = [];
+        try { hist = JSON.parse(localStorage.getItem('sovereign_wp_history')) || []; } catch(err){}
+        hist = hist.filter(h => h !== compressed);
+        hist.unshift(compressed);
+        if(hist.length > 8) hist.pop(); // Max 8 saved locally to prevent quota issues
+        try { 
+            localStorage.setItem('sovereign_wp_history', JSON.stringify(hist)); 
         } catch(storageErr) {
-          toast('Wallpaper set, but too large to save for next visit', 'warn');
+            toast('Storage full, dropping oldest wallpapers', 'warn');
+            hist = [compressed];
+            try { localStorage.setItem('sovereign_wp_history', JSON.stringify(hist)); } catch(e){}
         }
-        document.documentElement.classList.add('has-wallpaper');
+        window.applyWallpaper(compressed);
       };
       img.onerror = () => toast('Could not read image', 'err');
       img.src = ev.target.result;
@@ -645,6 +661,70 @@ window.setWallpaper = function(e) {
     reader.onerror = () => toast('Could not read file', 'err');
     reader.readAsDataURL(file);
   }
+};
+
+window.openWallpaperModal = function() {
+    const gal = document.getElementById('wallpaper-gallery');
+    gal.innerHTML = '';
+    
+    let hist = [];
+    try { hist = JSON.parse(localStorage.getItem('sovereign_wp_history')) || []; } catch(e){}
+    let current = localStorage.getItem('sovereign_wallpaper');
+    
+    if (current && !hist.includes(current)) {
+        hist.unshift(current);
+        try { localStorage.setItem('sovereign_wp_history', JSON.stringify(hist)); } catch(e){}
+    }
+
+    let clearBtn = document.createElement('div');
+    clearBtn.style.cssText = `height:100px; border-radius:16px; background:var(--bg-surface); border:2px dashed var(--text-muted); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-muted); transition:transform 0.2s; ${!current ? 'border-color:var(--amber); color:var(--amber);' : ''}`;
+    clearBtn.innerHTML = '<i class="fa-solid fa-ban" style="font-size:24px;"></i>';
+    clearBtn.onclick = () => window.applyWallpaper(null);
+    clearBtn.onmouseover = () => clearBtn.style.transform = 'scale(1.05)';
+    clearBtn.onmouseout = () => clearBtn.style.transform = 'scale(1)';
+    gal.appendChild(clearBtn);
+
+    hist.forEach((wp, idx) => {
+        let w = document.createElement('div');
+        let isActive = (current === wp);
+        w.style.cssText = `position:relative; height:100px; border-radius:16px; overflow:hidden; background:var(--bg-base); cursor:pointer; border: 2px solid ${isActive ? 'var(--amber)' : 'transparent'}; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s;`;
+        w.innerHTML = `
+           <img src="${wp}" style="width:100%;height:100%;object-fit:cover;">
+           <button onclick="window.removeSavedWallpaper(event, ${idx})" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.2s;"><i class="fa-solid fa-trash"></i></button>
+        `;
+        w.onmouseover = () => w.style.transform = 'scale(1.05)';
+        w.onmouseout = () => w.style.transform = 'scale(1)';
+        w.onclick = () => window.applyWallpaper(wp);
+        gal.appendChild(w);
+    });
+    
+    document.getElementById('wallpaperModal').classList.add('open');
+};
+
+window.applyWallpaper = function(dataUrl) {
+    if (dataUrl) {
+        document.getElementById('bgOverlay').style.backgroundImage = `url(${dataUrl})`;
+        localStorage.setItem('sovereign_wallpaper', dataUrl);
+        document.documentElement.classList.add('has-wallpaper');
+    } else {
+        document.getElementById('bgOverlay').style.backgroundImage = 'none';
+        localStorage.removeItem('sovereign_wallpaper');
+        document.documentElement.classList.remove('has-wallpaper');
+    }
+    if (document.getElementById('wallpaperModal').classList.contains('open')) {
+        window.openWallpaperModal();
+    }
+};
+
+window.removeSavedWallpaper = function(event, idx) {
+    event.stopPropagation();
+    let hist = [];
+    try { hist = JSON.parse(localStorage.getItem('sovereign_wp_history')) || []; } catch(e){}
+    let removingActive = (hist[idx] === localStorage.getItem('sovereign_wallpaper'));
+    hist.splice(idx, 1);
+    localStorage.setItem('sovereign_wp_history', JSON.stringify(hist));
+    if (removingActive) window.applyWallpaper(null);
+    else window.openWallpaperModal();
 };
 const BUCKET_NAME = 'docs';
 const USER_DOC_ID = 'global_user_1';
