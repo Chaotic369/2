@@ -534,7 +534,8 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
                  <button class="action-mini-btn" onclick="window.cycleModalColor()" title="Change Color"><i class="fa-solid fa-palette"></i></button>
                  <input type="file" id="modalAttachInput" style="display:none;" accept="image/*" onchange="window.triggerModalImageUpload(event)">
                  <button class="action-mini-btn" onclick="document.getElementById('modalAttachInput').click()" title="Attach Image Asset"><i class="fa-solid fa-paperclip"></i></button>
-                 <button class="action-mini-btn" style="color:var(--red);" onclick="window.deleteModalNote()" title="Delete Note"><i class="fa-solid fa-trash"></i></button>
+                                  <button class="action-mini-btn" onmousedown="event.preventDefault()" onclick="window.undoModalNote()" title="Undo Typo"><i class="fa-solid fa-rotate-left"></i></button>
+                                  <button class="action-mini-btn" style="color:var(--red);" onclick="window.deleteModalNote()" title="Delete Note"><i class="fa-solid fa-trash"></i></button>
               </div>
        <div style="display:flex; gap:12px;">
                  <button class="btn" style="padding:10px 20px;" onclick="window.saveNoteModal()">Close</button>
@@ -1106,6 +1107,18 @@ window.autoSaveNote = function() {
 };
 
 window.undoModalNote = function() {
+    let ta = document.getElementById('nm-text');
+    ta.focus();
+    
+    // Try to perform a true sequential native undo (like Ctrl+Z)
+    let success = document.execCommand('undo');
+    
+    if (success) {
+        window.autoSaveNote();
+        return;
+    }
+    
+    // Fallback: If native undo history is empty, reset to when note was opened
     if (!window._initialNoteState) return;
     
     document.getElementById('nm-title').value = window._initialNoteState.title;
@@ -1124,7 +1137,7 @@ window.undoModalNote = function() {
     }
     
     window.autoSaveNote();
-    toast('Changes reverted', 'info');
+    toast('Reverted to original state', 'info');
 };
 
 window.deleteModalNote = async function() {
