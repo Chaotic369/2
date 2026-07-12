@@ -634,21 +634,25 @@ window.openWallpaperModal = async function(event) {
     const currentRenderId = window._wpModalRenderId;
     
     let activeWpName = null;
-    let activeUrl = null;
     
     try {
         const { data: stateData } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
         activeWpName = (stateData && stateData.state && stateData.state.wallpaperName);
-        if (activeWpName) {
-            const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(activeWpName);
-            if (urlData && urlData.publicUrl) activeUrl = urlData.publicUrl;
-        }
     } catch(e) {}
 
     if (currentRenderId !== window._wpModalRenderId) return; // Drop stale renders
 
     const gal = document.getElementById('wallpaper-gallery');
-    gal.innerHTML = ''; // Wipe clean
+    gal.innerHTML = '<div style="grid-column: 1/-1; color: var(--text-muted); font-size: 11px; text-align: center;">Loading gallery...</div>';
+    
+    let allWallpapers = [];
+    try {
+        const { data } = await supabaseClient.storage.from(BUCKET_NAME).list('.system', { limit: 100 });
+        if (data) allWallpapers = data.filter(f => f.name.startsWith('wallpaper_'));
+    } catch(e) {}
+    
+    if (currentRenderId !== window._wpModalRenderId) return;
+    gal.innerHTML = '';
 
     let clearBtn = document.createElement('div');
     clearBtn.style.cssText = `height:80px; border-radius:16px; background:var(--bg-surface); border:2px dashed var(--text-muted); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-muted); transition:transform 0.2s; ${!activeWpName ? 'border-color:var(--amber); color:var(--amber);' : ''}`;
@@ -658,18 +662,39 @@ window.openWallpaperModal = async function(event) {
     clearBtn.onmouseout = () => clearBtn.style.transform = 'scale(1)';
     gal.appendChild(clearBtn);
 
-    // Only render the ONE active wallpaper, obliterating the duplicate bug
-    if (activeUrl) {
+    // Render ALL saved wallpapers from storage
+    allWallpapers.forEach(wp => {
+        const fullPath = `.system/${wp.name}`;
+        const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(fullPath);
+        const isActive = (activeWpName === fullPath);
+        
         let w = document.createElement('div');
-        w.style.cssText = `position:relative; height:80px; border-radius:16px; overflow:hidden; background:var(--bg-base); cursor:pointer; border:none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s; outline: 2px solid var(--amber);`;
+        w.style.cssText = `position:relative; height:80px; border-radius:16px; overflow:hidden; background:var(--bg-base); cursor:pointer; border:none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s; ${isActive ? 'outline: 2px solid var(--amber);' : ''}`;
+        w.onclick = () => window.applyWallpaper(urlData.publicUrl, fullPath);
         w.innerHTML = `
-           <img src="${activeUrl}" style="width:100%;height:100%;object-fit:cover;object-position:center;">
-           <div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;pointer-events:none;"><i class="fa-solid fa-circle-check" style="color:var(--amber);font-size:24px;background:#000;border-radius:50%;"></i></div>
+           <img src="${urlData.publicUrl}" style="width:100%;height:100%;object-fit:cover;object-position:center;">
+           ${isActive ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;pointer-events:none;"><i class="fa-solid fa-circle-check" style="color:var(--amber);font-size:24px;background:#000;border-radius:50%;"></i></div>` : ''}
+           <button onclick="window.deleteWallpaperFile(event, '${wp.name}', '${isActive}')" style="position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.6); color:#fff; border:none; border-radius:50%; width:24px; height:24px; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-trash"></i></button>
         `;
         gal.appendChild(w);
-    }
+    });
     
     document.getElementById('wallpaperModal').classList.add('open');
+};
+
+window.deleteWallpaperFile = async function(event, filename, wasActive) {
+    event.stopPropagation();
+    if(!confirm('Permanently delete this wallpaper?')) return;
+    
+    if(wasActive === 'true') window.applyWallpaper(null);
+    
+    try {
+        await supabaseClient.storage.from(BUCKET_NAME).remove([`.system/${filename}`]);
+        window.openWallpaperModal(); // Reload the gallery immediately
+        toast('Wallpaper deleted', 'ok');
+    } catch(e) {
+        toast('Failed to delete file', 'err');
+    }
 };
 
 window.applyWallpaper = async function(source, existingName = null) {
@@ -735,18 +760,6 @@ window.applyWallpaper = async function(source, existingName = null) {
             const latestState = (data && data.state) || {};
             
             await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: uniqueName } });
-            
-            // --- ORPHAN CLEANUP --- 
-            // This permanently fixes the duplicates issue. It wipes out all other wallpapers in the bucket except the new one!
-            const { data: storageItems } = await supabaseClient.storage.from(BUCKET_NAME).list('.system', { limit: 100 });
-            if (storageItems) {
-                const toDelete = storageItems
-                    .filter(f => f.name.startsWith('wallpaper_') && `.system/${f.name}` !== uniqueName)
-                    .map(f => `.system/${f.name}`);
-                if (toDelete.length > 0) {
-                    await supabaseClient.storage.from(BUCKET_NAME).remove(toDelete);
-                }
-            }
             
             toast('Wallpaper live and synced!', 'ok');
         } catch (e) {
