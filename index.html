@@ -1365,11 +1365,11 @@ window.renderNotes = function() {
                                                     }
 
                                 let visibleNotes = S.notes.filter(n => window.currentFolderView ? n.folderId === window.currentFolderView : !n.folderId);
-    visibleNotes.sort((a, b) => {
-        if(a.pinned && !b.pinned) return -1;
-        if(!a.pinned && b.pinned) return 1;
-        return (b.updatedAt || 0) - (a.updatedAt || 0);
-    });
+                                    visibleNotes.sort((a, b) => {
+                                        if(a.pinned && !b.pinned) return -1;
+                                        if(!a.pinned && b.pinned) return 1;
+                                        return (b.order || 0) - (a.order || 0);
+                                    });
 
     visibleNotes.forEach(n => {
             const el = document.createElement('div');
