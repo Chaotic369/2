@@ -460,8 +460,8 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
                                                 <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
                         <span id="storage-path-display" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);"></span>
         
-                        <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
-                                                    <div id="search-container" style="display:flex; align-items:center; border-radius:24px; padding:6px; overflow:hidden; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border:none !important;">
+                        <div id="storage-toolbar" style="margin-left:auto; display:flex; gap:6px; align-items:center;">
+                                                    <div id="search-container" style="display:flex; align-items:center; overflow:hidden; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border:none !important;">
                                                                                     <label for="storage-search-input" style="margin:0; cursor:pointer; display:flex; justify-content:center; align-items:center; width:20px; height:20px;"><i class="fa-solid fa-magnifying-glass" style="color:var(--text-main); font-size:13px;"></i></label>
                                                             <input type="text" id="storage-search-input" required style="background:transparent; border:none; color:var(--text-main); font-size:13px; outline:none; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding:0; width:0; opacity:0; cursor:pointer;" autocomplete="off" onkeyup="clearTimeout(window._searchDebounce); window._searchDebounce = setTimeout(window.loadFiles, 300)">
                                                         </div>
