@@ -1920,10 +1920,10 @@ window.loadFiles = async function() {
         
             if (fContainer && !searchVal) {
                             const addBtn = document.createElement('button');
-                            addBtn.style.cssText = "background:transparent; border:none; box-shadow:none; color:var(--amber); cursor:pointer; font-size:18px; outline:none; display:flex; align-items:center; justify-content:center; padding:4px 8px; flex-shrink:0;";
-                            addBtn.onclick = window.createStorageFolder;
-                addBtn.innerHTML = '<i class="fa-solid fa-folder-plus"></i>';
-                fContainer.appendChild(addBtn);
+                                            addBtn.style.cssText = "background:transparent; border:none; box-shadow:none; color:var(--text-main); cursor:pointer; font-size:18px; outline:none; display:flex; align-items:center; justify-content:center; padding:4px 8px; flex-shrink:0;";
+                                            addBtn.onclick = window.createStorageFolder;
+                                            addBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
+                                            fContainer.appendChild(addBtn);
             
                 if (typeof Sortable !== 'undefined') {
                     window.storageFoldersSortable = new Sortable(fContainer, {
