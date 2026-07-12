@@ -419,7 +419,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   <div class="workspace-panel">
       <div class="panel-header">
              <div style="display:flex; align-items:center; gap:8px;">
-               <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.viewRootFolder()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)'; if(window._dragHoverFolder !== 'BACK_NOTE'){ clearTimeout(window._dragHoverTimer); window._dragHoverFolder = 'BACK_NOTE'; window._dragHoverTimer = setTimeout(() => { window.viewRootFolder(); window._dragHoverFolder = null; }, 700); }" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)'; if(window._dragHoverFolder === 'BACK_NOTE'){ clearTimeout(window._dragHoverTimer); window._dragHoverFolder = null; }" ondrop="event.preventDefault(); clearTimeout(window._dragHoverTimer); window._dragHoverFolder = null; this.style.transform='scale(1)'; this.style.color='var(--text-main)'; window.moveNoteToRoot(event.dataTransfer.getData('text/plain'))" title="Drop note here to move to root"><i class="fa-solid fa-arrow-left"></i></button>
+               <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.viewRootFolder()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)'; if(window._dragHoverFolder !== 'BACK_NOTE'){ clearTimeout(window._dragHoverTimer); window._dragHoverFolder = 'BACK_NOTE'; window._dragHoverTimer = setTimeout(() => { let ws = document.getElementById('mainWorkspace'); let st = ws ? ws.scrollTop : 0; window.viewRootFolder(); if(ws) ws.scrollTop = st; window._dragHoverFolder = null; }, 700); }" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)'; if(window._dragHoverFolder === 'BACK_NOTE'){ clearTimeout(window._dragHover
                <span id="notes-view-title" style="display:flex; align-items:center;" title="Quick Notes"><i class="fa-solid fa-note-sticky" style="font-size:20px; color:var(--amber);"></i></span>
                <input id="notes-folder-edit" type="text" class="file-row-input" style="display:none; width:160px; padding:6px 10px; margin-left:8px;" onchange="window.renameCurrentFolder(this.value)">
              </div>
@@ -433,7 +433,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   <div class="workspace-panel">
           <div class="panel-header" style="border: none !important; margin-bottom: 12px; min-height: 34px;">
                       <div style="display: flex; align-items: center; gap: 8px; height: 26px; flex: 1;">
-                        <button id="btn-back-storage" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.goBackStorage()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)'; if(window._dragHoverFolder !== 'BACK_FILE'){ clearTimeout(window._dragHoverTimer); window._dragHoverFolder = 'BACK_FILE'; window._dragHoverTimer = setTimeout(() => { window.goBackStorage(); window._dragHoverFolder = null; }, 700); }" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)'; if(window._dragHoverFolder === 'BACK_FILE'){ clearTimeout(window._dragHoverTimer); window._dragHoverFolder = null; }" ondrop="clearTimeout(window._dragHoverTimer); window._dragHoverFolder = null; window.dropOutStorage(event)" title="Drop file here to move out"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button id="btn-back-storage" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.goBackStorage()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)'; if(window._dragHoverFolder !== 'BACK_FILE'){ clearTimeout(window._dragHoverTimer); window._dragHoverFolder = 'BACK_FILE'; window._dragHoverTimer = setTimeout(() => { let ws = document.getElementById('mainWorkspace'); window._preserveScroll
                         <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
                         <span id="storage-path-display" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);"></span>
         
@@ -1220,7 +1220,13 @@ window.renderNotes = function() {
                                                     if (window._dragHoverFolder !== f.id) {
                                                         clearTimeout(window._dragHoverTimer);
                                                         window._dragHoverFolder = f.id;
-                                                        window._dragHoverTimer = setTimeout(() => { window.viewFolder(f.id, f.name); window._dragHoverFolder = null; }, 700);
+                                                        window._dragHoverTimer = setTimeout(() => { 
+                                                            let ws = document.getElementById('mainWorkspace');
+                                                            let st = ws ? ws.scrollTop : 0;
+                                                            window.viewFolder(f.id, f.name); 
+                                                            if(ws) ws.scrollTop = st;
+                                                            window._dragHoverFolder = null; 
+                                                        }, 700);
                                                     }
                                                 };
                                                 fel.ondragleave = (e) => { 
@@ -1604,6 +1610,19 @@ window.loadFiles = async function() {
     const emptyState = document.getElementById('emptyState');
     const searchVal = document.getElementById('storage-search-input')?.value.toLowerCase() || '';
     
+    const ws = document.getElementById('mainWorkspace');
+    let pScroll = window._preserveScroll;
+    window._preserveScroll = null;
+    if (pScroll !== undefined && pScroll !== null && ws) {
+        container.style.minHeight = ws.scrollHeight + 'px';
+    }
+    const cleanupScroll = () => {
+        if (pScroll !== undefined && pScroll !== null && ws) {
+            container.style.minHeight = '';
+            ws.scrollTop = pScroll;
+        }
+    };
+    
     if (window.storageFoldersSortable) { window.storageFoldersSortable.destroy(); window.storageFoldersSortable = null; }
     
     container.innerHTML = '<div style="color:var(--text-muted); font-family:monospace; grid-column: 1/-1;">Synchronizing with cloud array...</div>';
@@ -1614,13 +1633,13 @@ window.loadFiles = async function() {
     let folders = [];
     
     if (window.isFormatFilterMode) {
-        document.getElementById('storage-path-display').textContent = window.activeFormatType ? `Formats / ${window.activeFormatType}` : 'Global Formats';
-        document.getElementById('btn-back-storage').style.display = window.activeFormatType ? 'flex' : 'none';
-        allFiles = await window.fetchAllRecursive('');
-    } else {
-        let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
-        const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list(window.currentStoragePath || '', { limit: 1000 });
-        if (error) { container.innerHTML = `<div style="color:var(--red);">Storage Node Error: ${error.message}</div>`; return toast('Sync failed', 'err'); }
+            document.getElementById('storage-path-display').textContent = window.activeFormatType ? `Formats / ${window.activeFormatType}` : 'Global Formats';
+            document.getElementById('btn-back-storage').style.display = window.activeFormatType ? 'flex' : 'none';
+            allFiles = await window.fetchAllRecursive('');
+        } else {
+            let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+            const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list(window.currentStoragePath || '', { limit: 1000 });
+            if (error) { container.innerHTML = `<div style="color:var(--red);">Storage Node Error: ${error.message}</div>`; cleanupScroll(); return toast('Sync failed', 'err'); }
         
         folders = data.filter(f => !f.id && f.name !== '.emptyFolderPlaceholder');
         const rawFiles = data.filter(f => f.id && f.name !== '.emptyFolderPlaceholder' && !f.name.startsWith('note_img_'));
@@ -1661,25 +1680,26 @@ window.loadFiles = async function() {
             });
         
             Object.keys(catStats).forEach(cat => {
-                if (catStats[cat].count === 0) return;
-                const card = document.createElement('div');
-                card.className = 'category-card';
-                card.onclick = () => window.enterFormatFolder(cat);
-                card.innerHTML = `
-                    <div class="category-icon-wrapper" style="color:${window.fileCategories[cat].color};">
-                        <i class="${window.fileCategories[cat].icon}"></i>
-                    </div>
-                    <div style="font-weight:600; font-size:13px; color:var(--text-main);">${cat}</div>
-                    <div style="font-size:11px; color:var(--text-muted);">${formatBytes(catStats[cat].size)}<br>(${catStats[cat].count})</div>
-                `;
-                if (fContainer) fContainer.appendChild(card);
-            });
-            container.innerHTML = '';
-            if (fContainer && fContainer.children.length === 0) emptyState.style.display = 'flex';
-            return;
-        }
+                            if (catStats[cat].count === 0) return;
+                            const card = document.createElement('div');
+                            card.className = 'category-card';
+                            card.onclick = () => window.enterFormatFolder(cat);
+                            card.innerHTML = `
+                                <div class="category-icon-wrapper" style="color:${window.fileCategories[cat].color};">
+                                    <i class="${window.fileCategories[cat].icon}"></i>
+                                </div>
+                                <div style="font-weight:600; font-size:13px; color:var(--text-main);">${cat}</div>
+                                <div style="font-size:11px; color:var(--text-muted);">${formatBytes(catStats[cat].size)}<br>(${catStats[cat].count})</div>
+                            `;
+                            if (fContainer) fContainer.appendChild(card);
+                        });
+                        container.innerHTML = '';
+                        if (fContainer && fContainer.children.length === 0) emptyState.style.display = 'flex';
+                        cleanupScroll();
+                        return;
+                    }
 
-    if (window.isFormatFilterMode && window.activeFormatType) {
+                if (window.isFormatFilterMode && window.activeFormatType) {
         allFiles = allFiles.filter(f => {
             let ext = (f.name.includes('.') ? f.name.split('.').pop() : 'unknown').toLowerCase();
             if (window.activeFormatType === 'Others') {
@@ -1700,7 +1720,12 @@ window.loadFiles = async function() {
                                     if (window._dragHoverFolder !== folder.name) {
                                         clearTimeout(window._dragHoverTimer);
                                         window._dragHoverFolder = folder.name;
-                                        window._dragHoverTimer = setTimeout(() => { window.enterStorageFolder(folder.name); window._dragHoverFolder = null; }, 700);
+                                        window._dragHoverTimer = setTimeout(() => { 
+                                            let ws = document.getElementById('mainWorkspace');
+                                            window._preserveScroll = ws ? ws.scrollTop : null;
+                                            window.enterStorageFolder(folder.name); 
+                                            window._dragHoverFolder = null; 
+                                        }, 700);
                                     }
                                 };
                                 card.ondragleave = (e) => { 
@@ -1736,12 +1761,12 @@ window.loadFiles = async function() {
                     });
                 }
             }
-        }
+                    }
 
-    if (folders.length === 0 && allFiles.length === 0) { container.innerHTML = ''; emptyState.style.display = 'flex'; return; }
-    container.innerHTML = '';
+                if (folders.length === 0 && allFiles.length === 0) { container.innerHTML = ''; emptyState.style.display = 'flex'; cleanupScroll(); return; }
+                container.innerHTML = '';
 
-    allFiles.sort((a,b) => {
+                allFiles.sort((a,b) => {
         if (window.currentSort === 'size') return (b.metadata?.size || 0) - (a.metadata?.size || 0);
         if (window.currentSort === 'alpha') return a.name.localeCompare(b.name);
         return new Date(b.created_at || 0) - new Date(a.created_at || 0);
@@ -1799,13 +1824,14 @@ window.loadFiles = async function() {
                                             </div>
                                         </div>
                                         <div style="display:flex; gap:4px; flex-shrink:0; align-items:center;">
-                                            <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px; color:var(--blue);" onclick="event.stopPropagation(); window.triggerDownload('${fileUrl}', '${cleanName}')" title="Quick Download"><i class="fa-solid fa-download"></i></button>
-                                            <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px;" onclick="window.openFileContextMenu('${file.name}', '${fileUrl}', event)" title="More Options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                                        </div>
-                                    `;
-                                    container.appendChild(card);
-            });
-};
+                                                                                    <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px; color:var(--blue);" onclick="event.stopPropagation(); window.triggerDownload('${fileUrl}', '${cleanName}')" title="Quick Download"><i class="fa-solid fa-download"></i></button>
+                                                                                    <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px;" onclick="window.openFileContextMenu('${file.name}', '${fileUrl}', event)" title="More Options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                                                                </div>
+                                                                            `;
+                                                                            container.appendChild(card);
+                                                    });
+                                            cleanupScroll();
+                                        };
 
 window.uploadFilesRealtime = async function(files) {
     let fileArray = Array.from(files);
