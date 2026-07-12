@@ -294,8 +294,8 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 
 /* Glassmorphism Wallpaper UI */
 html.has-wallpaper {
-  --bg-base: rgba(0, 0, 0, 0.02);
-  --bg-surface: rgba(0, 0, 0, 0.12);
+  --bg-base: rgba(0, 0, 0, 0.15);
+  --bg-surface: rgba(0, 0, 0, 0.30);
 }
 html.has-wallpaper.light-theme {
   --bg-base: rgba(255, 255, 255, 0.02);
@@ -366,7 +366,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 </head>
 <body>
 
-<div id="bgOverlay" style="position:fixed; inset:0; z-index:-1; background-size:cover; background-position:center; transition:background-image 0.3s ease;"></div>
+<div id="bgOverlay" style="position:fixed; inset:0; z-index:-1; background-size:cover; background-position:center; transition:background-image 0.3s ease; filter: brightness(0.45);"></div>
 <input type="file" id="bgUploadInput" accept="image/*" style="display:none;" onchange="window.setWallpaper(event)">
 
 <div id="progressBar"></div>
@@ -489,8 +489,8 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   </div>
 </div>
 
-<div id="fullNoteModal" style="display:none; position:fixed; z-index:40000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.9);" onclick="if(event.target === this) window.saveNoteModal()">
-  <div style="background:var(--bg-surface); width:90vw; max-width:600px; border-radius:32px; padding:24px; box-shadow:0 24px 64px rgba(0,0,0,0.4); display:flex; flex-direction:column; gap:16px; border:none !important;">
+<div id="fullNoteModal" style="display:none; position:fixed; z-index:40000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.9); cursor:pointer;" onpointerdown="if(event.target === this) window.saveNoteModal()">
+  <div style="background:var(--bg-surface); width:90vw; max-width:600px; border-radius:32px; padding:24px; box-shadow:0 24px 64px rgba(0,0,0,0.4); display:flex; flex-direction:column; gap:16px; border:none !important; cursor:default;">
     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
            <input type="text" id="nm-title" style="flex:1; background:transparent; border:none; font-size:22px; font-weight:700; color:var(--text-main); outline:none; margin-right:12px;" placeholder="Note Title..." oninput="window.autoSaveNote()">
            <div style="display:flex; gap:8px;">
@@ -988,14 +988,14 @@ window.openNoteModal = function(id) {
     document.getElementById('nm-timestamp').innerText = `Last saved: ${dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at ${dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
     
     const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
-        if (modalWrapper) {
-            if (upgradedColor === 'var(--note-base)') {
-                modalWrapper.style.background = 'var(--bg-box)';
-            } else {
-                modalWrapper.style.background = `linear-gradient(${upgradedColor}, ${upgradedColor}), var(--bg-box)`;
-            }
+            if (modalWrapper) {
+                if (upgradedColor === 'var(--note-base)') {
+                    modalWrapper.style.background = 'var(--bg-surface)';
+                } else {
+                    modalWrapper.style.background = `linear-gradient(${upgradedColor}, ${upgradedColor}), var(--bg-surface)`;
+                }
         
-        }
+            }
 
     const gal = document.getElementById('nm-gallery');
     gal.innerHTML = '';
@@ -1116,13 +1116,13 @@ window.cycleModalColor = function() {
     document.getElementById('nm-color').value = nextColor;
     
     const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
-        if (modalWrapper) {
-            if (nextColor === 'var(--note-base)') {
-                modalWrapper.style.background = 'var(--bg-box)';
-            } else {
-                modalWrapper.style.background = `linear-gradient(${nextColor}, ${nextColor}), var(--bg-box)`;
+            if (modalWrapper) {
+                if (nextColor === 'var(--note-base)') {
+                    modalWrapper.style.background = 'var(--bg-surface)';
+                } else {
+                    modalWrapper.style.background = `linear-gradient(${nextColor}, ${nextColor}), var(--bg-surface)`;
+                }
             }
-        }
     if(typeof window.autoSaveNote === 'function') window.autoSaveNote();
     toast('Color selected', 'info', 800);
 };
@@ -1261,11 +1261,11 @@ window.renderNotes = function() {
             el.className = 'note-card' + spanClass;
         
             let upColor = window.getUpgradedColor(n.color);
-                        if (upColor === 'var(--note-base)') {
-                            el.style.background = 'var(--bg-box)';
-                        } else {
-                            el.style.background = `linear-gradient(${upColor}, ${upColor}), var(--bg-box)`;
-                        }
+                                    if (upColor === 'var(--note-base)') {
+                                        el.style.background = 'var(--bg-surface)';
+                                    } else {
+                                        el.style.background = `linear-gradient(${upColor}, ${upColor}), var(--bg-surface)`;
+                                    }
         
         el.setAttribute('data-id', n.id);
         el.setAttribute('draggable', 'true');
