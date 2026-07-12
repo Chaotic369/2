@@ -283,6 +283,10 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   appearance: none; width: 18px; height: 18px; border: 2px solid var(--text-main);
   border-radius: 50%; background: rgba(0, 0, 0, 0.35); cursor: pointer; transition: all 0.2s; position: relative; flex-shrink:0;
 }
+/* Invisible hit-area expander to prevent accidental file opens */
+.file-checkbox::before {
+  content: ''; position: absolute; top: -20px; bottom: -20px; left: -20px; right: -20px; border-radius: 50%;
+}
 .file-checkbox:checked { background: var(--blue); border-color: var(--blue); }
 .file-checkbox:checked::after {
   content: ''; position: absolute; left: 5px; top: 2px; width: 4px; height: 8px;
@@ -1320,7 +1324,7 @@ window.renderNotes = function() {
                                                 });
                                             }
                                         } else {
-                                                        backDropzone.style.display = 'flex';
+                                                        backDropzone.style.display = 'none';
                                                         if (typeof Sortable !== 'undefined' && !backDropzone._sortableInitialized) {
                                                             new Sortable(backDropzone, {
                                                                 group: { name: 'notes', put: true },
@@ -1397,9 +1401,17 @@ window.renderNotes = function() {
                                                 group: 'notes',
                                                 animation: 250, delay: 200, delayOnTouchOnly: true, touchStartThreshold: 5,
                                                 ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
-                            setData: function (dataTransfer, dragEl) { dataTransfer.setData('text/plain', dragEl.getAttribute('data-id')); },
-                            onEnd: function () {
-                                let items = Array.from(nContainer.children);
+                                                                            setData: function (dataTransfer, dragEl) { dataTransfer.setData('text/plain', dragEl.getAttribute('data-id')); },
+                                                                            onStart: function () {
+                                                                                if (window.currentFolderView) {
+                                                                                    let dz = document.getElementById('note-back-dropzone');
+                                                                                    if (dz) dz.style.display = 'flex';
+                                                                                }
+                                                                            },
+                                                                            onEnd: function () {
+                                                                                let dz = document.getElementById('note-back-dropzone');
+                                                                                if (dz) dz.style.display = 'none';
+                                                                                let items = Array.from(nContainer.children);
                                 let total = items.length;
                                 items.forEach((item, index) => {
                                     let id = item.getAttribute('data-id');
