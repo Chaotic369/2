@@ -414,7 +414,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 </head>
 <body>
 
-<div id="bgOverlay" style="position:fixed; inset:0; z-index:-1; background-size:cover; background-position:center; transition:background-image 0.3s ease, filter 0.3s ease;"></div>
+<div id="bgOverlay" style="position:fixed; inset:0; z-index:-1; background-size:cover; background-position:center center; background-repeat:no-repeat; transition:background-image 0.3s ease, filter 0.3s ease;"></div>
 <input type="file" id="bgUploadInput" accept="image/*" style="display:none;" onchange="window.setWallpaper(event)">
 
 <div id="progressBar"></div>
@@ -686,18 +686,19 @@ window.openWallpaperModal = function(event) {
     gal.appendChild(clearBtn);
 
     hist.forEach((wp, idx) => {
-        let w = document.createElement('div');
-        let isActive = (current === wp);
-        w.style.cssText = `position:relative; height:80px; border-radius:16px; overflow:hidden; background:var(--bg-base); cursor:pointer; border:none; box-shadow: ${isActive ? '0 0 0 3px var(--amber)' : '0 4px 12px rgba(0,0,0,0.2)'}; transition: transform 0.2s;`;
-        w.innerHTML = `
-           <img src="${wp}" style="width:100%;height:100%;object-fit:cover;">
-           <button onclick="window.removeSavedWallpaper(event, ${idx})" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.2s;"><i class="fa-solid fa-trash"></i></button>
-        `;
-        w.onmouseover = () => w.style.transform = 'scale(1.05)';
-        w.onmouseout = () => w.style.transform = 'scale(1)';
-        w.onclick = () => window.applyWallpaper(wp);
-        gal.appendChild(w);
-    });
+            let w = document.createElement('div');
+            let isActive = (current === wp);
+            w.style.cssText = `position:relative; height:80px; border-radius:16px; overflow:hidden; background:var(--bg-base); cursor:pointer; border:none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s;`;
+            w.innerHTML = `
+               <img src="${wp}" style="width:100%;height:100%;object-fit:cover;object-position:center;">
+               ${isActive ? '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;pointer-events:none;"><i class="fa-solid fa-circle-check" style="color:var(--amber);font-size:28px;background:#000;border-radius:50%;"></i></div>' : ''}
+               <button onclick="window.removeSavedWallpaper(event, ${idx})" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.2s;z-index:2;"><i class="fa-solid fa-trash"></i></button>
+            `;
+            w.onmouseover = () => w.style.transform = 'scale(1.05)';
+            w.onmouseout = () => w.style.transform = 'scale(1)';
+            w.onclick = () => window.applyWallpaper(wp);
+            gal.appendChild(w);
+        });
     
     document.getElementById('wallpaperModal').classList.add('open');
 };
