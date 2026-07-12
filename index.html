@@ -1081,14 +1081,15 @@ window.previewUniversal = function(event, url, ext) {
     };
 
     window.saveNotesData = async function() {
-        let existingTheme = null;
-        try {
-            const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
-            existingTheme = data && data.state && data.state.theme;
-        } catch(e) {}
-        const { error } = await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { notes: S.notes, folders: S.folders, theme: existingTheme } });
-        if (error) { console.error("Cloud save error:", error); toast("Failed to sync note data", "err"); }
-    };
+            let prevState = {};
+            try {
+                const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+                prevState = (data && data.state) || {};
+            } catch(e) {}
+            // Merge the entire existing state (including wallpaperName) so it isn't erased
+            const { error } = await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...prevState, notes: S.notes, folders: S.folders } });
+            if (error) { console.error("Cloud save error:", error); toast("Failed to sync note data", "err"); }
+        };
 
 window.loadNotesData = async function() {
     const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
