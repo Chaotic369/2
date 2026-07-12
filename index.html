@@ -414,7 +414,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 </head>
 <body>
 
-<div id="bgOverlay" style="position:fixed; inset:0; z-index:-1; background-size:cover; background-position:center center; background-repeat:no-repeat; transition:background-image 0.3s ease, filter 0.3s ease;"></div>
+<div id="bgOverlay" style="position:fixed; inset:0; z-index:-1; background-size:cover; background-position:center center; background-repeat:no-repeat; transition:filter 0.3s ease;"></div>
 <input type="file" id="bgUploadInput" accept="image/*" style="display:none;" multiple onchange="window.setWallpaper(event)">
 
 <div id="progressBar"></div>
@@ -720,15 +720,32 @@ window.openWallpaperModal = function(event) {
 };
 
 window.applyWallpaper = function(dataUrl) {
+    const overlay = document.getElementById('bgOverlay');
+    const currentBg = overlay.style.backgroundImage;
+    
+    // Create a fading "ghost" clone of the current background for a smooth crossfade
+    if (currentBg && currentBg !== 'none') {
+        const ghost = document.createElement('div');
+        ghost.style.cssText = overlay.style.cssText;
+        ghost.style.transition = 'opacity 0.5s ease-in-out';
+        ghost.style.pointerEvents = 'none';
+        document.body.appendChild(ghost);
+        
+        void ghost.offsetWidth; // Force reflow
+        ghost.style.opacity = '0';
+        setTimeout(() => { if (ghost.parentNode) ghost.remove(); }, 600);
+    }
+    
     if (dataUrl) {
-        document.getElementById('bgOverlay').style.backgroundImage = `url(${dataUrl})`;
+        overlay.style.backgroundImage = `url(${dataUrl})`;
         localStorage.setItem('sovereign_wallpaper', dataUrl);
         document.documentElement.classList.add('has-wallpaper');
     } else {
-        document.getElementById('bgOverlay').style.backgroundImage = 'none';
+        overlay.style.backgroundImage = 'none';
         localStorage.removeItem('sovereign_wallpaper');
         document.documentElement.classList.remove('has-wallpaper');
     }
+    
     if (document.getElementById('wallpaperModal').classList.contains('open')) {
         window.openWallpaperModal();
     }
