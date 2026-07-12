@@ -798,10 +798,10 @@ window.syncCloudWallpaper = async function(overrideWpName = undefined) {
     try {
         let wpName = overrideWpName;
         if (wpName === undefined) {
-            const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
-            if (error && error.code !== 'PGRST116') throw error;
-            wpName = data && data.state && data.state.wallpaperName;
-        }
+                        const { data, error } = await window.getCloudState();
+                        if (error && error.code !== 'PGRST116') throw error;
+                        wpName = data && data.state && data.state.wallpaperName;
+                    }
 
         if (wpName) {
             const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(wpName);
@@ -816,17 +816,22 @@ window.syncCloudWallpaper = async function(overrideWpName = undefined) {
     } catch(e) { console.error("Could not fetch cloud wallpaper:", e); }
 };
 
-// Auto-trigger sync once app boot is ready
-let _wpSyncInterval = setInterval(() => {
-    if (typeof supabaseClient !== 'undefined' && typeof BUCKET_NAME !== 'undefined') {
-        clearInterval(_wpSyncInterval);
-        window.syncCloudWallpaper();
-    }
-}, 500);
+
 const BUCKET_NAME = 'docs';
 const USER_DOC_ID = 'global_user_1';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+window._cachedStatePromise = null;
+window.getCloudState = function() {
+    // If a request is already in flight, share it. If not, make a new one.
+    if (!window._cachedStatePromise) {
+        window._cachedStatePromise = supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+        // Clear the cache after 2.5 seconds so future user actions get fresh data
+        setTimeout(() => { window._cachedStatePromise = null; }, 2500);
+    }
+    return window._cachedStatePromise;
+};
 
 var $progress = document.getElementById('progressBar');
 var $toast = document.getElementById('toast');
@@ -977,7 +982,7 @@ window.checkStorage = function() {
 window.syncCloudTheme = async function() {
     if (typeof supabaseClient === 'undefined') return;
     try {
-        const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+        const { data, error } = await window.getCloudState();
         if (error && error.code !== 'PGRST116') { console.error("Theme fetch error:", error); return; }
         
         const stateData = (data && data.state) || {};
@@ -1135,7 +1140,7 @@ window.previewUniversal = function(event, url, ext) {
             };
 
 window.loadNotesData = async function() {
-    const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+    const { data, error } = await window.getCloudState();
     if (error && error.code !== 'PGRST116') { console.error("Fetch notes error:", error); } 
     else if (data && data.state) {
         S.notes = data.state.notes || [];
