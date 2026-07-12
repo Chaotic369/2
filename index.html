@@ -721,20 +721,6 @@ window.openWallpaperModal = function(event) {
 
 window.applyWallpaper = function(dataUrl) {
     const overlay = document.getElementById('bgOverlay');
-    const currentBg = overlay.style.backgroundImage;
-    
-    // Create a fading "ghost" clone of the current background for a smooth crossfade
-    if (currentBg && currentBg !== 'none') {
-        const ghost = document.createElement('div');
-        ghost.style.cssText = overlay.style.cssText;
-        ghost.style.transition = 'opacity 0.5s ease-in-out';
-        ghost.style.pointerEvents = 'none';
-        document.body.appendChild(ghost);
-        
-        void ghost.offsetWidth; // Force reflow
-        ghost.style.opacity = '0';
-        setTimeout(() => { if (ghost.parentNode) ghost.remove(); }, 600);
-    }
     
     if (dataUrl) {
         overlay.style.backgroundImage = `url(${dataUrl})`;
