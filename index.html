@@ -212,7 +212,7 @@ button.btn:active { transform: scale(0.96); }
   width: 52px; height: 52px; border-radius: 20px; background: var(--bg-base); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 2px;
 }
 
-.quick-input-bar { position: fixed; bottom: 44px; right: 88px; z-index: 10000; width: calc(100vw - 110px); max-width: 280px; height: 56px; display: flex; align-items: center; gap: 12px; padding: 0 20px; background: rgba(22, 22, 22, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08) !important; transition: transform 0.2s, box-shadow 0.2s; }
+.quick-input-bar { position: fixed; bottom: 44px; right: 88px; z-index: 10000; width: calc(100vw - 110px); max-width: 280px; height: 56px; display: flex; align-items: center; gap: 12px; padding: 0 20px; background: rgba(22, 22, 22, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); border: none !important; outline: none !important; transition: transform 0.2s, box-shadow 0.2s; }
 .quick-input-bar:focus-within { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
 #quick-note-input { color: #ffffff !important; }
 #quick-note-input::placeholder { color: rgba(255, 255, 255, 0.7) !important; opacity: 1; }
@@ -237,10 +237,10 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 @keyframes slideUp{from{opacity:0;transform:translate(-50%, 10px) translateZ(0)}to{opacity:1;transform:translate(-50%, 0) translateZ(0)}}
 
 .modal-base {
-  position: fixed; z-index: 40000; background: var(--bg-surface); border-radius: 32px;
-  padding: 24px; color: var(--text-main); font-size: 13px; border: none !important;
+  position: fixed; z-index: 40000; background: rgba(22, 22, 22, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 32px;
+  padding: 24px; color: var(--text-main); font-size: 13px; border: none !important; outline: none !important;
   top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90vw; max-width: 400px; display: none; flex-direction: column; gap: 12px;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.4);
 }
 .modal-base.open { display: flex; }
 
@@ -267,7 +267,7 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 #multiSelectBar {
   position: fixed; bottom: -300px; left: 50%; transform: translateX(-50%);
   background: rgba(22, 22, 22, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  padding: 12px 24px; border-radius: 32px; border: 1px solid rgba(255,255,255,0.08) !important;
+  padding: 12px 24px; border-radius: 32px; border: none !important; outline: none !important;
   display: flex; gap: 16px; align-items: center; box-shadow: 0 16px 48px rgba(0,0,0,0.4);
   z-index: 45000; transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -346,7 +346,6 @@ html.has-wallpaper #mediaControlsBar,
 html.has-wallpaper #fullNoteModal > div,
 html.has-wallpaper #toast {
   transform: translateZ(0);
-  border: none !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
 }
 html.has-wallpaper #search-container {
@@ -355,10 +354,20 @@ html.has-wallpaper #search-container {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
 }
 html.has-wallpaper .quick-input-bar {
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  transform: translateZ(0);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
+html.has-wallpaper #search-container {
   transform: translateZ(0);
   border: none !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
+html.has-wallpaper .quick-input-bar {
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  transform: translateZ(0);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
 }
 
@@ -410,7 +419,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   <div class="workspace-panel">
       <div class="panel-header">
              <div style="display:flex; align-items:center; gap:8px;">
-               <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.viewRootFolder()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)';" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)';" ondrop="event.preventDefault(); this.style.transform='scale(1)'; this.style.color='var(--text-main)'; window.moveNoteToRoot(event.dataTransfer.getData('text/plain'))" title="Drop note here to move to root"><i class="fa-solid fa-arrow-left"></i></button>
+               <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.viewRootFolder()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)'; if(window._dragHoverFolder !== 'BACK_NOTE'){ clearTimeout(window._dragHoverTimer); window._dragHoverFolder = 'BACK_NOTE'; window._dragHoverTimer = setTimeout(() => { window.viewRootFolder(); window._dragHoverFolder = null; }, 700); }" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)'; if(window._dragHoverFolder === 'BACK_NOTE'){ clearTimeout(window._dragHoverTimer); window._dragHoverFolder = null; }" ondrop="event.preventDefault(); clearTimeout(window._dragHoverTimer); window._dragHoverFolder = null; this.style.transform='scale(1)'; this.style.color='var(--text-main)'; window.moveNoteToRoot(event.dataTransfer.getData('text/plain'))" title="Drop note here to move to root"><i class="fa-solid fa-arrow-left"></i></button>
                <span id="notes-view-title" style="display:flex; align-items:center;" title="Quick Notes"><i class="fa-solid fa-note-sticky" style="font-size:20px; color:var(--amber);"></i></span>
                <input id="notes-folder-edit" type="text" class="file-row-input" style="display:none; width:160px; padding:6px 10px; margin-left:8px;" onchange="window.renameCurrentFolder(this.value)">
              </div>
