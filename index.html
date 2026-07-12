@@ -667,17 +667,22 @@ window.openWallpaperModal = async function(event) {
     gal.innerHTML = '';
     
     let current = null;
+    let currentWpName = null;
+    
     try {
         const { data: stateData } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
-        const wpName = (stateData && stateData.state && stateData.state.wallpaperName) || '.system/wallpaper.jpg';
+        const wpName = (stateData && stateData.state && stateData.state.wallpaperName);
         
-        const { data } = await supabaseClient.storage.from(BUCKET_NAME).download(wpName);
-        if (data) {
-            current = await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => resolve(e.target.result);
-                reader.readAsDataURL(data);
-            });
+        if (wpName) {
+            currentWpName = wpName;
+            const { data } = await supabaseClient.storage.from(BUCKET_NAME).download(wpName);
+            if (data) {
+                current = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(data);
+                });
+            }
         }
     } catch(e) {}
 
@@ -696,14 +701,14 @@ window.openWallpaperModal = async function(event) {
            <img src="${current}" style="width:100%;height:100%;object-fit:cover;object-position:center;">
            <div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;pointer-events:none;"><i class="fa-solid fa-circle-check" style="color:var(--amber);font-size:28px;background:#000;border-radius:50%;"></i></div>
         `;
-        w.onclick = () => window.applyWallpaper(current, true);
+        w.onclick = () => window.applyWallpaper(current, currentWpName);
         gal.appendChild(w);
     }
     
     document.getElementById('wallpaperModal').classList.add('open');
 };
 
-window.applyWallpaper = async function(dataUrl, skipUpload = false) {
+window.applyWallpaper = async function(dataUrl, existingName = null) {
     const overlay = document.getElementById('bgOverlay');
     
     if (dataUrl) {
@@ -718,30 +723,44 @@ window.applyWallpaper = async function(dataUrl, skipUpload = false) {
         window.openWallpaperModal();
     }
 
-    if (skipUpload) return;
-
     // --- Fully Synced Background Engine ---
     try {
-        const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
-        const prevState = (data && data.state) || {};
+        // If clicking an existing gallery item, simply update DB pointer and skip upload
+        if (existingName && typeof existingName === 'string') {
+            const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+            const latestState = (data && data.state) || {};
+            await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: existingName } });
+            return;
+        }
 
         if (dataUrl) {
             const uniqueName = `.system/wallpaper_${Date.now()}.jpg`;
-            fetch(dataUrl).then(r => r.blob()).then(blob => {
-                supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, blob, { upsert: true, cacheControl: '31536000' }).then(() => {
-                    supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...prevState, wallpaperName: uniqueName } });
-                    
-                    if (prevState.wallpaperName && prevState.wallpaperName !== uniqueName && prevState.wallpaperName.startsWith('.system/wallpaper')) {
-                        supabaseClient.storage.from(BUCKET_NAME).remove([prevState.wallpaperName]);
-                    }
-                });
+            
+            fetch(dataUrl).then(r => r.blob()).then(async blob => {
+                await supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, blob, { upsert: true, cacheControl: '31536000' });
+                
+                // Fetch the *latest* DB state right before saving so we never overwrite live note changes
+                const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+                const latestState = (data && data.state) || {};
+                
+                await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: uniqueName } });
+                
+                if (latestState.wallpaperName && latestState.wallpaperName !== uniqueName && latestState.wallpaperName.startsWith('.system/wallpaper')) {
+                    supabaseClient.storage.from(BUCKET_NAME).remove([latestState.wallpaperName]);
+                }
+            }).catch(e => {
+                console.error("Fetch/Upload Error:", e);
+                toast("Failed to sync wallpaper to cloud.", "err");
             });
         } else {
-            supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...prevState, wallpaperName: null } }).then(() => {
-                 if (prevState.wallpaperName && prevState.wallpaperName.startsWith('.system/wallpaper')) {
-                     supabaseClient.storage.from(BUCKET_NAME).remove([prevState.wallpaperName]);
-                 }
-            });
+            const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+            const latestState = (data && data.state) || {};
+            
+            await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: null } });
+            
+            if (latestState.wallpaperName && latestState.wallpaperName.startsWith('.system/wallpaper')) {
+                 supabaseClient.storage.from(BUCKET_NAME).remove([latestState.wallpaperName]);
+            }
         }
     } catch(e) { console.error("Wallpaper cloud sync failed:", e); }
 };
