@@ -620,9 +620,6 @@ window.setWallpaper = async function(e) {
   if(!files.length) return;
   e.target.value = ''; // reset input
   
-  toast(`Uploading wallpaper...`, 'info');
-  
-  // Just use the first file directly, no more canvas memory caching!
   const file = files[0];
   if (file) {
       window.applyWallpaper(file);
@@ -634,41 +631,45 @@ window.openWallpaperModal = async function(event) {
     const gal = document.getElementById('wallpaper-gallery');
     gal.innerHTML = '';
     
-    let currentUrl = null;
-    let currentWpName = null;
-    
+    let activeWpName = null;
     try {
         const { data: stateData } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
-        const wpName = (stateData && stateData.state && stateData.state.wallpaperName);
-        
-        if (wpName) {
-            currentWpName = wpName;
-            // No more downloading blobs! Just get the URL instantly.
-            const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(wpName);
-            if (urlData && urlData.publicUrl) {
-                currentUrl = urlData.publicUrl;
-            }
-        }
+        activeWpName = (stateData && stateData.state && stateData.state.wallpaperName);
     } catch(e) {}
 
+    // Clear background tile option
     let clearBtn = document.createElement('div');
-    clearBtn.style.cssText = `height:80px; border-radius:16px; background:var(--bg-surface); border:2px dashed var(--text-muted); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-muted); transition:transform 0.2s; ${!currentUrl ? 'border-color:var(--amber); color:var(--amber);' : ''}`;
+    clearBtn.style.cssText = `height:80px; border-radius:16px; background:var(--bg-surface); border:2px dashed var(--text-muted); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-muted); transition:transform 0.2s; ${!activeWpName ? 'border-color:var(--amber); color:var(--amber);' : ''}`;
     clearBtn.innerHTML = '<i class="fa-solid fa-ban" style="font-size:24px;"></i>';
     clearBtn.onclick = () => window.applyWallpaper(null);
     clearBtn.onmouseover = () => clearBtn.style.transform = 'scale(1.05)';
     clearBtn.onmouseout = () => clearBtn.style.transform = 'scale(1)';
     gal.appendChild(clearBtn);
 
-    if (currentUrl) {
-        let w = document.createElement('div');
-        w.style.cssText = `position:relative; height:80px; border-radius:16px; overflow:hidden; background:var(--bg-base); cursor:pointer; border:none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s;`;
-        w.innerHTML = `
-           <img src="${currentUrl}" style="width:100%;height:100%;object-fit:cover;object-position:center;">
-           <div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;pointer-events:none;"><i class="fa-solid fa-circle-check" style="color:var(--amber);font-size:28px;background:#000;border-radius:50%;"></i></div>
-        `;
-        w.onclick = () => window.applyWallpaper(currentUrl, currentWpName);
-        gal.appendChild(w);
-    }
+    // Query all uploaded wallpapers inside the storage cloud directory to populate the grid properly
+    try {
+        const { data: storageItems } = await supabaseClient.storage.from(BUCKET_NAME).list('.system', { limit: 100 });
+        if (storageItems && storageItems.length > 0) {
+            const wpFiles = storageItems.filter(item => item.name.startsWith('wallpaper_'));
+            for (let item of wpFiles) {
+                const fullPath = `.system/${item.name}`;
+                const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(fullPath);
+                if (urlData && urlData.publicUrl) {
+                    let w = document.createElement('div');
+                    const isActive = (activeWpName === fullPath);
+                    w.style.cssText = `position:relative; height:80px; border-radius:16px; overflow:hidden; background:var(--bg-base); cursor:pointer; border:none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s; ${isActive ? 'outline: 2px solid var(--amber);' : ''}`;
+                    w.innerHTML = `
+                       <img src="${urlData.publicUrl}" style="width:100%;height:100%;object-fit:cover;object-position:center;">
+                       ${isActive ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;pointer-events:none;"><i class="fa-solid fa-circle-check" style="color:var(--amber);font-size:24px;background:#000;border-radius:50%;"></i></div>` : ''}
+                    `;
+                    w.onclick = () => window.applyWallpaper(urlData.publicUrl, fullPath);
+                    w.onmouseover = () => w.style.transform = 'scale(1.05)';
+                    w.onmouseout = () => w.style.transform = 'scale(1)';
+                    gal.appendChild(w);
+                }
+            }
+        }
+    } catch(e) { console.error("Error building wallpaper gallery:", e); }
     
     document.getElementById('wallpaperModal').classList.add('open');
 };
@@ -685,53 +686,74 @@ window.applyWallpaper = async function(source, existingName = null) {
             const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
             const latestState = (data && data.state) || {};
             await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: null } });
-            if (latestState.wallpaperName && latestState.wallpaperName.startsWith('.system/wallpaper')) {
-                 supabaseClient.storage.from(BUCKET_NAME).remove([latestState.wallpaperName]);
-            }
         } catch(e) {}
         return;
     }
     
-    // If it's a File object (new upload directly from OS file picker)
+    // If it's a File object (brand new upload directly from OS file picker)
     if (source instanceof File) {
+        toast(`Uploading wallpaper payload...`, 'info');
+        showProgress(5);
+        
         const localUrl = URL.createObjectURL(source);
         overlay.style.backgroundImage = `url(${localUrl})`;
         document.documentElement.classList.add('has-wallpaper');
-        if (document.getElementById('wallpaperModal').classList.contains('open')) window.openWallpaperModal();
         
         try {
             const cleanName = source.name.replace(/[^a-zA-Z0-9.-]/g, '_');
             const uniqueName = `.system/wallpaper_${Date.now()}_${cleanName}`;
             
-            await supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, source, { upsert: true });
+            // Native XHR connection to wire up the system wide upload progress bar seamlessly
+            await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `${SUPABASE_URL}/storage/v1/object/${BUCKET_NAME}/${uniqueName}`, true);
+                xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
+                xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
+                
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        const pct = Math.round((e.loaded / e.total) * 100);
+                        showProgress(pct);
+                    }
+                };
+                
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) resolve();
+                    else reject(xhr.responseText);
+                };
+                xhr.onerror = () => reject('Network connection broken');
+                xhr.send(source);
+            });
+            
+            hideProgress();
             
             const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
             const latestState = (data && data.state) || {};
             
             await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: uniqueName } });
             
-            if (latestState.wallpaperName && latestState.wallpaperName !== uniqueName && latestState.wallpaperName.startsWith('.system/wallpaper')) {
-                supabaseClient.storage.from(BUCKET_NAME).remove([latestState.wallpaperName]);
-            }
-            toast('Wallpaper applied!', 'ok');
+            if (document.getElementById('wallpaperModal').classList.contains('open')) window.openWallpaperModal();
+            toast('Wallpaper live and synced!', 'ok');
+            window.loadFiles();
         } catch (e) {
-            console.error("Upload Error:", e);
-            toast("Upload failed", "err");
+            hideProgress();
+            console.error("Wallpaper Upload Error:", e);
+            toast("Upload synchronization failed", "err");
         }
         return;
     }
     
-    // If it's a string URL (from existing gallery or sync check)
+    // If it's a string URL (selected via built-in grid gallery click)
     if (typeof source === 'string') {
         overlay.style.backgroundImage = `url(${source})`;
         document.documentElement.classList.add('has-wallpaper');
-        if (document.getElementById('wallpaperModal').classList.contains('open')) window.openWallpaperModal();
         
         if (existingName) {
             try {
                 const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
                 const latestState = (data && data.state) || {};
                 await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: existingName } });
+                if (document.getElementById('wallpaperModal').classList.contains('open')) window.openWallpaperModal();
             } catch(e) {}
         }
     }
