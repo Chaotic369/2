@@ -32,6 +32,7 @@
   /* Claude Dark Theme */
   --bg-base: #000000;
   --bg-surface: #1c1c1b;
+  --bg-solid-surface: #1c1c1b;
   --bg-box: #000000;
   --text-main: #e5e0da;
   --text-muted: #8b8984;
@@ -50,6 +51,7 @@ html.light-theme {
   /* Claude Light Theme */
   --bg-base: #ffffff;
   --bg-surface: #ffffff;
+  --bg-solid-surface: #ffffff;
   --bg-box: #ffffff;
   --text-main: #191813;
   --text-muted: #5c5a55;
@@ -514,8 +516,8 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   </div>
 </div>
 
-<div id="fullNoteModal" style="display:none; position:fixed; z-index:40000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.9); cursor:pointer;" onpointerdown="if(event.target === this) window.saveNoteModal()">
-  <div style="background:var(--bg-surface); width:90vw; max-width:600px; border-radius:32px; padding:24px; box-shadow:0 24px 64px rgba(0,0,0,0.4); display:flex; flex-direction:column; gap:16px; border:none !important; cursor:default;">
+<div id="fullNoteModal" style="display:none; position:fixed; z-index:40000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); cursor:pointer;" onpointerdown="if(event.target === this) window.saveNoteModal()">
+  <div style="background:var(--bg-solid-surface); width:90vw; max-width:600px; border-radius:32px; padding:24px; box-shadow:0 24px 64px rgba(0,0,0,0.4); display:flex; flex-direction:column; gap:16px; border:none !important; cursor:default;">
     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
            <input type="text" id="nm-title" style="flex:1; background:transparent; border:none; font-size:22px; font-weight:700; color:var(--text-main); outline:none; margin-right:12px;" placeholder="Note Title..." oninput="window.autoSaveNote()">
            <div style="display:flex; gap:8px;">
@@ -1013,14 +1015,14 @@ window.openNoteModal = function(id) {
     document.getElementById('nm-timestamp').innerText = `Last saved: ${dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at ${dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
     
     const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
-            if (modalWrapper) {
-                if (upgradedColor === 'var(--note-base)') {
-                    modalWrapper.style.background = 'var(--bg-surface)';
-                } else {
-                    modalWrapper.style.background = `linear-gradient(${upgradedColor}, ${upgradedColor}), var(--bg-surface)`;
-                }
+                if (modalWrapper) {
+                    if (upgradedColor === 'var(--note-base)') {
+                        modalWrapper.style.background = 'var(--bg-solid-surface)';
+                    } else {
+                        modalWrapper.style.background = `linear-gradient(${upgradedColor}, ${upgradedColor}), var(--bg-solid-surface)`;
+                    }
         
-            }
+                }
 
     const gal = document.getElementById('nm-gallery');
     gal.innerHTML = '';
@@ -1141,13 +1143,13 @@ window.cycleModalColor = function() {
     document.getElementById('nm-color').value = nextColor;
     
     const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
-            if (modalWrapper) {
-                if (nextColor === 'var(--note-base)') {
-                    modalWrapper.style.background = 'var(--bg-surface)';
-                } else {
-                    modalWrapper.style.background = `linear-gradient(${nextColor}, ${nextColor}), var(--bg-surface)`;
+                if (modalWrapper) {
+                    if (nextColor === 'var(--note-base)') {
+                        modalWrapper.style.background = 'var(--bg-solid-surface)';
+                    } else {
+                        modalWrapper.style.background = `linear-gradient(${nextColor}, ${nextColor}), var(--bg-solid-surface)`;
+                    }
                 }
-            }
     if(typeof window.autoSaveNote === 'function') window.autoSaveNote();
     toast('Color selected', 'info', 800);
 };
