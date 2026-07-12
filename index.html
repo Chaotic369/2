@@ -2,9 +2,21 @@
 <html lang="en">
 <head>
 <script>
-  // Cloud-first: default dark, sync will override instantly
+  // Zero-Latency Local Cache Boot
   (function() {
-    document.documentElement.classList.remove('light-theme');
+    if (localStorage.getItem('sovereign_theme') === 'light') {
+        document.documentElement.classList.add('light-theme');
+    } else {
+        document.documentElement.classList.remove('light-theme');
+    }
+    
+    const cachedWp = localStorage.getItem('sovereign_wp_url');
+    if (cachedWp) {
+        document.documentElement.classList.add('has-wallpaper');
+        const style = document.createElement('style');
+        style.innerHTML = `#bgOverlay { background-image: url("${cachedWp}") !important; }`;
+        document.head.appendChild(style);
+    }
   })();
 </script>
 <meta charset="UTF-8">
@@ -704,6 +716,7 @@ window.applyWallpaper = async function(source, existingName = null) {
     if (!source) {
         overlay.style.backgroundImage = 'none';
         document.documentElement.classList.remove('has-wallpaper');
+        localStorage.removeItem('sovereign_wp_url');
         modal.classList.remove('open'); // Close Modal Instantly
 
         try {
@@ -774,6 +787,7 @@ window.applyWallpaper = async function(source, existingName = null) {
         if (typeof source === 'string') {
             overlay.style.backgroundImage = `url("${source}")`;
             document.documentElement.classList.add('has-wallpaper');
+            localStorage.setItem('sovereign_wp_url', source);
             modal.classList.remove('open'); // Close Modal Instantly
             toast('Wallpaper applied!', 'ok');
         
@@ -804,15 +818,17 @@ window.syncCloudWallpaper = async function(overrideWpName = undefined) {
                     }
 
         if (wpName) {
-            const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(wpName);
-            if (urlData && urlData.publicUrl) {
-                document.getElementById('bgOverlay').style.backgroundImage = `url("${urlData.publicUrl}")`;
-                document.documentElement.classList.add('has-wallpaper');
-            }
-        } else {
-            document.getElementById('bgOverlay').style.backgroundImage = 'none';
-            document.documentElement.classList.remove('has-wallpaper');
-        }
+                    const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(wpName);
+                    if (urlData && urlData.publicUrl) {
+                        document.getElementById('bgOverlay').style.backgroundImage = `url("${urlData.publicUrl}")`;
+                        document.documentElement.classList.add('has-wallpaper');
+                        localStorage.setItem('sovereign_wp_url', urlData.publicUrl);
+                    }
+                } else {
+                    document.getElementById('bgOverlay').style.backgroundImage = 'none';
+                    document.documentElement.classList.remove('has-wallpaper');
+                    localStorage.removeItem('sovereign_wp_url');
+                }
     } catch(e) { console.error("Could not fetch cloud wallpaper:", e); }
 };
 
@@ -2688,7 +2704,7 @@ if(_imgSrc) {
     });
 }
 
-window.onload = () => {
+document.addEventListener('DOMContentLoaded', () => {
   window.loadFiles(); window.loadNotesData(); window.syncCloudTheme(); window.syncCloudWallpaper();
   let roTimer;
   const resizeObserver = new ResizeObserver(() => {
@@ -2701,17 +2717,17 @@ window.onload = () => {
 
   let scrollTimer;
   const workspaceEl = document.getElementById('mainWorkspace');
-  const onScrollActivity = () => {
-      document.documentElement.classList.add('is-scrolling');
-      clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(() => document.documentElement.classList.remove('is-scrolling'), 150);
-  };
-  if (workspaceEl) workspaceEl.addEventListener('scroll', onScrollActivity, {passive: true});
-};
+    const onScrollActivity = () => {
+        document.documentElement.classList.add('is-scrolling');
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(() => document.documentElement.classList.remove('is-scrolling'), 150);
+    };
+    if (workspaceEl) workspaceEl.addEventListener('scroll', onScrollActivity, {passive: true});
+  });
 
-window.addEventListener('error', function(e) {
-    if (e.message && e.message.includes('ResizeObserver loop')) e.stopImmediatePropagation();
-});
+  window.addEventListener('error', function(e) {
+      if (e.message && e.message.includes('ResizeObserver loop')) e.stopImmediatePropagation();
+  });
 </script>
 </body>
 </html>
