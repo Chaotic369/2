@@ -1777,8 +1777,8 @@ window.loadFiles = async function() {
                         };
                         card.ondragend = (e) => { card.style.opacity = '1'; };
         
-                // Context Menu Bind
-                                card.oncontextmenu = (e) => window.openFileContextMenu(file.name, fileUrl, e);
+                // Block native context menu so it doesn't interrupt long-press dragging
+                                card.oncontextmenu = (e) => { e.preventDefault(); return false; };
 
                                 let isChecked = window.selectedFiles.has(file.name);
                 let locHtml = window.isFormatFilterMode ? `<div style="font-size:9px; color:var(--amber); margin-top:2px;">📁 ${file._parentPath}</div>` : '';
