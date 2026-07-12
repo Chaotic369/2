@@ -668,11 +668,16 @@ window.openWallpaperModal = async function(event) {
     
     let current = null;
     try {
-        const { data } = await supabaseClient.storage.from(BUCKET_NAME).download('.system/wallpaper.jpg');
+        const { data: stateData } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+        const wpName = (stateData && stateData.state && stateData.state.wallpaperName) || '.system/wallpaper.jpg';
+        
+        const { data } = await supabaseClient.storage.from(BUCKET_NAME).download(wpName);
         if (data) {
-            const reader = new FileReader();
-            reader.onload = (e) => { current = e.target.result; };
-            reader.readAsDataURL(data);
+            current = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.readAsDataURL(data);
+            });
         }
     } catch(e) {}
 
@@ -684,7 +689,6 @@ window.openWallpaperModal = async function(event) {
     clearBtn.onmouseout = () => clearBtn.style.transform = 'scale(1)';
     gal.appendChild(clearBtn);
 
-    // For simplicity, show current only in cloud mode; history removed to avoid local dep
     if (current) {
         let w = document.createElement('div');
         w.style.cssText = `position:relative; height:80px; border-radius:16px; overflow:hidden; background:var(--bg-base); cursor:pointer; border:none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.2s;`;
@@ -692,14 +696,14 @@ window.openWallpaperModal = async function(event) {
            <img src="${current}" style="width:100%;height:100%;object-fit:cover;object-position:center;">
            <div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;pointer-events:none;"><i class="fa-solid fa-circle-check" style="color:var(--amber);font-size:28px;background:#000;border-radius:50%;"></i></div>
         `;
-        w.onclick = () => window.applyWallpaper(current);
+        w.onclick = () => window.applyWallpaper(current, true);
         gal.appendChild(w);
     }
     
     document.getElementById('wallpaperModal').classList.add('open');
 };
 
-window.applyWallpaper = async function(dataUrl) {
+window.applyWallpaper = async function(dataUrl, skipUpload = false) {
     const overlay = document.getElementById('bgOverlay');
     
     if (dataUrl) {
@@ -714,14 +718,30 @@ window.applyWallpaper = async function(dataUrl) {
         window.openWallpaperModal();
     }
 
-    // --- Background Cloud Sync ---
+    if (skipUpload) return;
+
+    // --- Fully Synced Background Engine ---
     try {
+        const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+        const prevState = (data && data.state) || {};
+
         if (dataUrl) {
+            const uniqueName = `.system/wallpaper_${Date.now()}.jpg`;
             fetch(dataUrl).then(r => r.blob()).then(blob => {
-                supabaseClient.storage.from(BUCKET_NAME).upload('.system/wallpaper.jpg', blob, { upsert: true, cacheControl: '3600' });
+                supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, blob, { upsert: true, cacheControl: '31536000' }).then(() => {
+                    supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...prevState, wallpaperName: uniqueName } });
+                    
+                    if (prevState.wallpaperName && prevState.wallpaperName !== uniqueName && prevState.wallpaperName.startsWith('.system/wallpaper')) {
+                        supabaseClient.storage.from(BUCKET_NAME).remove([prevState.wallpaperName]);
+                    }
+                });
             });
         } else {
-            supabaseClient.storage.from(BUCKET_NAME).remove(['.system/wallpaper.jpg']);
+            supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...prevState, wallpaperName: null } }).then(() => {
+                 if (prevState.wallpaperName && prevState.wallpaperName.startsWith('.system/wallpaper')) {
+                     supabaseClient.storage.from(BUCKET_NAME).remove([prevState.wallpaperName]);
+                 }
+            });
         }
     } catch(e) { console.error("Wallpaper cloud sync failed:", e); }
 };
@@ -731,19 +751,27 @@ window.removeSavedWallpaper = function(event, idx) {
     window.applyWallpaper(null);
 };
 
-window.syncCloudWallpaper = async function() {
+window.syncCloudWallpaper = async function(overrideWpName = undefined) {
     if (!window.supabaseClient || !window.BUCKET_NAME) return;
     try {
-        const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).download('.system/wallpaper.jpg');
-        if (data) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const cloudWp = e.target.result;
-                document.getElementById('bgOverlay').style.backgroundImage = `url(${cloudWp})`;
-                document.documentElement.classList.add('has-wallpaper');
-            };
-            reader.readAsDataURL(data);
-        } else if (error && error.message.includes('not found')) {
+        let wpName = overrideWpName;
+        if (wpName === undefined) {
+            const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+            wpName = data && data.state && data.state.wallpaperName;
+        }
+
+        if (wpName) {
+            const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).download(wpName);
+            if (data) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const cloudWp = e.target.result;
+                    document.getElementById('bgOverlay').style.backgroundImage = `url(${cloudWp})`;
+                    document.documentElement.classList.add('has-wallpaper');
+                };
+                reader.readAsDataURL(data);
+            }
+        } else {
             document.getElementById('bgOverlay').style.backgroundImage = 'none';
             document.documentElement.classList.remove('has-wallpaper');
         }
@@ -912,12 +940,34 @@ window.syncCloudTheme = async function() {
     try {
         const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
         if (error && error.code !== 'PGRST116') { console.error("Theme fetch error:", error); return; }
-        const cloudTheme = data && data.state && data.state.theme;
-        if (cloudTheme) {
-            const isLight = cloudTheme === 'light';
-            document.documentElement.classList.toggle('light-theme', isLight);
+        
+        const stateData = (data && data.state) || {};
+        if (stateData.theme) {
+            document.documentElement.classList.toggle('light-theme', stateData.theme === 'light');
         }
-    } catch(e) { console.error("Could not fetch cloud theme:", e); }
+        
+        // Setup Full Realtime Sync across instances
+        window._lastWpName = stateData.wallpaperName;
+        
+        supabaseClient.channel('system-sync-channel')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'user_data', filter: `id=eq.${USER_DOC_ID}` }, payload => {
+                const s = payload.new && payload.new.state;
+                if (s) {
+                    // Instant Theme Sync
+                    if (s.theme) {
+                        document.documentElement.classList.toggle('light-theme', s.theme === 'light');
+                    }
+                    
+                    // Instant Wallpaper Sync
+                    if (s.wallpaperName !== window._lastWpName) {
+                        window._lastWpName = s.wallpaperName;
+                        window.syncCloudWallpaper(s.wallpaperName || null);
+                    }
+                }
+            })
+            .subscribe();
+            
+    } catch(e) { console.error("Could not init cloud theme:", e); }
 };
 
 window.stopMedia = function() {
