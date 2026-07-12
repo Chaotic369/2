@@ -617,50 +617,66 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 const SUPABASE_URL = 'https://fxnrugbvbfyamtrfmjea.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_FnWYWD7C9Tvc1YNtVYQ1dA_aPwVsCmE';
 
-window.setWallpaper = function(e) {
-  const file = e.target.files[0];
-  if(file) {
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const img = new Image();
-      img.onload = () => {
-        const maxDim = 1600;
-        let w = img.width, h = img.height;
-        if (w > maxDim || h > maxDim) {
-          if (w > h) { h = Math.round(h * (maxDim / w)); w = maxDim; }
-          else { w = Math.round(w * (maxDim / h)); h = maxDim; }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, w, h);
-        let compressed;
-        try {
-          compressed = canvas.toDataURL('image/jpeg', 0.75);
-        } catch(err) {
-          compressed = ev.target.result;
-        }
-        
-        let hist = [];
-        try { hist = JSON.parse(localStorage.getItem('sovereign_wp_history')) || []; } catch(err){}
-        hist = hist.filter(h => h !== compressed);
-        hist.unshift(compressed);
-        if(hist.length > 8) hist.pop(); // Max 8 saved locally to prevent quota issues
-        try { 
-            localStorage.setItem('sovereign_wp_history', JSON.stringify(hist)); 
-        } catch(storageErr) {
-            toast('Storage full, dropping oldest wallpapers', 'warn');
-            hist = [compressed];
-            try { localStorage.setItem('sovereign_wp_history', JSON.stringify(hist)); } catch(e){}
-        }
-        window.applyWallpaper(compressed);
+window.setWallpaper = async function(e) {
+  const files = Array.from(e.target.files);
+  if(!files.length) return;
+  e.target.value = ''; // reset input
+  
+  toast(`Processing ${files.length} wallpaper(s)...`, 'info');
+  
+  let hist = [];
+  try { hist = JSON.parse(localStorage.getItem('sovereign_wp_history')) || []; } catch(err){}
+  
+  let lastCompressed = null;
+
+  for (let file of files) {
+    await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 1600;
+          let w = img.width, h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) { h = Math.round(h * (maxDim / w)); w = maxDim; }
+            else { w = Math.round(w * (maxDim / h)); h = maxDim; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          let compressed;
+          try { compressed = canvas.toDataURL('image/jpeg', 0.75); } 
+          catch(err) { compressed = ev.target.result; }
+          
+          hist = hist.filter(h => h !== compressed);
+          hist.unshift(compressed);
+          lastCompressed = compressed;
+          resolve();
+        };
+        img.onerror = () => { toast('Failed to read an image', 'err'); resolve(); };
+        img.src = ev.target.result;
       };
-      img.onerror = () => toast('Could not read image', 'err');
-      img.src = ev.target.result;
-    };
-    reader.onerror = () => toast('Could not read file', 'err');
-    reader.readAsDataURL(file);
+      reader.onerror = () => { toast('Could not read file', 'err'); resolve(); };
+      reader.readAsDataURL(file);
+    });
   }
+
+  // Max 12 saved locally to handle batches without hitting localStorage limits
+  if(hist.length > 12) hist = hist.slice(0, 12); 
+  
+  try { 
+      localStorage.setItem('sovereign_wp_history', JSON.stringify(hist)); 
+  } catch(storageErr) {
+      toast('Storage full, dropping older wallpapers', 'warn');
+      hist = hist.slice(0, 4);
+      try { localStorage.setItem('sovereign_wp_history', JSON.stringify(hist)); } catch(e){}
+  }
+  
+  if (lastCompressed) {
+      window.applyWallpaper(lastCompressed);
+  }
+  toast(`Added ${files.length} wallpaper(s)`, 'ok');
 };
 
 window.openWallpaperModal = function(event) {
