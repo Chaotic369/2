@@ -682,10 +682,11 @@ window.applyWallpaper = async function(source, existingName = null) {
         modal.classList.remove('open'); // Close Modal Instantly
 
         try {
-            const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+            const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+            if (error && error.code !== 'PGRST116') throw error;
             const latestState = (data && data.state) || {};
             await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: null } });
-        } catch(e) {}
+        } catch(e) { console.error("Wallpaper sync error:", e); }
         return;
     }
     
@@ -709,6 +710,7 @@ window.applyWallpaper = async function(source, existingName = null) {
                 xhr.open('POST', `${SUPABASE_URL}/storage/v1/object/${BUCKET_NAME}/${uniqueName}`, true);
                 xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
                 xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
+                xhr.setRequestHeader('Content-Type', source.type || 'application/octet-stream');
                 
                 xhr.upload.onprogress = (e) => {
                     if (e.lengthComputable) {
@@ -728,7 +730,8 @@ window.applyWallpaper = async function(source, existingName = null) {
             
             hideProgress();
             
-            const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+            const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+            if (error && error.code !== 'PGRST116') throw error;
             const latestState = (data && data.state) || {};
             
             await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: uniqueName } });
@@ -763,10 +766,11 @@ window.applyWallpaper = async function(source, existingName = null) {
         
         if (existingName) {
             try {
-                const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+                const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+                if (error && error.code !== 'PGRST116') throw error;
                 const latestState = (data && data.state) || {};
                 await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: existingName } });
-            } catch(e) {}
+            } catch(e) { console.error("Wallpaper string sync error:", e); }
         }
     }
 };
@@ -943,11 +947,12 @@ window.toggleTheme = async function() {
     const isLight = document.documentElement.classList.contains('light-theme');
     const themeVal = isLight ? 'light' : 'dark';
     try {
-        const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+        const { data, error: fetchErr } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+        if (fetchErr && fetchErr.code !== 'PGRST116') throw fetchErr;
         const prevState = (data && data.state) || {};
-        const { error } = await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...prevState, theme: themeVal } });
-        if (error) { console.error("Theme cloud save error:", error); toast('Failed to sync theme', 'err'); }
-    } catch(e) { console.error("Theme sync exception:", e); }
+        const { error: upsertErr } = await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...prevState, theme: themeVal } });
+        if (upsertErr) { console.error("Theme cloud save error:", upsertErr); toast('Failed to sync theme', 'err'); }
+    } catch(e) { console.error("Theme sync exception:", e); toast('Theme sync aborted due to state fetch failure', 'err'); }
 };
 
 window.checkStorage = function() {
@@ -1101,15 +1106,19 @@ window.previewUniversal = function(event, url, ext) {
     };
 
     window.saveNotesData = async function() {
-            let prevState = {};
-            try {
-                const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
-                prevState = (data && data.state) || {};
-            } catch(e) {}
-            // Merge the entire existing state (including wallpaperName) so it isn't erased
-            const { error } = await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...prevState, notes: S.notes, folders: S.folders } });
-            if (error) { console.error("Cloud save error:", error); toast("Failed to sync note data", "err"); }
-        };
+                let prevState = {};
+                try {
+                    const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+                    if (error && error.code !== 'PGRST116') throw error;
+                    prevState = (data && data.state) || {};
+                } catch(e) {
+                    console.error("Cloud fetch error:", e);
+                    return toast("Cloud state fetch failed, aborting save to prevent data wipe", "err");
+                }
+                // Merge the entire existing state (including wallpaperName) so it isn't erased
+                const { error: upsertErr } = await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...prevState, notes: S.notes, folders: S.folders } });
+                if (upsertErr) { console.error("Cloud save error:", upsertErr); toast("Failed to sync note data", "err"); }
+            };
 
 window.loadNotesData = async function() {
     const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
