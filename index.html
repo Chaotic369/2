@@ -419,7 +419,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   <div class="workspace-panel">
       <div class="panel-header">
              <div style="display:flex; align-items:center; gap:8px;">
-               <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.viewRootFolder()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)';" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)';" ondrop="event.preventDefault(); this.style.transform='scale(1)'; this.style.color='var(--text-main)'; window.moveNoteToRoot(event.dataTransfer.getData('text/plain'))" title="Drop note here to move to root"><i class="fa-solid fa-arrow-left"></i></button>
+               <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.viewRootFolder()" title="Back to Root"><i class="fa-solid fa-arrow-left"></i></button>
                               <span id="notes-view-title" style="display:flex; align-items:center;" title="Quick Notes"><i class="fa-solid fa-note-sticky" style="font-size:20px; color:var(--amber);"></i></span>
                <input id="notes-folder-edit" type="text" class="file-row-input" style="display:none; width:160px; padding:6px 10px; margin-left:8px;" onchange="window.renameCurrentFolder(this.value)">
              </div>
@@ -433,7 +433,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   <div class="workspace-panel">
           <div class="panel-header" style="border: none !important; margin-bottom: 12px; min-height: 34px;">
                       <div style="display: flex; align-items: center; gap: 8px; height: 26px; flex: 1;">
-                        <button id="btn-back-storage" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.goBackStorage()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)';" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)';" ondrop="window.dropOutStorage(event)" title="Drop file here to move out"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button id="btn-back-storage" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.goBackStorage()" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
                                                 <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
                         <span id="storage-path-display" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);"></span>
         
@@ -1215,15 +1215,7 @@ window.renderNotes = function() {
                         const fel = document.createElement('div');
                         fel.className = 'folder-card';
                         fel.setAttribute('data-id', f.id);
-                        fel.ondragover = (e) => { e.preventDefault(); fel.style.transform = 'scale(1.05)'; };
-                                                fel.ondragleave = (e) => { fel.style.transform = 'scale(1)'; };
-                                                fel.ondrop = (e) => {
-                                                    e.preventDefault();
-                                                    var data = e.dataTransfer.getData('text/plain');
-                                                    if(data && data.startsWith('n_')) window.dropNoteIntoFolder(data, f.id, e);
-                                                    fel.style.transform = 'scale(1)';
-                                                };
-                        window.bindFolderEvents(fel, 'note', f.id, f.name, (e) => window.viewFolder(f.id, f.name, e));
+                                                window.bindFolderEvents(fel, 'note', f.id, f.name, (e) => window.viewFolder(f.id, f.name, e));
                         fel.innerHTML = `
                             <i class="fa-solid fa-folder" style="color:var(--amber); font-size:16px;"></i>
                             <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${f.name}</div>
@@ -1696,16 +1688,9 @@ window.loadFiles = async function() {
         });
     } else {
             folders.forEach(folder => {
-                const card = document.createElement('div');
-                card.className = 'folder-card';
-                card.ondragover = (e) => { e.preventDefault(); card.style.transform = 'scale(1.02)'; };
-                                card.ondragleave = (e) => { card.style.transform = 'scale(1)'; };
-                                card.ondrop = (e) => {
-                                    e.preventDefault(); card.style.transform = 'scale(1)';
-                                    var fileName = e.dataTransfer.getData('text/plain');
-                                    if (fileName && !fileName.startsWith('n_') && fileName !== 'drag_folder') window.dropIntoStorageFolder(fileName, folder.name);
-                                };
-                window.bindFolderEvents(card, 'storage', folder.name, folder.name, () => window.enterStorageFolder(folder.name));
+                            const card = document.createElement('div');
+                            card.className = 'folder-card';
+                            window.bindFolderEvents(card, 'storage', folder.name, folder.name, () => window.enterStorageFolder(folder.name));
                 card.innerHTML = `<i class="fa-solid fa-folder" style="color:var(--amber); font-size:16px;"></i><div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${folder.name}</div>`;
                 if (fContainer) fContainer.appendChild(card); else container.appendChild(card);
             });
