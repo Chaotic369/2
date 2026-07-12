@@ -415,7 +415,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 <body>
 
 <div id="bgOverlay" style="position:fixed; inset:0; z-index:-1; background-size:cover; background-position:center center; background-repeat:no-repeat; transition:background-image 0.3s ease, filter 0.3s ease;"></div>
-<input type="file" id="bgUploadInput" accept="image/*" style="display:none;" onchange="window.setWallpaper(event)">
+<input type="file" id="bgUploadInput" accept="image/*" style="display:none;" multiple onchange="window.setWallpaper(event)">
 
 <div id="progressBar"></div>
 
