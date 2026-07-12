@@ -130,6 +130,10 @@ button.btn:active { transform: scale(0.96); }
   transition: transform 0.15s ease;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   contain: layout style paint;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
 }
 .file-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
 
@@ -1281,11 +1285,8 @@ window.renderNotes = function() {
                                     }
         
         el.setAttribute('data-id', n.id);
-        el.setAttribute('draggable', 'true');
-        el.ondragstart = (e) => { e.dataTransfer.setData('text/plain', n.id); el.style.opacity = '0.5'; };
-        el.ondragend = (e) => { el.style.opacity = '1'; };
-        el.onclick = () => window.openNoteModal(n.id);
-        el.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                el.onclick = () => window.openNoteModal(n.id);
+                el.oncontextmenu = (e) => { e.preventDefault(); return false; };
 
         let html = '';
         if (n.pinned) html += `<div style="position:absolute; top:12px; right:12px; color:var(--amber);"><i class="fa-solid fa-thumbtack"></i></div>`;
@@ -1599,6 +1600,7 @@ window.loadFiles = async function() {
     };
     
     if (window.storageFoldersSortable) { window.storageFoldersSortable.destroy(); window.storageFoldersSortable = null; }
+        if (window.filesSortable) { window.filesSortable.destroy(); window.filesSortable = null; }
     
     container.innerHTML = '<div style="color:var(--text-muted); font-family:monospace; grid-column: 1/-1;">Synchronizing with cloud array...</div>';
     if (fContainer) fContainer.innerHTML = '';
@@ -1745,17 +1747,10 @@ window.loadFiles = async function() {
                 }
 
                 const card = document.createElement('div');
-                        card.className = 'file-card';
-                        card.setAttribute('draggable', 'true');
-                        card.ondragstart = (e) => { 
-                            document.getElementById('fileContextMenu').classList.remove('open');
-                            e.dataTransfer.setData('text/plain', file.name); 
-                            card.style.opacity = '0.5'; 
-                        };
-                        card.ondragend = (e) => { card.style.opacity = '1'; };
+                                        card.className = 'file-card';
         
-                // Block native context menu so it doesn't interrupt long-press dragging
-                                card.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                                // Block native context menu so it doesn't interrupt long-press sorting
+                                                card.oncontextmenu = (e) => { e.preventDefault(); return false; };
 
                                 let isChecked = window.selectedFiles.has(file.name);
                 let locHtml = window.isFormatFilterMode ? `<div style="font-size:9px; color:var(--amber); margin-top:2px;">📁 ${file._parentPath}</div>` : '';
@@ -1781,9 +1776,17 @@ window.loadFiles = async function() {
                                                                                 </div>
                                                                             `;
                                                                             container.appendChild(card);
-                                                    });
-                                            cleanupScroll();
-                                        };
+                                                                                                                                });
+                                            
+                                                                                                                        if (typeof Sortable !== 'undefined') {
+                                                                                                                            window.filesSortable = new Sortable(container, {
+                                                                                                                                animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5,
+                                                                                                                                ghostClass: 'sortable-ghost', dragClass: 'sortable-drag'
+                                                                                                                            });
+                                                                                                                        }
+                                            
+                                                                                                                        cleanupScroll();
+                                                                                                                    };
 
 window.uploadFilesRealtime = async function(files) {
     let fileArray = Array.from(files);
