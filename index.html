@@ -771,21 +771,21 @@ window.applyWallpaper = async function(source, existingName = null) {
     }
     
     // If it's a string URL (selected via built-in grid gallery click)
-    if (typeof source === 'string') {
-        overlay.style.backgroundImage = `url(${source})`;
-        document.documentElement.classList.add('has-wallpaper');
-        modal.classList.remove('open'); // Close Modal Instantly
-        toast('Wallpaper applied!', 'ok');
+        if (typeof source === 'string') {
+            overlay.style.backgroundImage = `url("${source}")`;
+            document.documentElement.classList.add('has-wallpaper');
+            modal.classList.remove('open'); // Close Modal Instantly
+            toast('Wallpaper applied!', 'ok');
         
-        if (existingName) {
-            try {
-                const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
-                if (error && error.code !== 'PGRST116') throw error;
-                const latestState = (data && data.state) || {};
-                await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: existingName } });
-            } catch(e) { console.error("Wallpaper string sync error:", e); }
+            if (existingName) {
+                try {
+                    const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+                    if (error && error.code !== 'PGRST116') throw error;
+                    const latestState = (data && data.state) || {};
+                    await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: existingName } });
+                } catch(e) { console.error("Wallpaper string sync error:", e); }
+            }
         }
-    }
 };
 
 window.removeSavedWallpaper = function(event, idx) {
@@ -798,14 +798,15 @@ window.syncCloudWallpaper = async function(overrideWpName = undefined) {
     try {
         let wpName = overrideWpName;
         if (wpName === undefined) {
-            const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+            const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+            if (error && error.code !== 'PGRST116') throw error;
             wpName = data && data.state && data.state.wallpaperName;
         }
 
         if (wpName) {
             const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(wpName);
             if (urlData && urlData.publicUrl) {
-                document.getElementById('bgOverlay').style.backgroundImage = `url(${urlData.publicUrl})`;
+                document.getElementById('bgOverlay').style.backgroundImage = `url("${urlData.publicUrl}")`;
                 document.documentElement.classList.add('has-wallpaper');
             }
         } else {
