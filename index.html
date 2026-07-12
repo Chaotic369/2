@@ -1007,6 +1007,8 @@ window.openNoteModal = function(id) {
     document.getElementById('nm-title').value = n.title || '';
     document.getElementById('nm-text').value = n.text || '';
     
+    window._initialNoteState = { title: n.title || '', text: n.text || '', color: n.color };
+    
     let upgradedColor = window.getUpgradedColor(n.color);
     document.getElementById('nm-color').value = upgradedColor;
     document.getElementById('nm-pinned').value = n.pinned ? 'true' : 'false';
@@ -1103,6 +1105,28 @@ window.autoSaveNote = function() {
     }
 };
 
+window.undoModalNote = function() {
+    if (!window._initialNoteState) return;
+    
+    document.getElementById('nm-title').value = window._initialNoteState.title;
+    document.getElementById('nm-text').value = window._initialNoteState.text;
+    
+    let initialColor = window.getUpgradedColor(window._initialNoteState.color);
+    document.getElementById('nm-color').value = initialColor;
+    
+    const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
+    if (modalWrapper) {
+        if (initialColor === 'var(--note-base)') {
+            modalWrapper.style.background = 'var(--bg-solid-surface)';
+        } else {
+            modalWrapper.style.background = `linear-gradient(${initialColor}, ${initialColor}), var(--bg-solid-surface)`;
+        }
+    }
+    
+    window.autoSaveNote();
+    toast('Changes reverted', 'info');
+};
+
 window.deleteModalNote = async function() {
     if(!confirm('Delete this note?')) return;
     const id = document.getElementById('nm-id').value;
@@ -1143,13 +1167,13 @@ window.cycleModalColor = function() {
     document.getElementById('nm-color').value = nextColor;
     
     const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
-                if (modalWrapper) {
-                    if (nextColor === 'var(--note-base)') {
-                        modalWrapper.style.background = 'var(--bg-solid-surface)';
-                    } else {
-                        modalWrapper.style.background = `linear-gradient(${nextColor}, ${nextColor}), var(--bg-solid-surface)`;
-                    }
+            if (modalWrapper) {
+                if (nextColor === 'var(--note-base)') {
+                    modalWrapper.style.background = 'var(--bg-surface)';
+                } else {
+                    modalWrapper.style.background = `linear-gradient(${nextColor}, ${nextColor}), var(--bg-surface)`;
                 }
+            }
     if(typeof window.autoSaveNote === 'function') window.autoSaveNote();
     toast('Color selected', 'info', 800);
 };
