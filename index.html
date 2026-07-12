@@ -266,15 +266,16 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 
 #multiSelectBar {
   position: fixed; bottom: -300px; left: 50%; transform: translateX(-50%);
-  background: var(--bg-surface); padding: 12px 24px; border-radius: 32px;
+  background: rgba(22, 22, 22, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  padding: 12px 24px; border-radius: 32px; border: 1px solid rgba(255,255,255,0.08) !important;
   display: flex; gap: 16px; align-items: center; box-shadow: 0 16px 48px rgba(0,0,0,0.4);
-  z-index: 45000; transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none !important;
+  z-index: 45000; transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-#multiSelectBar.active { bottom: 32px; }
+#multiSelectBar.active { bottom: 120px; }
 
 .file-checkbox {
-  appearance: none; width: 18px; height: 18px; border: 2px solid var(--text-muted);
-  border-radius: 6px; background: transparent; cursor: pointer; transition: all 0.2s; position: relative; flex-shrink:0;
+  appearance: none; width: 18px; height: 18px; border: 2px solid var(--text-main);
+  border-radius: 50%; background: rgba(0, 0, 0, 0.35); cursor: pointer; transition: all 0.2s; position: relative; flex-shrink:0;
 }
 .file-checkbox:checked { background: var(--blue); border-color: var(--blue); }
 .file-checkbox:checked::after {
