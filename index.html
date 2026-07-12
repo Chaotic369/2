@@ -419,8 +419,8 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   <div class="workspace-panel">
       <div class="panel-header">
              <div style="display:flex; align-items:center; gap:8px;">
-               <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.viewRootFolder()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)'; if(window._dragHoverFolder !== 'BACK_NOTE'){ clearTimeout(window._dragHoverTimer); window._dragHoverFolder = 'BACK_NOTE'; window._dragHoverTimer = setTimeout(() => { let ws = document.getElementById('mainWorkspace'); let st = ws ? ws.scrollTop : 0; window.viewRootFolder(); if(ws) ws.scrollTop = st; window._dragHoverFolder = null; }, 700); }" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)'; if(window._dragHoverFolder === 'BACK_NOTE'){ clearTimeout(window._dragHover
-               <span id="notes-view-title" style="display:flex; align-items:center;" title="Quick Notes"><i class="fa-solid fa-note-sticky" style="font-size:20px; color:var(--amber);"></i></span>
+               <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.viewRootFolder()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)';" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)';" ondrop="event.preventDefault(); this.style.transform='scale(1)'; this.style.color='var(--text-main)'; window.moveNoteToRoot(event.dataTransfer.getData('text/plain'))" title="Drop note here to move to root"><i class="fa-solid fa-arrow-left"></i></button>
+                              <span id="notes-view-title" style="display:flex; align-items:center;" title="Quick Notes"><i class="fa-solid fa-note-sticky" style="font-size:20px; color:var(--amber);"></i></span>
                <input id="notes-folder-edit" type="text" class="file-row-input" style="display:none; width:160px; padding:6px 10px; margin-left:8px;" onchange="window.renameCurrentFolder(this.value)">
              </div>
           </div>
@@ -433,8 +433,8 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   <div class="workspace-panel">
           <div class="panel-header" style="border: none !important; margin-bottom: 12px; min-height: 34px;">
                       <div style="display: flex; align-items: center; gap: 8px; height: 26px; flex: 1;">
-                        <button id="btn-back-storage" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.goBackStorage()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)'; if(window._dragHoverFolder !== 'BACK_FILE'){ clearTimeout(window._dragHoverTimer); window._dragHoverFolder = 'BACK_FILE'; window._dragHoverTimer = setTimeout(() => { let ws = document.getElementById('mainWorkspace'); window._preserveScroll
-                        <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
+                        <button id="btn-back-storage" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.goBackStorage()" ondragover="event.preventDefault(); this.style.transform='scale(1.2)'; this.style.color='var(--amber)';" ondragleave="this.style.transform='scale(1)'; this.style.color='var(--text-main)';" ondrop="window.dropOutStorage(event)" title="Drop file here to move out"><i class="fa-solid fa-arrow-left"></i></button>
+                                                <i class="fa-solid fa-folder-open" style="font-size:20px; color:var(--amber);" title="Cloud Storage Files"></i>
                         <span id="storage-path-display" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);"></span>
         
                         <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
@@ -1215,27 +1215,10 @@ window.renderNotes = function() {
                         const fel = document.createElement('div');
                         fel.className = 'folder-card';
                         fel.setAttribute('data-id', f.id);
-                        fel.ondragover = (e) => { 
-                                                    e.preventDefault(); fel.style.transform = 'scale(1.05)'; 
-                                                    if (window._dragHoverFolder !== f.id) {
-                                                        clearTimeout(window._dragHoverTimer);
-                                                        window._dragHoverFolder = f.id;
-                                                        window._dragHoverTimer = setTimeout(() => { 
-                                                            let ws = document.getElementById('mainWorkspace');
-                                                            let st = ws ? ws.scrollTop : 0;
-                                                            window.viewFolder(f.id, f.name); 
-                                                            if(ws) ws.scrollTop = st;
-                                                            window._dragHoverFolder = null; 
-                                                        }, 700);
-                                                    }
-                                                };
-                                                fel.ondragleave = (e) => { 
-                                                    fel.style.transform = 'scale(1)'; 
-                                                    if (window._dragHoverFolder === f.id) { clearTimeout(window._dragHoverTimer); window._dragHoverFolder = null; }
-                                                };
+                        fel.ondragover = (e) => { e.preventDefault(); fel.style.transform = 'scale(1.05)'; };
+                                                fel.ondragleave = (e) => { fel.style.transform = 'scale(1)'; };
                                                 fel.ondrop = (e) => {
                                                     e.preventDefault();
-                                                    clearTimeout(window._dragHoverTimer); window._dragHoverFolder = null;
                                                     var data = e.dataTransfer.getData('text/plain');
                                                     if(data && data.startsWith('n_')) window.dropNoteIntoFolder(data, f.id, e);
                                                     fel.style.transform = 'scale(1)';
@@ -1715,26 +1698,10 @@ window.loadFiles = async function() {
             folders.forEach(folder => {
                 const card = document.createElement('div');
                 card.className = 'folder-card';
-                card.ondragover = (e) => { 
-                                    e.preventDefault(); card.style.transform = 'scale(1.02)'; 
-                                    if (window._dragHoverFolder !== folder.name) {
-                                        clearTimeout(window._dragHoverTimer);
-                                        window._dragHoverFolder = folder.name;
-                                        window._dragHoverTimer = setTimeout(() => { 
-                                            let ws = document.getElementById('mainWorkspace');
-                                            window._preserveScroll = ws ? ws.scrollTop : null;
-                                            window.enterStorageFolder(folder.name); 
-                                            window._dragHoverFolder = null; 
-                                        }, 700);
-                                    }
-                                };
-                                card.ondragleave = (e) => { 
-                                    card.style.transform = 'scale(1)'; 
-                                    if (window._dragHoverFolder === folder.name) { clearTimeout(window._dragHoverTimer); window._dragHoverFolder = null; }
-                                };
+                card.ondragover = (e) => { e.preventDefault(); card.style.transform = 'scale(1.02)'; };
+                                card.ondragleave = (e) => { card.style.transform = 'scale(1)'; };
                                 card.ondrop = (e) => {
                                     e.preventDefault(); card.style.transform = 'scale(1)';
-                                    clearTimeout(window._dragHoverTimer); window._dragHoverFolder = null;
                                     var fileName = e.dataTransfer.getData('text/plain');
                                     if (fileName && !fileName.startsWith('n_') && fileName !== 'drag_folder') window.dropIntoStorageFolder(fileName, folder.name);
                                 };
