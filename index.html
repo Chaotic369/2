@@ -785,7 +785,7 @@ window.applyWallpaper = async function(source, existingName = null) {
     
     // If it's a string URL (selected via built-in grid gallery click)
         if (typeof source === 'string') {
-            overlay.style.backgroundImage = `url("${source}")`;
+            overlay.style.setProperty('background-image', `url("${source}")`, 'important');
             document.documentElement.classList.add('has-wallpaper');
             localStorage.setItem('sovereign_wp_url', source);
             modal.classList.remove('open'); // Close Modal Instantly
@@ -820,12 +820,12 @@ window.syncCloudWallpaper = async function(overrideWpName = undefined) {
         if (wpName) {
                     const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(wpName);
                     if (urlData && urlData.publicUrl) {
-                        document.getElementById('bgOverlay').style.backgroundImage = `url("${urlData.publicUrl}")`;
+                        document.getElementById('bgOverlay').style.setProperty('background-image', `url("${urlData.publicUrl}")`, 'important');
                         document.documentElement.classList.add('has-wallpaper');
                         localStorage.setItem('sovereign_wp_url', urlData.publicUrl);
                     }
                 } else {
-                    document.getElementById('bgOverlay').style.backgroundImage = 'none';
+                    document.getElementById('bgOverlay').style.setProperty('background-image', 'none', 'important');
                     document.documentElement.classList.remove('has-wallpaper');
                     localStorage.removeItem('sovereign_wp_url');
                 }
