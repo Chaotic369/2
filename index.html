@@ -742,6 +742,17 @@ window.applyWallpaper = function(dataUrl) {
     if (document.getElementById('wallpaperModal').classList.contains('open')) {
         window.openWallpaperModal();
     }
+
+    // --- Background Cloud Sync ---
+    try {
+        if (dataUrl) {
+            fetch(dataUrl).then(r => r.blob()).then(blob => {
+                supabaseClient.storage.from(BUCKET_NAME).upload('.system/wallpaper.jpg', blob, { upsert: true, cacheControl: '3600' });
+            });
+        } else {
+            supabaseClient.storage.from(BUCKET_NAME).remove(['.system/wallpaper.jpg']);
+        }
+    } catch(e) { console.error("Wallpaper cloud sync failed:", e); }
 };
 
 window.removeSavedWallpaper = function(event, idx) {
@@ -754,6 +765,48 @@ window.removeSavedWallpaper = function(event, idx) {
     if (removingActive) window.applyWallpaper(null);
     else window.openWallpaperModal();
 };
+
+window.syncCloudWallpaper = async function() {
+    if (!window.supabaseClient || !window.BUCKET_NAME) return;
+    try {
+        const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).download('.system/wallpaper.jpg');
+        if (data) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const cloudWp = e.target.result;
+                if (cloudWp !== localStorage.getItem('sovereign_wallpaper')) {
+                    localStorage.setItem('sovereign_wallpaper', cloudWp);
+                    document.getElementById('bgOverlay').style.backgroundImage = `url(${cloudWp})`;
+                    document.documentElement.classList.add('has-wallpaper');
+                    
+                    // Add it to history silently if it's new
+                    let hist = [];
+                    try { hist = JSON.parse(localStorage.getItem('sovereign_wp_history')) || []; } catch(err){}
+                    if(!hist.includes(cloudWp)) {
+                        hist.unshift(cloudWp);
+                        if(hist.length > 12) hist = hist.slice(0, 12);
+                        localStorage.setItem('sovereign_wp_history', JSON.stringify(hist));
+                    }
+                }
+            };
+            reader.readAsDataURL(data);
+        } else if (error && error.message.includes('not found')) {
+            if (localStorage.getItem('sovereign_wallpaper')) {
+                localStorage.removeItem('sovereign_wallpaper');
+                document.getElementById('bgOverlay').style.backgroundImage = 'none';
+                document.documentElement.classList.remove('has-wallpaper');
+            }
+        }
+    } catch(e) { console.error("Could not fetch cloud wallpaper:", e); }
+};
+
+// Auto-trigger sync once app boot is ready
+let _wpSyncInterval = setInterval(() => {
+    if (window.supabaseClient && window.BUCKET_NAME) {
+        clearInterval(_wpSyncInterval);
+        window.syncCloudWallpaper();
+    }
+}, 500);
 const BUCKET_NAME = 'docs';
 const USER_DOC_ID = 'global_user_1';
 
