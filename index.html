@@ -794,7 +794,7 @@ window.removeSavedWallpaper = function(event, idx) {
 };
 
 window.syncCloudWallpaper = async function(overrideWpName = undefined) {
-    if (!window.supabaseClient || !window.BUCKET_NAME) return;
+    if (typeof supabaseClient === 'undefined' || typeof BUCKET_NAME === 'undefined') return;
     try {
         let wpName = overrideWpName;
         if (wpName === undefined) {
@@ -818,7 +818,7 @@ window.syncCloudWallpaper = async function(overrideWpName = undefined) {
 
 // Auto-trigger sync once app boot is ready
 let _wpSyncInterval = setInterval(() => {
-    if (window.supabaseClient && window.BUCKET_NAME) {
+    if (typeof supabaseClient !== 'undefined' && typeof BUCKET_NAME !== 'undefined') {
         clearInterval(_wpSyncInterval);
         window.syncCloudWallpaper();
     }
@@ -975,7 +975,7 @@ window.checkStorage = function() {
 };
 
 window.syncCloudTheme = async function() {
-    if (!window.supabaseClient) return;
+    if (typeof supabaseClient === 'undefined') return;
     try {
         const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
         if (error && error.code !== 'PGRST116') { console.error("Theme fetch error:", error); return; }
