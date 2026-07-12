@@ -1722,27 +1722,29 @@ window.loadFiles = async function() {
     emptyState.style.display = 'none';
 
     let allFiles = [];
-    let folders = [];
+        let folders = [];
     
-    if (window.isFormatFilterMode) {
-            document.getElementById('storage-path-display').textContent = window.activeFormatType ? `Formats / ${window.activeFormatType}` : 'Global Formats';
-            document.getElementById('btn-back-storage').style.display = window.activeFormatType ? 'flex' : 'none';
+        if (searchVal || window.isFormatFilterMode) {
             allFiles = await window.fetchAllRecursive('');
+            if (window.isFormatFilterMode) {
+                document.getElementById('storage-path-display').textContent = window.activeFormatType ? `Formats / ${window.activeFormatType}` : 'Global Formats';
+                document.getElementById('btn-back-storage').style.display = window.activeFormatType ? 'flex' : 'none';
+            }
         } else {
             let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
             const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list(window.currentStoragePath || '', { limit: 1000 });
             if (error) { container.innerHTML = `<div style="color:var(--red);">Storage Node Error: ${error.message}</div>`; cleanupScroll(); return toast('Sync failed', 'err'); }
         
-        folders = data.filter(f => !f.id && f.name !== '.emptyFolderPlaceholder');
-        const rawFiles = data.filter(f => f.id && f.name !== '.emptyFolderPlaceholder' && !f.name.startsWith('note_img_'));
-        rawFiles.forEach(f => {
-            f._fullPath = prefix + f.name;
-            f._parentPath = window.currentStoragePath || 'Root';
-            allFiles.push(f);
-        });
-    }
+            folders = data.filter(f => !f.id && f.name !== '.emptyFolderPlaceholder');
+            const rawFiles = data.filter(f => f.id && f.name !== '.emptyFolderPlaceholder' && !f.name.startsWith('note_img_'));
+            rawFiles.forEach(f => {
+                f._fullPath = prefix + f.name;
+                f._parentPath = window.currentStoragePath || 'Root';
+                allFiles.push(f);
+            });
+        }
 
-    if (searchVal) allFiles = allFiles.filter(f => f.name.toLowerCase().includes(searchVal));
+        if (searchVal) allFiles = allFiles.filter(f => f.name.toLowerCase().includes(searchVal));
 
     let totalBytes = allFiles.reduce((acc, f) => acc + (f.metadata?.size || 0), 0);
     document.getElementById('sb-storage').textContent = (totalBytes / (1024 * 1024)).toFixed(2) + ' MB utilized';
@@ -1871,8 +1873,8 @@ window.loadFiles = async function() {
                                                 card.oncontextmenu = (e) => { e.preventDefault(); return false; };
 
                                 let isChecked = window.selectedFiles.has(file.name);
-                let locHtml = window.isFormatFilterMode ? `<div style="font-size:9px; color:var(--amber); margin-top:2px;">📁 ${file._parentPath}</div>` : '';
-                let openAction = isImage ? `window.previewImage(event, '${fileUrl}')` : `window.previewUniversal(event, '${fileUrl}', '${ext}')`;
+                                                let locHtml = (window.isFormatFilterMode || searchVal) ? `<div style="font-size:9px; color:var(--amber); margin-top:2px;">📁 ${file._parentPath}</div>` : '';
+                                                let openAction = isImage ? `window.previewImage(event, '${fileUrl}')` : `window.previewUniversal(event, '${fileUrl}', '${ext}')`;
 
                 card.innerHTML = `
                     <div style="display:flex; gap:12px; align-items:center; flex:1; overflow:hidden; cursor:pointer;" onclick="${openAction}">
