@@ -1598,19 +1598,19 @@ window.renderNotes = function() {
                     window.notesFoldersSortable = new Sortable(fContainer, {
                         animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5, filter: 'button',
                         onStart: () => {
-                            window.isDraggingFolder = true;
-                            document.getElementById('folderContextMenu').classList.remove('open');
-                        },
-                        onEnd: function () {
-                            window.isDraggingFolder = false;
-                            let items = Array.from(fContainer.querySelectorAll('.folder-card'));
-                            items.forEach((item, index) => {
-                                let id = item.getAttribute('data-id');
-                                let folder = S.folders.find(x => x.id === id);
-                                if (folder) folder.order = index;
-                            });
-                            window.saveNotesData();
-                                                    }
+                                                    window.isDraggingFolder = true;
+                                                    document.getElementById('folderContextMenu').classList.remove('open');
+                                                },
+                                                onEnd: function () {
+                                                    let items = Array.from(fContainer.querySelectorAll('.folder-card'));
+                                                    items.forEach((item, index) => {
+                                                        let id = item.getAttribute('data-id');
+                                                        let folder = S.folders.find(x => x.id === id);
+                                                        if (folder) folder.order = index;
+                                                    });
+                                                    window.saveNotesData();
+                                                    setTimeout(() => { window.isDraggingFolder = false; }, 50);
+                                                                            }
                                                 });
                                             }
                                         } else {
@@ -2072,9 +2072,19 @@ window.loadFiles = async function() {
             }
             return window.fileCategories[window.activeFormatType].exts.includes(ext);
         });
-    } else {
-            folders.forEach(folder => {
-                                                    const card = document.createElement('div');
+            } else {
+                    let savedOrder = JSON.parse(localStorage.getItem('sovereign_storage_folders_' + (window.currentStoragePath || 'root')) || '[]');
+                    folders.sort((a, b) => {
+                        let aIdx = savedOrder.indexOf(a.name);
+                        let bIdx = savedOrder.indexOf(b.name);
+                        if (aIdx === -1) aIdx = 9999;
+                        if (bIdx === -1) bIdx = 9999;
+                        if (aIdx === bIdx) return a.name.localeCompare(b.name);
+                        return aIdx - bIdx;
+                    });
+
+                    folders.forEach(folder => {
+                                                                        const card = document.createElement('div');
                                                     card.className = 'folder-card';
                                                     window.bindFolderEvents(card, 'storage', folder.name, folder.name, () => window.enterStorageFolder(folder.name));
                                         card.innerHTML = `<i class="fa-regular fa-folder" style="color:var(--text-main); font-size:16px;"></i><div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${folder.name}</div>`;
@@ -2089,15 +2099,20 @@ window.loadFiles = async function() {
                                             fContainer.appendChild(addBtn);
             
                 if (typeof Sortable !== 'undefined') {
-                    window.storageFoldersSortable = new Sortable(fContainer, {
-                        animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5, filter: 'button',
-                        onStart: () => {
-                            window.isDraggingFolder = true;
-                            document.getElementById('folderContextMenu').classList.remove('open');
-                        },
-                        onEnd: () => { window.isDraggingFolder = false; }
-                    });
-                }
+                                    window.storageFoldersSortable = new Sortable(fContainer, {
+                                        animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5, filter: 'button',
+                                        onStart: () => {
+                                            window.isDraggingFolder = true;
+                                            document.getElementById('folderContextMenu').classList.remove('open');
+                                        },
+                                        onEnd: () => { 
+                                            let items = Array.from(fContainer.querySelectorAll('.folder-card'));
+                                            let order = items.map(item => item.getAttribute('data-id'));
+                                            localStorage.setItem('sovereign_storage_folders_' + (window.currentStoragePath || 'root'), JSON.stringify(order));
+                                            setTimeout(() => { window.isDraggingFolder = false; }, 50); 
+                                        }
+                                    });
+                                }
             }
                     }
 
