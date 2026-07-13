@@ -223,6 +223,10 @@ button.btn:active { transform: scale(0.96); }
   cursor: pointer; transition: transform 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   font-weight: 600; font-size: 13px; border: none !important;
   contain: layout style paint; max-width: 160px; flex-shrink: 0; white-space: nowrap;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
 }
 .folder-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
 
