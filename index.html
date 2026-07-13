@@ -1248,6 +1248,7 @@ window.viewRootFolder = function() {
 };
 
 window.viewFolder = function(id, name, event) {
+    if (window.isDraggingFolder) return;
     if(event) event.stopPropagation();
     window.currentFolderView = id;
     document.getElementById('btn-back-folder').style.display = 'flex';
@@ -1841,6 +1842,7 @@ window.fileCmMove = function() {
 };
 
 window.enterStorageFolder = function(folderName) {
+    if (window.isDraggingFolder) return;
     window.currentStoragePath = window.currentStoragePath ? window.currentStoragePath + '/' + folderName : folderName;
     document.getElementById('btn-back-storage').style.display = 'flex';
     document.getElementById('storage-path-display').textContent = '/' + window.currentStoragePath;
