@@ -2550,7 +2550,10 @@ window.openFolderMenu = function(type, id, name, event) {
 
 window.bindFolderEvents = function(card, type, id, name, clickHandler) {
     card.oncontextmenu = (e) => { e.preventDefault(); window.openFolderMenu(type, id, name, e); };
-    card.onclick = (e) => { clickHandler(e); };
+    card.onclick = (e) => { 
+        if (window.isDraggingFolder) return;
+        clickHandler(e); 
+    };
 };
 
 window.fcmRename = async function() {
