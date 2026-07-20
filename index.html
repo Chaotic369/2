@@ -2154,28 +2154,30 @@ window.loadFiles = async function() {
                                                                 card.oncontextmenu = (e) => { e.preventDefault(); return false; };
 
                                 let isChecked = window.selectedFiles.has(file.name);
-                                                let locHtml = (window.isFormatFilterMode || searchVal) ? `<div style="font-size:9px; color:var(--amber); margin-top:2px;">📁 ${file._parentPath}</div>` : '';
-                                                let openAction = isImage ? `window.previewImage(event, '${fileUrl}')` : `window.previewUniversal(event, '${fileUrl}', '${ext}')`;
+                                                                                let locHtml = (window.isFormatFilterMode || searchVal) ? `<div style="font-size:9px; color:var(--amber); margin-top:2px;">📁 ${file._parentPath}</div>` : '';
+                                                                                let openAction = isImage ? `window.previewImage(event, '${fileUrl}')` : `window.previewUniversal(event, '${fileUrl}', '${ext}')`;
+                                                                                let htmlPreviewBtn = (ext === 'html' || ext === 'htm') ? `<button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px; color:var(--teal);" onclick="event.stopPropagation(); window.open('${fileUrl}', '_blank')" title="Live Preview"><i class="fa-solid fa-eye"></i></button>` : '';
 
-                card.innerHTML = `
-                    <div style="display:flex; gap:12px; align-items:center; flex:1; overflow:hidden; cursor:pointer;" onclick="${openAction}">
-                        <input type="checkbox" class="file-checkbox" ${isChecked ? 'checked' : ''} onclick="window.toggleFileSelection('${file.name}', event)">
-                        ${previewHtml}
-                        <div style="overflow:hidden; display:flex; flex-direction:column;">
-                            <div style="font-weight:600; font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${cleanName}">${cleanName}</div>
-                            <div style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">
-                                <span>${formatBytes(file.metadata?.size || 0)}</span>
-                                <span style="opacity:0.4; margin:0 4px;">|</span>
-                                <span>${timeStr}</span>
-                            </div>
-                            ${locHtml}
-                                            </div>
-                                        </div>
-                                        <div style="display:flex; gap:4px; flex-shrink:0; align-items:center;">
-                                                                                    <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px; color:var(--blue);" onclick="event.stopPropagation(); window.triggerDownload('${fileUrl}', '${cleanName}')" title="Quick Download"><i class="fa-solid fa-download"></i></button>
-                                                                                    <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px;" onclick="window.openFileContextMenu('${file.name}', '${fileUrl}', event)" title="More Options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                                                                                </div>
-                                                                            `;
+                                                card.innerHTML = `
+                                                    <div style="display:flex; gap:12px; align-items:center; flex:1; overflow:hidden; cursor:pointer;" onclick="${openAction}">
+                                                        <input type="checkbox" class="file-checkbox" ${isChecked ? 'checked' : ''} onclick="window.toggleFileSelection('${file.name}', event)">
+                                                        ${previewHtml}
+                                                        <div style="overflow:hidden; display:flex; flex-direction:column;">
+                                                            <div style="font-weight:600; font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${cleanName}">${cleanName}</div>
+                                                            <div style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">
+                                                                <span>${formatBytes(file.metadata?.size || 0)}</span>
+                                                                <span style="opacity:0.4; margin:0 4px;">|</span>
+                                                                <span>${timeStr}</span>
+                                                            </div>
+                                                            ${locHtml}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div style="display:flex; gap:4px; flex-shrink:0; align-items:center;">
+                                                                                                                    ${htmlPreviewBtn}
+                                                                                                                    <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px; color:var(--blue);" onclick="event.stopPropagation(); window.triggerDownload('${fileUrl}', '${cleanName}')" title="Quick Download"><i class="fa-solid fa-download"></i></button>
+                                                                                                                    <button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px;" onclick="window.openFileContextMenu('${file.name}', '${fileUrl}', event)" title="More Options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                                                                                                </div>
+                                                                                                            `;
                                                                             container.appendChild(card);
                                                                                                                                 });
                                             
