@@ -1299,6 +1299,15 @@ window.openNoteModal = function(id) {
     window._modalExpanded = false;
     const expandBtn = document.getElementById('nm-expand-btn');
     if (expandBtn) expandBtn.innerHTML = '<i class="fa-solid fa-expand"></i>';
+    const modalWrapperReset = document.getElementById('fullNoteModal').firstElementChild;
+    if (modalWrapperReset) {
+        modalWrapperReset.style.width = '90vw';
+        modalWrapperReset.style.height = '';
+        modalWrapperReset.style.borderRadius = '32px';
+        modalWrapperReset.style.maxHeight = '';
+    }
+    const nmTextReset = document.getElementById('nm-text');
+    if (nmTextReset) { nmTextReset.style.flex = ''; nmTextReset.style.height = ''; }
     document.getElementById('nm-id').value = n.id;
     document.getElementById('nm-title').value = n.title || '';
     document.getElementById('nm-text').value = n.text || '';
@@ -1495,12 +1504,24 @@ window.toggleModalExpand = function() {
     const textarea = document.getElementById('nm-text');
     const btn = document.getElementById('nm-expand-btn');
     if (window._modalExpanded) {
-        if (modalWrapper) { modalWrapper.style.maxWidth = '900px'; modalWrapper.style.width = '95vw'; }
-        if (textarea) textarea.style.minHeight = '500px';
+        if (modalWrapper) {
+            modalWrapper.style.maxWidth = 'none';
+            modalWrapper.style.width = '100vw';
+            modalWrapper.style.height = '100vh';
+            modalWrapper.style.borderRadius = '0';
+            modalWrapper.style.maxHeight = 'none';
+        }
+        if (textarea) { textarea.style.minHeight = '0'; textarea.style.flex = '1'; textarea.style.height = '100%'; }
         if (btn) btn.innerHTML = '<i class="fa-solid fa-compress"></i>';
     } else {
-        if (modalWrapper) { modalWrapper.style.maxWidth = '600px'; modalWrapper.style.width = '90vw'; }
-        if (textarea) textarea.style.minHeight = '250px';
+        if (modalWrapper) {
+            modalWrapper.style.maxWidth = '600px';
+            modalWrapper.style.width = '90vw';
+            modalWrapper.style.height = '';
+            modalWrapper.style.borderRadius = '32px';
+            modalWrapper.style.maxHeight = '';
+        }
+        if (textarea) { textarea.style.minHeight = '250px'; textarea.style.flex = ''; textarea.style.height = ''; }
         if (btn) btn.innerHTML = '<i class="fa-solid fa-expand"></i>';
     }
 };
