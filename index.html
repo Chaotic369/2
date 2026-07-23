@@ -358,7 +358,6 @@ html.has-wallpaper body, html.has-wallpaper #mainWorkspace {
   background: transparent !important; 
 }
 /* Scrollable Cards: Lighter blur + CSS Containment to stop off-screen rendering lag */
-/* Scrollable Cards: Lighter blur + CSS Containment to stop off-screen rendering lag */
 html.has-wallpaper .note-card,
 html.has-wallpaper .file-card,
 html.has-wallpaper .folder-card,
@@ -393,12 +392,6 @@ html.has-wallpaper #toast {
 html.has-wallpaper #storage-toolbar {
   transform: translateZ(0);
   border: none !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
-}
-html.has-wallpaper .quick-input-bar {
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  transform: translateZ(0);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
 }
 html.has-wallpaper .quick-input-bar {
@@ -773,13 +766,18 @@ window.applyWallpaper = async function(source, existingName = null) {
             
             hideProgress();
             
-            const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
-            if (error && error.code !== 'PGRST116') throw error;
-            const latestState = (data && data.state) || {};
+                        const { data, error } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+                        if (error && error.code !== 'PGRST116') throw error;
+                        const latestState = (data && data.state) || {};
+                        const oldWpName = latestState.wallpaperName;
             
-            await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: uniqueName } });
+                        await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...latestState, wallpaperName: uniqueName } });
             
-            toast('Wallpaper live and synced!', 'ok');
+                        if (oldWpName && oldWpName !== uniqueName) {
+                            try { await supabaseClient.storage.from(BUCKET_NAME).remove([oldWpName]); } catch(cleanupErr) { console.error("Old wallpaper cleanup error:", cleanupErr); }
+                        }
+            
+                        toast('Wallpaper live and synced!', 'ok');
         } catch (e) {
             hideProgress();
             console.error("Wallpaper Upload Error:", e);
@@ -983,6 +981,8 @@ window.previewImage = function(event, url) {
 };
 
 window.toggleTheme = async function() {
+    if (window._themeToggling) return;
+    window._themeToggling = true;
     document.documentElement.classList.toggle('light-theme');
     const isLight = document.documentElement.classList.contains('light-theme');
     const themeVal = isLight ? 'light' : 'dark';
@@ -993,6 +993,7 @@ window.toggleTheme = async function() {
         const { error: upsertErr } = await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...prevState, theme: themeVal } });
         if (upsertErr) { console.error("Theme cloud save error:", upsertErr); toast('Failed to sync theme', 'err'); }
     } catch(e) { console.error("Theme sync exception:", e); toast('Theme sync aborted due to state fetch failure', 'err'); }
+    finally { window._themeToggling = false; }
 };
 
 window.checkStorage = function() {
@@ -1678,7 +1679,7 @@ window.renderNotes = function() {
         }
         
         if (n.text) {
-                            let maxLen = spanClass ? 800 : 200;
+                                    let maxLen = spanClass.trim() === 'span-tiny' ? 200 : 800;
                             let safeText = String(n.text).replace(/</g, '&lt;').replace(/>/g, '&gt;');
                             let textPreview = safeText.length > maxLen ? safeText.substring(0, maxLen) + '...' : safeText;
                             html += window.parseMarkdown(textPreview, n.id, true);
@@ -2158,7 +2159,7 @@ window.loadFiles = async function() {
                                 let isChecked = window.selectedFiles.has(file.name);
                                                                                 let locHtml = (window.isFormatFilterMode || searchVal) ? `<div style="font-size:9px; color:var(--amber); margin-top:2px;">📁 ${file._parentPath}</div>` : '';
                                                                                 let openAction = isImage ? `window.previewImage(event, '${fileUrl}')` : `window.previewUniversal(event, '${fileUrl}', '${ext}')`;
-                                                                                let htmlPreviewBtn = (ext === 'html' || ext === 'htm') ? `<button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px; color:var(--teal);" onclick="event.stopPropagation(); window.open('${fileUrl}', '_blank')" title="Live Preview"><i class="fa-solid fa-eye"></i></button>` : '';
+                                                                                let htmlPreviewBtn = '';
 
                                                 card.innerHTML = `
                                                     <div style="display:flex; gap:12px; align-items:center; flex:1; overflow:hidden; cursor:pointer;" onclick="${openAction}">
@@ -2340,7 +2341,7 @@ window.executeTapMove = async function(destFolderName) {
         } else { // Folder move logic
             let oldPath = sourcePrefix + pm.name;
             let newPath = destPrefix + pm.name;
-            if (oldPath === newPath || newPath.startsWith(oldPath + '/')) return toast('Cannot move folder into itself', 'warn');
+            if (oldPath === newPath || newPath.startsWith(oldPath + '/')) { hideProgress(); return toast('Cannot move folder into itself', 'warn'); }
             const { data } = await supabaseClient.storage.from(BUCKET_NAME).list(oldPath);
             if (data) {
                 for (let file of data) await supabaseClient.storage.from(BUCKET_NAME).move(oldPath + '/' + file.name, newPath + '/' + file.name);
