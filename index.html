@@ -1574,9 +1574,9 @@ window.renderNotes = function() {
                                             fContainer.appendChild(fel);
 
                                             if (typeof Sortable !== 'undefined') {
-                                                new Sortable(fel, {
-                                                    group: { name: 'notes', put: true },
-                                                    onAdd: function(evt) {
+                                                                                            new Sortable(fel, {
+                                                                                                group: { name: 'notes', put: ['notes'] },
+                                                                                                onAdd: function(evt) {
                                                         let noteId = evt.item.getAttribute('data-id');
                                                         window.dropNoteIntoFolder(noteId, f.id, null);
                                                     }
@@ -1595,9 +1595,10 @@ window.renderNotes = function() {
                                 fContainer.appendChild(addBtn);
 
                 if (typeof Sortable !== 'undefined') {
-                    window.notesFoldersSortable = new Sortable(fContainer, {
-                        animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5, filter: 'button',
-                        onStart: () => {
+                                    window.notesFoldersSortable = new Sortable(fContainer, {
+                                        group: { name: 'notesFolders', put: ['notesFolders'] },
+                                        animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5, filter: 'button',
+                                        onStart: () => {
                             window.isDraggingFolder = true;
                             document.getElementById('folderContextMenu').classList.remove('open');
                         },
@@ -1616,9 +1617,9 @@ window.renderNotes = function() {
                                         } else {
                                                         backDropzone.style.display = 'none';
                                                         if (typeof Sortable !== 'undefined' && !backDropzone._sortableInitialized) {
-                                                            new Sortable(backDropzone, {
-                                                                group: { name: 'notes', put: true },
-                                                                onAdd: function (evt) {
+                                                                                                                    new Sortable(backDropzone, {
+                                                                                                                        group: { name: 'notes', put: ['notes'] },
+                                                                                                                        onAdd: function (evt) {
                                                                     var data = evt.item.getAttribute('data-id');
                                                                     if (data && data.startsWith('n_')) window.moveNoteToRoot(data);
                                                                 }
@@ -1687,9 +1688,9 @@ window.renderNotes = function() {
                     });
 
                     if (typeof Sortable !== 'undefined') {
-                                            window.notesSortable = new Sortable(nContainer, {
-                                                group: 'notes',
-                                                animation: 250, delay: 200, delayOnTouchOnly: true, touchStartThreshold: 5,
+                                                                window.notesSortable = new Sortable(nContainer, {
+                                                                    group: { name: 'notes', put: ['notes'] },
+                                                                    animation: 250, delay: 200, delayOnTouchOnly: true, touchStartThreshold: 5,
                                                 ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
                                                                             setData: function (dataTransfer, dragEl) { dataTransfer.setData('text/plain', dragEl.getAttribute('data-id')); },
                                                                             onStart: function () {
@@ -2105,9 +2106,10 @@ window.loadFiles = async function() {
                                             fContainer.appendChild(addBtn);
             
                 if (typeof Sortable !== 'undefined') {
-                    window.storageFoldersSortable = new Sortable(fContainer, {
-                        animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5, filter: 'button',
-                        onStart: () => {
+                                    window.storageFoldersSortable = new Sortable(fContainer, {
+                                        group: { name: 'storageFolders', put: ['storageFolders'] },
+                                        animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5, filter: 'button',
+                                        onStart: () => {
                             window.isDraggingFolder = true;
                             document.getElementById('folderContextMenu').classList.remove('open');
                         },
@@ -2185,9 +2187,9 @@ window.loadFiles = async function() {
                                                                                                                                                                                                                                                 if (backDropzoneFiles) {
                                                                                                                                                                                                                                                     backDropzoneFiles.style.display = 'none';
                                                                                                                                                                                                                                                     if (typeof Sortable !== 'undefined' && !backDropzoneFiles._sortableInitialized) {
-                                                                                                                                                                                                                                                        new Sortable(backDropzoneFiles, {
-                                                                                                                                                                                                                                                            group: { name: 'storageFiles', put: true },
-                                                                                                                                                                                                                                                            onAdd: function (evt) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        new Sortable(backDropzoneFiles, {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            group: { name: 'storageFiles', put: ['storageFiles'] },
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            onAdd: function (evt) {
                                                                                                                                                                                                                                                                 var fileName = evt.item.getAttribute('data-id');
                                                                                                                                                                                                                                                                 if (fileName) {
                                                                                                                                                                                                                                                                     window.executeDropOutStorage(fileName);
@@ -2200,9 +2202,9 @@ window.loadFiles = async function() {
                                                                                                                                                                                                                                                 }
 
                                                                                                                                                                                                                                                 if (typeof Sortable !== 'undefined') {
-                                                                                                                                                                                                                                                    window.filesSortable = new Sortable(container, {
-                                                                                                                                                                                                                                                        group: 'storageFiles',
-                                                                                                                                                                                                                                                        animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    window.filesSortable = new Sortable(container, {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        group: { name: 'storageFiles', put: ['storageFiles'] },
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5,
                                                                                                                                                                                                                                                         ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
                                                                                                                                                                                                                                                         setData: function (dataTransfer, dragEl) { dataTransfer.setData('text/plain', dragEl.getAttribute('data-id')); },
                                                                                                                                                                                                                                                         onStart: function () {
