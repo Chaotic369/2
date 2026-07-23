@@ -207,6 +207,13 @@ button.btn:active { transform: scale(0.96); }
 .sortable-ghost { opacity: 0.4; transform: scale(0.98); }
 .sortable-drag { cursor: grabbing !important; }
 .note-card-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+.note-expand-btn {
+  position: absolute; bottom: 10px; right: 10px; width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(0,0,0,0.35); color: #fff; border: none !important; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; cursor: pointer; z-index: 2; opacity: 0.85; transition: transform 0.15s, opacity 0.15s;
+}
+.note-expand-btn:hover { transform: scale(1.1); opacity: 1; }
+html.light-theme .note-expand-btn { background: rgba(0,0,0,0.45); }
 
 /* Dynamic Note Gallery Engine */
 .note-gallery { display: grid; gap: 4px; border-radius: 16px; overflow: hidden; margin-bottom: 8px; }
@@ -1309,16 +1316,24 @@ window.openNoteModal = function(id) {
     document.getElementById('nm-timestamp').innerText = `Last saved: ${dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at ${dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
     
     const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
-                if (modalWrapper) {
-                    if (upgradedColor === 'var(--note-base)') {
-                        modalWrapper.style.background = 'var(--bg-solid-surface)';
-                    } else {
-                        modalWrapper.style.background = `linear-gradient(${upgradedColor}, ${upgradedColor}), var(--bg-solid-surface)`;
-                    }
+                    if (modalWrapper) {
+                        if (upgradedColor === 'var(--note-base)') {
+                            modalWrapper.style.background = 'var(--bg-solid-surface)';
+                        } else {
+                            modalWrapper.style.background = `linear-gradient(${upgradedColor}, ${upgradedColor}), var(--bg-solid-surface)`;
+                        }
         
-                }
+                    }
 
-    const gal = document.getElementById('nm-gallery');
+        const contentLen = (n.text || '').length;
+        const imgCount = (n.images && n.images.length) || (n.imageUrl ? 1 : 0);
+        let modalMaxWidth = '420px', textMinHeight = '120px';
+        if (imgCount > 0 || contentLen > 600) { modalMaxWidth = '800px'; textMinHeight = '400px'; }
+        else if (contentLen > 150) { modalMaxWidth = '600px'; textMinHeight = '250px'; }
+        if (modalWrapper) modalWrapper.style.maxWidth = modalMaxWidth;
+        document.getElementById('nm-text').style.minHeight = textMinHeight;
+
+        const gal = document.getElementById('nm-gallery');
     gal.innerHTML = '';
     let imgs = n.images || (n.imageUrl ? [n.imageUrl] : []);
     if(imgs.length > 0) {
@@ -1660,8 +1675,9 @@ window.renderNotes = function() {
                 el.oncontextmenu = (e) => { e.preventDefault(); return false; };
 
         let html = '';
-        if (n.pinned) html += `<div style="position:absolute; top:12px; right:12px; color:var(--amber);"><i class="fa-solid fa-thumbtack"></i></div>`;
-        if (n.title) html += `<div class="note-card-title">${String(n.title).replace(/</g,'&lt;')}</div>`;
+                if (n.pinned) html += `<div style="position:absolute; top:12px; right:12px; color:var(--amber);"><i class="fa-solid fa-thumbtack"></i></div>`;
+                html += `<button class="note-expand-btn" onclick="event.stopPropagation(); window.openNoteModal('${n.id}')" title="Expand note"><i class="fa-solid fa-expand"></i></button>`;
+                if (n.title) html += `<div class="note-card-title">${String(n.title).replace(/</g,'&lt;')}</div>`;
         
         if (imgs.length > 0) {
             let galClass = imgs.length > 4 ? 'count-many' : 'count-' + imgs.length;
