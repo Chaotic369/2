@@ -207,13 +207,6 @@ button.btn:active { transform: scale(0.96); }
 .sortable-ghost { opacity: 0.4; transform: scale(0.98); }
 .sortable-drag { cursor: grabbing !important; }
 .note-card-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
-.note-expand-btn {
-  position: absolute; bottom: 10px; right: 10px; width: 26px; height: 26px; border-radius: 50%;
-  background: rgba(0,0,0,0.35); color: #fff; border: none !important; display: flex; align-items: center; justify-content: center;
-  font-size: 11px; cursor: pointer; z-index: 2; opacity: 0.85; transition: transform 0.15s, opacity 0.15s;
-}
-.note-expand-btn:hover { transform: scale(1.1); opacity: 1; }
-html.light-theme .note-expand-btn { background: rgba(0,0,0,0.45); }
 
 /* Dynamic Note Gallery Engine */
 .note-gallery { display: grid; gap: 4px; border-radius: 16px; overflow: hidden; margin-bottom: 8px; }
@@ -570,12 +563,13 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 <div id="fullNoteModal" style="display:none; position:fixed; z-index:40000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); cursor:pointer;" onpointerdown="if(event.target === this) window.saveNoteModal()">
   <div style="background:var(--bg-solid-surface); width:90vw; max-width:600px; border-radius:32px; padding:24px; box-shadow:0 24px 64px rgba(0,0,0,0.4); display:flex; flex-direction:column; gap:16px; border:none !important; cursor:default;">
     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-           <input type="text" id="nm-title" style="flex:1; background:transparent; border:none; font-size:22px; font-weight:700; color:var(--text-main); outline:none; margin-right:12px;" placeholder="Note Title..." oninput="window.autoSaveNote()">
-           <div style="display:flex; gap:8px;">
-             <button class="action-mini-btn" onclick="window.toggleModalPin()" id="nm-pin-btn" title="Pin Note"><i class="fa-solid fa-thumbtack"></i></button>
-             <button class="action-mini-btn" onclick="window.copyModalNote()" title="Copy Text"><i class="fa-regular fa-copy"></i></button>
-           </div>
-        </div>
+               <input type="text" id="nm-title" style="flex:1; background:transparent; border:none; font-size:22px; font-weight:700; color:var(--text-main); outline:none; margin-right:12px;" placeholder="Note Title..." oninput="window.autoSaveNote()">
+               <div style="display:flex; gap:8px;">
+                 <button class="action-mini-btn" onclick="window.toggleModalPin()" id="nm-pin-btn" title="Pin Note"><i class="fa-solid fa-thumbtack"></i></button>
+                 <button class="action-mini-btn" onclick="window.copyModalNote()" title="Copy Text"><i class="fa-regular fa-copy"></i></button>
+                 <button class="action-mini-btn" onclick="window.toggleModalExpand()" id="nm-expand-btn" title="Expand"><i class="fa-solid fa-expand"></i></button>
+               </div>
+            </div>
         <div id="nm-gallery" style="display:none; flex-wrap:wrap; gap:8px; margin-bottom:12px;"></div>
         <textarea id="nm-text" style="width:100%; min-height:250px; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:15px; line-height:1.6; resize:vertical; outline:none;" placeholder="Start typing..." oninput="window.autoSaveNote()"></textarea>
         <div id="nm-timestamp" style="font-size:11px; color:var(--text-muted); opacity:0.7; text-align:right; font-family:'JetBrains Mono', monospace; margin-top:4px;"></div>
@@ -1302,6 +1296,9 @@ window.deleteFolder = async function(id, event) {
 window.openNoteModal = function(id) {
     const n = S.notes.find(x => x.id === id);
     if(!n) return;
+    window._modalExpanded = false;
+    const expandBtn = document.getElementById('nm-expand-btn');
+    if (expandBtn) expandBtn.innerHTML = '<i class="fa-solid fa-expand"></i>';
     document.getElementById('nm-id').value = n.id;
     document.getElementById('nm-title').value = n.title || '';
     document.getElementById('nm-text').value = n.text || '';
@@ -1491,6 +1488,23 @@ window.toggleModalPin = function() {
     if(typeof window.autoSaveNote === 'function') window.autoSaveNote();
 };
 
+window._modalExpanded = false;
+window.toggleModalExpand = function() {
+    window._modalExpanded = !window._modalExpanded;
+    const modalWrapper = document.getElementById('fullNoteModal').firstElementChild;
+    const textarea = document.getElementById('nm-text');
+    const btn = document.getElementById('nm-expand-btn');
+    if (window._modalExpanded) {
+        if (modalWrapper) { modalWrapper.style.maxWidth = '900px'; modalWrapper.style.width = '95vw'; }
+        if (textarea) textarea.style.minHeight = '500px';
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-compress"></i>';
+    } else {
+        if (modalWrapper) { modalWrapper.style.maxWidth = '600px'; modalWrapper.style.width = '90vw'; }
+        if (textarea) textarea.style.minHeight = '250px';
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-expand"></i>';
+    }
+};
+
 window.cycleModalColor = function() {
     let cur = document.getElementById('nm-color').value;
     let idx = noteColors.indexOf(cur);
@@ -1675,9 +1689,8 @@ window.renderNotes = function() {
                 el.oncontextmenu = (e) => { e.preventDefault(); return false; };
 
         let html = '';
-                if (n.pinned) html += `<div style="position:absolute; top:12px; right:12px; color:var(--amber);"><i class="fa-solid fa-thumbtack"></i></div>`;
-                html += `<button class="note-expand-btn" onclick="event.stopPropagation(); window.openNoteModal('${n.id}')" title="Expand note"><i class="fa-solid fa-expand"></i></button>`;
-                if (n.title) html += `<div class="note-card-title">${String(n.title).replace(/</g,'&lt;')}</div>`;
+        if (n.pinned) html += `<div style="position:absolute; top:12px; right:12px; color:var(--amber);"><i class="fa-solid fa-thumbtack"></i></div>`;
+        if (n.title) html += `<div class="note-card-title">${String(n.title).replace(/</g,'&lt;')}</div>`;
         
         if (imgs.length > 0) {
             let galClass = imgs.length > 4 ? 'count-many' : 'count-' + imgs.length;
