@@ -1050,6 +1050,45 @@ window.syncCloudTheme = async function() {
     } catch(e) { console.error("Could not init cloud theme:", e); }
 };
 
+window.openCompiler = async function(url, event) {
+    if(event) event.stopPropagation();
+    const modal = document.getElementById('htmlCompilerModal');
+    const frame = document.getElementById('compilerFrame');
+    toast('Loading Live View...', 'info');
+    try {
+        const res = await fetch(url);
+        const code = await res.text();
+        modal.style.display = 'flex';
+        const frameDoc = frame.contentWindow.document;
+        frameDoc.open();
+        frameDoc.write(code);
+        frameDoc.close();
+    } catch (e) {
+        toast('Failed to load HTML', 'err');
+    }
+};
+
+window.closeCompiler = function() {
+    const modal = document.getElementById('htmlCompilerModal');
+    modal.style.display = 'none';
+    const frame = document.getElementById('compilerFrame');
+    frame.src = 'about:blank';
+    if (document.fullscreenElement) {
+        document.exitFullscreen().catch(()=>{});
+    }
+};
+
+window.toggleCompilerFS = function() {
+    const container = document.getElementById('compilerContainer');
+    if (!document.fullscreenElement) {
+        container.requestFullscreen().catch(err => {
+            console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+    } else {
+        document.exitFullscreen().catch(()=>{});
+    }
+};
+
 window.stopMedia = function() {
     const a = document.getElementById('audioPreviewSrc'); if(a) { a.pause(); a.src=''; }
     const v = document.getElementById('videoPreviewSrc'); if(v) { v.pause(); v.src=''; }
