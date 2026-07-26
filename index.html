@@ -2115,18 +2115,30 @@ window.loadFiles = async function() {
                 document.getElementById('btn-back-storage').style.display = window.activeFormatType ? 'flex' : 'none';
             }
         } else {
-            let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
-            const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list(window.currentStoragePath || '', { limit: 1000 });
-            if (error) { container.innerHTML = `<div style="color:var(--red);">Storage Node Error: ${error.message}</div>`; cleanupScroll(); return toast('Sync failed', 'err'); }
+                    let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+                    let data = [];
+                    let offset = 0;
+                    let fetchError = null;
+            
+                    while(true) {
+                        const res = await supabaseClient.storage.from(BUCKET_NAME).list(window.currentStoragePath || '', { limit: 1000, offset });
+                        if (res.error) { fetchError = res.error; break; }
+                        if (!res.data || res.data.length === 0) break;
+                        data = data.concat(res.data);
+                        if (res.data.length < 1000) break;
+                        offset += 1000;
+                    }
+
+                    if (fetchError && data.length === 0) { container.innerHTML = `<div style="color:var(--red);">Storage Node Error: ${fetchError.message}</div>`; cleanupScroll(); return toast('Sync failed', 'err'); }
         
-            folders = data.filter(f => !f.id && f.name !== '.emptyFolderPlaceholder');
-            const rawFiles = data.filter(f => f.id && f.name !== '.emptyFolderPlaceholder' && !f.name.startsWith('note_img_'));
-            rawFiles.forEach(f => {
-                f._fullPath = prefix + f.name;
-                f._parentPath = window.currentStoragePath || 'Root';
-                allFiles.push(f);
-            });
-        }
+                    folders = data.filter(f => !f.id && f.name !== '.emptyFolderPlaceholder');
+                    const rawFiles = data.filter(f => f.id && f.name !== '.emptyFolderPlaceholder');
+                    rawFiles.forEach(f => {
+                        f._fullPath = prefix + f.name;
+                        f._parentPath = window.currentStoragePath || 'Root';
+                        allFiles.push(f);
+                    });
+                }
 
         if (searchVal) allFiles = allFiles.filter(f => f.name.toLowerCase().includes(searchVal));
 
