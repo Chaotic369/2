@@ -2565,12 +2565,11 @@ window.downloadCurrentViewAsZip = async function() {
     toast('Bundling files into zip...', 'info');
     showProgress(50);
     try {
-        const zip = new JSZip();
-        const prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
-        const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list(window.currentStoragePath || '', { limit: 1000 });
-        if (error || !data) throw error;
-        const files = data.filter(f => f.id && f.name !== '.emptyFolderPlaceholder' && !f.name.startsWith('note_img_'));
-        if (files.length === 0) { hideProgress(); return toast('No files to zip', 'warn'); }
+            const zip = new JSZip();
+            const prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+            const data = await window.fetchCompleteList(window.currentStoragePath || '');
+            const files = data.filter(f => f.id && f.name !== '.emptyFolderPlaceholder');
+            if (files.length === 0) { hideProgress(); return toast('No files to zip', 'warn'); }
         let downloaded = 0;
         for (let file of files) {
             const fullPath = prefix + file.name;
@@ -2604,13 +2603,12 @@ window.fcmDownloadZip = async function() {
     toast(`Bundling ${t.name} into zip...`, 'info');
     showProgress(50);
     try {
-        const zip = new JSZip();
-        const prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
-        const targetPath = prefix + t.name;
-        const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list(targetPath, { limit: 1000 });
-        if (error || !data) throw error;
-        const files = data.filter(f => f.id && f.name !== '.emptyFolderPlaceholder');
-        if (files.length === 0) { hideProgress(); return toast('Folder is empty', 'warn'); }
+            const zip = new JSZip();
+            const prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+            const targetPath = prefix + t.name;
+            const data = await window.fetchCompleteList(targetPath);
+            const files = data.filter(f => f.id && f.name !== '.emptyFolderPlaceholder');
+            if (files.length === 0) { hideProgress(); return toast('Folder is empty', 'warn'); }
         let downloaded = 0;
         for (let file of files) {
             const fullPath = targetPath + '/' + file.name;
