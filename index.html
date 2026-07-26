@@ -607,9 +607,22 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
          <button id="btn-zoom-in" class="action-mini-btn" style="box-shadow:none; width:36px; height:36px; color:var(--teal);" onclick="window.mediaZoom(0.5)"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
      <button id="btn-zoom-out" class="action-mini-btn" style="box-shadow:none; width:36px; height:36px; color:var(--amber);" onclick="window.mediaZoom(-0.5)"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
      <button id="btn-zoom-reset" class="action-mini-btn" style="box-shadow:none; width:36px; height:36px; color:var(--text-main);" onclick="window.mediaZoomReset()"><i class="fa-solid fa-expand"></i></button>
-     <button id="btn-fs-video" class="action-mini-btn" style="box-shadow:none; width:36px; height:36px; color:var(--blue); display:none;" onclick="window.mediaToggleFS()"><i class="fa-solid fa-expand"></i></button>
-  </div>
-</div>
+          <button id="btn-fs-video" class="action-mini-btn" style="box-shadow:none; width:36px; height:36px; color:var(--blue); display:none;" onclick="window.mediaToggleFS()"><i class="fa-solid fa-expand"></i></button>
+       </div>
+     </div>
+
+     <div id="htmlCompilerModal" style="display:none; position:fixed; z-index:65000; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); overflow:hidden;" onclick="if(event.target === this) window.closeCompiler();">
+       <div id="compilerContainer" style="background:#fff; width:90vw; height:90vh; border-radius:16px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 64px rgba(0,0,0,0.5);">
+         <div style="background:#1f2937; color:#fff; padding:8px 16px; display:flex; justify-content:space-between; align-items:center;">
+           <div style="font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:600; display:flex; gap:8px; align-items:center;"><i class="fa-solid fa-code"></i> Live View</div>
+           <div style="display:flex; gap:8px;">
+             <button class="action-mini-btn" style="width:28px; height:28px; background:transparent; color:#fff; box-shadow:none;" onclick="window.toggleCompilerFS()" title="Toggle Fullscreen"><i class="fa-solid fa-expand"></i></button>
+             <button class="action-mini-btn" style="width:28px; height:28px; background:transparent; color:#f85149; box-shadow:none;" onclick="window.closeCompiler()" title="Close"><i class="fa-solid fa-xmark"></i></button>
+           </div>
+         </div>
+         <iframe id="compilerFrame" style="flex:1; width:100%; border:none; background:#fff;"></iframe>
+       </div>
+     </div>
 
 <div id="statusBar">
   <span class="sb-item" id="sb-count">— files</span>
@@ -2207,11 +2220,15 @@ window.loadFiles = async function() {
                                                                 card.oncontextmenu = (e) => { e.preventDefault(); return false; };
 
                                 let isChecked = window.selectedFiles.has(file.name);
-                                                                                let locHtml = (window.isFormatFilterMode || searchVal) ? `<div style="font-size:9px; color:var(--amber); margin-top:2px;">📁 ${file._parentPath}</div>` : '';
-                                                                                let openAction = isImage ? `window.previewImage(event, '${fileUrl}')` : `window.previewUniversal(event, '${fileUrl}', '${ext}')`;
-                                                                                let htmlPreviewBtn = '';
+                                                                                                                let locHtml = (window.isFormatFilterMode || searchVal) ? `<div style="font-size:9px; color:var(--amber); margin-top:2px;">📁 ${file._parentPath}</div>` : '';
+                                                                                                                let openAction = isImage ? `window.previewImage(event, '${fileUrl}')` : `window.previewUniversal(event, '${fileUrl}', '${ext}')`;
+                                                                                                                let htmlPreviewBtn = '';
+                                                                                
+                                                                                                                if (ext === 'html' || ext === 'htm') {
+                                                                                                                    htmlPreviewBtn = `<button class="action-mini-btn" style="box-shadow:none; background:transparent; width:32px; height:32px; color:var(--amber);" onclick="event.stopPropagation(); window.openCompiler('${fileUrl}', event)" title="Live View"><i class="fa-solid fa-eye"></i></button>`;
+                                                                                                                }
 
-                                                card.innerHTML = `
+                                                                                card.innerHTML = `
                                                     <div style="display:flex; gap:12px; align-items:center; flex:1; overflow:hidden; cursor:pointer;" onclick="${openAction}">
                                                         <input type="checkbox" class="file-checkbox" ${isChecked ? 'checked' : ''} onclick="window.toggleFileSelection('${file.name}', event)">
                                                         ${previewHtml}
