@@ -2142,9 +2142,32 @@ window.loadFiles = async function() {
 
         if (searchVal) allFiles = allFiles.filter(f => f.name.toLowerCase().includes(searchVal));
 
-    let totalBytes = allFiles.reduce((acc, f) => acc + (f.metadata?.size || 0), 0);
-    document.getElementById('sb-storage').textContent = (totalBytes / (1024 * 1024)).toFixed(2) + ' MB utilized';
     document.getElementById('sb-count').textContent = allFiles.length + ' files';
+
+        if (window._cachedTotalStorageBytes !== undefined) {
+            document.getElementById('sb-storage').textContent = (window._cachedTotalStorageBytes / (1024 * 1024)).toFixed(2) + ' MB total';
+        } else {
+            document.getElementById('sb-storage').textContent = 'Calculating...';
+        }
+
+        const now = Date.now();
+        // Fetch total bucket size in the background, caching it for 15 seconds to prevent API spam
+        if (!window._isCalculatingStorage && (!window._lastStorageCalcTime || now - window._lastStorageCalcTime > 15000)) {
+            window._isCalculatingStorage = true;
+            window.fetchAllRecursive('').then(globalFiles => {
+                let globalBytes = globalFiles.reduce((acc, f) => acc + (f.metadata?.size || 0), 0);
+                window._cachedTotalStorageBytes = globalBytes;
+                window._lastStorageCalcTime = Date.now();
+                document.getElementById('sb-storage').textContent = (globalBytes / (1024 * 1024)).toFixed(2) + ' MB total';
+                window._isCalculatingStorage = false;
+            }).catch(e => {
+                console.error('Storage calc error:', e);
+                if (window._cachedTotalStorageBytes === undefined) {
+                    document.getElementById('sb-storage').textContent = 'Size unknown';
+                }
+                window._isCalculatingStorage = false;
+            });
+        }
 
     // Remove duplicates from allFiles based on full path so search doesn't show multiples
         const uniqueFilesMap = new Map();
