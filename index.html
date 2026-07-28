@@ -2532,12 +2532,26 @@ window.msDownloadZip = async function() {
         }
         if (downloaded === 0) throw new Error('No files fetched');
         const content = await zip.generateAsync({ type: 'blob' });
-        const zipName = 'Sovereign_Batch_' + Date.now() + '.zip';
-        const blobUrl = URL.createObjectURL(content);
-        const a = document.createElement('a'); a.href = blobUrl; a.download = zipName; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
-        window.clearMultiSelect();
-        toast('Batch zip downloaded!', 'ok');
+                const zipName = 'Sovereign_Batch_' + Date.now() + '.zip';
+                if (window.showSaveFilePicker) {
+                    try {
+                        const handle = await window.showSaveFilePicker({ suggestedName: zipName });
+                        const writable = await handle.createWritable();
+                        await writable.write(content);
+                        await writable.close();
+                        window.clearMultiSelect();
+                        toast('Batch zip downloaded!', 'ok');
+                        hideProgress();
+                        return;
+                    } catch (e) {
+                        if (e.name === 'AbortError') { hideProgress(); return toast('Download cancelled', 'info'); }
+                    }
+                }
+                const blobUrl = URL.createObjectURL(content);
+                const a = document.createElement('a'); a.href = blobUrl; a.download = zipName; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+                window.clearMultiSelect();
+                toast('Batch zip downloaded!', 'ok');
     } catch(e) {
         console.error(e); toast('Batch zip failed', 'err');
     }
@@ -2574,6 +2588,17 @@ window.triggerDownload = async function(url, name) {
         const response = await fetch(url);
         if (!response.ok) throw new Error('Network response was not ok');
         const blob = await response.blob();
+        if (window.showSaveFilePicker) {
+            try {
+                const handle = await window.showSaveFilePicker({ suggestedName: name });
+                const writable = await handle.createWritable();
+                await writable.write(blob);
+                await writable.close();
+                return;
+            } catch (err) {
+                if (err.name === 'AbortError') return toast('Download cancelled', 'info');
+            }
+        }
         const blobUrl = URL.createObjectURL(blob);
         const a = document.createElement('a'); a.href = blobUrl; a.download = name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
