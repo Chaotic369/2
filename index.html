@@ -2684,10 +2684,23 @@ window.fcmDownloadZip = async function() {
         }
         if (downloaded === 0) { hideProgress(); return toast('Failed to fetch files', 'err'); }
         const content = await zip.generateAsync({ type: 'blob' });
-        const blobUrl = URL.createObjectURL(content);
-        const a = document.createElement('a'); a.href = blobUrl; a.download = t.name + '.zip'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
-        toast('Zip download complete!', 'ok');
+                if (window.showSaveFilePicker) {
+                    try {
+                        const handle = await window.showSaveFilePicker({ suggestedName: t.name + '.zip' });
+                        const writable = await handle.createWritable();
+                        await writable.write(content);
+                        await writable.close();
+                        toast('Zip download complete!', 'ok');
+                        hideProgress();
+                        return;
+                    } catch (e) {
+                        if (e.name === 'AbortError') { hideProgress(); return toast('Download cancelled', 'info'); }
+                    }
+                }
+                const blobUrl = URL.createObjectURL(content);
+                const a = document.createElement('a'); a.href = blobUrl; a.download = t.name + '.zip'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+                toast('Zip download complete!', 'ok');
     } catch (e) {
         console.error(e); toast('Folder zip failed', 'err');
     }
