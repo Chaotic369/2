@@ -223,6 +223,7 @@ button.btn:active { transform: scale(0.96); }
   cursor: pointer; transition: transform 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   font-weight: 600; font-size: 13px; border: none !important;
   contain: layout style paint; max-width: 160px; flex-shrink: 0; white-space: nowrap;
+  -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; touch-action: pan-y;
 }
 .folder-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
 
@@ -455,7 +456,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
              </div>
           </div>
     
-      <div id="folders-container" style="display:flex; flex-wrap:nowrap; overflow-x:auto; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:4px; scrollbar-width:none;"></div>
+      <div id="folders-container" style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:4px;"></div>
       
             <div id="note-back-dropzone" class="folder-card" style="display:none; background:var(--bg-surface); color:var(--text-main); justify-content:center; border: 1px dashed var(--amber) !important; margin-bottom:16px; max-width:100%; width:100%; white-space:normal;">
                           <i class="fa-solid fa-arrow-left" style="color:var(--amber);"></i>
@@ -496,7 +497,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
               <div style="font-weight:600;">Drop here to move out of folder</div>
             </div>
 
-            <div id="storage-folders-container" style="display:flex; flex-wrap:nowrap; overflow-x:auto; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:4px; scrollbar-width:none;"></div>
+            <div id="storage-folders-container" style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:4px;"></div>
 
         <div id="filesGridContainer"></div>
   </div>
