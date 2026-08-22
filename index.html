@@ -524,8 +524,9 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 4px;" id="file-cm-title">File Actions</div>
   <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmDownload()"><i class="fa-solid fa-download" style="color:var(--blue)"></i> Download</button>
   <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmRename()"><i class="fa-solid fa-pen" style="color:var(--teal)"></i> Rename</button>
-  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmCopyLink()"><i class="fa-solid fa-link" style="color:var(--text-main)"></i> Copy Link</button>
-  <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmDelete()"><i class="fa-solid fa-trash" style="color:var(--red)"></i> Delete</button>
+    <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmCopyLink()"><i class="fa-solid fa-link" style="color:var(--text-main)"></i> Copy Link</button>
+    <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmShowQR(event)"><i class="fa-solid fa-qrcode" style="color:var(--green)"></i> Show QR</button>
+    <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmDelete()"><i class="fa-solid fa-trash" style="color:var(--red)"></i> Delete</button>
     <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px;" onclick="window.fileCmMove()"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--amber)"></i> Move To</button>
     <button class="btn" style="padding: 10px; justify-content: flex-start; border-radius: 12px; gap: 12px; margin-top: 8px; background: var(--bg-base);" onclick="document.getElementById('fileContextMenu').classList.remove('open')"><i class="fa-solid fa-xmark"></i> Cancel</button>
   </div>
@@ -546,6 +547,13 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   </div>
   <div id="wallpaper-gallery" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; max-height:50vh; overflow-y:auto; padding-bottom:8px;"></div>
   <button class="btn" style="padding:12px; background:var(--bg-surface); color:var(--text-main); font-weight:600; border: 1px dashed var(--amber) !important;" onclick="document.getElementById('bgUploadInput').click()">+ Add New Wallpaper</button>
+</div>
+
+<div id="qrModal" class="modal-base" style="text-align: center; align-items: center; width: 280px; padding: 24px;">
+  <h4 style="color:var(--text-main); margin-bottom:8px; font-size:16px; font-weight:600;">Scan to Download</h4>
+  <img id="qrImagePreview" src="" style="width: 200px; height: 200px; border-radius: 16px; margin-bottom: 12px; background: white; padding: 8px;">
+  <div style="font-size: 11px; color: var(--text-muted); word-break: break-all; margin-bottom: 16px;" id="qrFileName"></div>
+  <button class="btn" style="padding:10px 24px; background:var(--bg-surface); width: 100%; border: 1px solid var(--text-muted) !important;" onclick="document.getElementById('qrModal').classList.remove('open')">Close</button>
 </div>
 
 <div id="renameModal" class="modal-base">
@@ -1950,6 +1958,17 @@ window.openFileContextMenu = function(name, url, event) {
 window.fileCmDownload = function() { document.getElementById('fileContextMenu').classList.remove('open'); window.triggerDownload(window.fileCmTarget.url, window.fileCmTarget.name); };
 window.fileCmRename = function() { document.getElementById('fileContextMenu').classList.remove('open'); window.openRenameModal(window.fileCmTarget.name); };
 window.fileCmCopyLink = function() { document.getElementById('fileContextMenu').classList.remove('open'); window.copyLink(window.fileCmTarget.url); };
+window.fileCmShowQR = function(e) {
+    if (e) e.stopPropagation();
+    document.getElementById('fileContextMenu').classList.remove('open');
+    let targetUrl = window.fileCmTarget.url;
+    let urlObj = new URL(targetUrl);
+    urlObj.searchParams.set('download', '');
+    let encodedUrl = encodeURIComponent(urlObj.toString());
+    document.getElementById('qrImagePreview').src = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&format=svg&data=" + encodedUrl;
+    document.getElementById('qrFileName').innerText = window.fileCmTarget.name;
+    setTimeout(() => document.getElementById('qrModal').classList.add('open'), 10);
+};
 window.fileCmDelete = function() { document.getElementById('fileContextMenu').classList.remove('open'); window.deleteFile(window.fileCmTarget.name); };
 window.fileCmMove = function() {
     document.getElementById('fileContextMenu').classList.remove('open');
@@ -2851,17 +2870,21 @@ document.addEventListener('click', (e) => {
     const fMenu = document.getElementById('folderContextMenu');
     const fileMenu = document.getElementById('fileContextMenu');
     const wpMenu = document.getElementById('wallpaperModal');
+    const qrModal = document.getElementById('qrModal');
     if (fMenu && fMenu.classList.contains('open') && !fMenu.contains(e.target)) fMenu.classList.remove('open');
     if (fileMenu && fileMenu.classList.contains('open') && !fileMenu.contains(e.target)) fileMenu.classList.remove('open');
     if (wpMenu && wpMenu.classList.contains('open') && !wpMenu.contains(e.target)) wpMenu.classList.remove('open');
+    if (qrModal && qrModal.classList.contains('open') && !qrModal.contains(e.target)) qrModal.classList.remove('open');
 });
 document.addEventListener('touchstart', (e) => {
     const fMenu = document.getElementById('folderContextMenu');
     const fileMenu = document.getElementById('fileContextMenu');
     const wpMenu = document.getElementById('wallpaperModal');
+    const qrModal = document.getElementById('qrModal');
     if (fMenu && fMenu.classList.contains('open') && !fMenu.contains(e.target)) fMenu.classList.remove('open');
     if (fileMenu && fileMenu.classList.contains('open') && !fileMenu.contains(e.target)) fileMenu.classList.remove('open');
     if (wpMenu && wpMenu.classList.contains('open') && !wpMenu.contains(e.target)) wpMenu.classList.remove('open');
+    if (qrModal && qrModal.classList.contains('open') && !qrModal.contains(e.target)) qrModal.classList.remove('open');
 }, {passive: true});
 
 // Media Pan, Zoom & FS Engine
