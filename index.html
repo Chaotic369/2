@@ -1746,15 +1746,25 @@ window.renderNotes = function() {
                                                                                         `;
                                             fContainer.appendChild(fel);
 
-                                            if (typeof Sortable !== 'undefined') {
-                                                                                            new Sortable(fel, {
-                                                                                                group: { name: 'notes', put: ['notes'] },
-                                                                                                onAdd: function(evt) {
-                                                        let noteId = evt.item.getAttribute('data-id');
-                                                        window.dropNoteIntoFolder(noteId, f.id, null);
-                                                    }
-                                                });
-                                            }
+                                            fel.addEventListener('dragover', function(e) {
+                                                                                            if (window.isDraggingFolder) return;
+                                                                                            e.preventDefault();
+                                                                                            e.stopPropagation();
+                                                                                            fel.style.transform = 'scale(1.05)';
+                                                                                        });
+                                                                                        fel.addEventListener('dragleave', function() {
+                                                                                            fel.style.transform = '';
+                                                                                        });
+                                                                                        fel.addEventListener('drop', function(e) {
+                                                                                            fel.style.transform = '';
+                                                                                            if (window.isDraggingFolder) return;
+                                                                                            e.preventDefault();
+                                                                                            e.stopPropagation();
+                                                                                            var noteId = e.dataTransfer.getData('text/plain');
+                                                                                            if (noteId && noteId.startsWith('n_')) {
+                                                                                                window.dropNoteIntoFolder(noteId, f.id, e);
+                                                                                            }
+                                                                                        });
                                         });
                 }
         
@@ -1769,24 +1779,25 @@ window.renderNotes = function() {
 
                 if (typeof Sortable !== 'undefined') {
                                     window.notesFoldersSortable = new Sortable(fContainer, {
-                                        group: { name: 'notesFolders', put: ['notesFolders'] },
+                                        group: { name: 'notesFolders', put: false },
+                                        draggable: '.folder-card',
                                         animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5, filter: 'button',
                                         onStart: () => {
-                            window.isDraggingFolder = true;
-                            document.getElementById('folderContextMenu').classList.remove('open');
-                        },
-                        onEnd: function () {
-                            window.isDraggingFolder = false;
-                            let items = Array.from(fContainer.querySelectorAll('.folder-card'));
-                            items.forEach((item, index) => {
-                                let id = item.getAttribute('data-id');
-                                let folder = S.folders.find(x => x.id === id);
-                                if (folder) folder.order = index;
-                            });
-                            window.saveNotesData();
-                                                    }
-                                                });
-                                            }
+                                            window.isDraggingFolder = true;
+                                            document.getElementById('folderContextMenu').classList.remove('open');
+                                        },
+                                        onEnd: function () {
+                                            window.isDraggingFolder = false;
+                                            let items = Array.from(fContainer.querySelectorAll('.folder-card'));
+                                            items.forEach((item, index) => {
+                                                let id = item.getAttribute('data-id');
+                                                let folder = S.folders.find(x => x.id === id);
+                                                if (folder) folder.order = index;
+                                            });
+                                            window.saveNotesData();
+                                        }
+                                    });
+                                }
                                         } else {
                                                         backDropzone.style.display = 'none';
                                                         if (typeof Sortable !== 'undefined' && !backDropzone._sortableInitialized) {
@@ -2317,16 +2328,25 @@ window.loadFiles = async function() {
                                                     card.innerHTML = `<i class="fa-regular fa-folder" style="color:var(--text-main); font-size:16px;"></i><div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${folder.name}</div>`;
                                                     if (fContainer) fContainer.appendChild(card); else container.appendChild(card);
                                         
-                                                    if (typeof Sortable !== 'undefined') {
-                                                        new Sortable(card, {
-                                                            group: { name: 'storageFiles', put: true },
-                                                            onAdd: function(evt) {
-                                                                let fileName = evt.item.getAttribute('data-id');
-                                                                window.dropIntoStorageFolder(fileName, folder.name);
-                                                                evt.item.style.display = 'none';
-                                                            }
-                                                        });
-                                                    }
+                                                    card.addEventListener('dragover', function(e) {
+                                                                                                            if (window.isDraggingFolder) return;
+                                                                                                            e.preventDefault();
+                                                                                                            e.stopPropagation();
+                                                                                                            card.style.transform = 'scale(1.05)';
+                                                                                                        });
+                                                                                                        card.addEventListener('dragleave', function() {
+                                                                                                            card.style.transform = '';
+                                                                                                        });
+                                                                                                        card.addEventListener('drop', function(e) {
+                                                                                                            card.style.transform = '';
+                                                                                                            if (window.isDraggingFolder) return;
+                                                                                                            e.preventDefault();
+                                                                                                            e.stopPropagation();
+                                                                                                            var fileName = e.dataTransfer.getData('text/plain');
+                                                                                                            if (fileName && fileName !== 'drag_folder') {
+                                                                                                                window.dropIntoStorageFolder(fileName, folder.name);
+                                                                                                            }
+                                                                                                        });
                                                 });
         
             if (fContainer && !searchVal) {
@@ -2338,15 +2358,16 @@ window.loadFiles = async function() {
             
                 if (typeof Sortable !== 'undefined') {
                                     window.storageFoldersSortable = new Sortable(fContainer, {
-                                        group: { name: 'storageFolders', put: ['storageFolders'] },
+                                        group: { name: 'storageFolders', put: false },
+                                        draggable: '.folder-card',
                                         animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5, filter: 'button',
                                         onStart: () => {
-                            window.isDraggingFolder = true;
-                            document.getElementById('folderContextMenu').classList.remove('open');
-                        },
-                        onEnd: () => { window.isDraggingFolder = false; }
-                    });
-                }
+                                            window.isDraggingFolder = true;
+                                            document.getElementById('folderContextMenu').classList.remove('open');
+                                        },
+                                        onEnd: () => { window.isDraggingFolder = false; }
+                                    });
+                                }
             }
                     }
 
