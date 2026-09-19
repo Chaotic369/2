@@ -2008,24 +2008,34 @@ window.updateMultiSelectUI = function() {
 };
 
 window.openFileContextMenu = function(name, url, event) {
-    event.preventDefault(); event.stopPropagation();
+    if (event) { event.preventDefault(); event.stopPropagation(); }
     window.fileCmTarget = { name, url };
-    document.getElementById('file-cm-title').innerText = name;
+    
+    const titleEl = document.getElementById('file-cm-title');
+    if (titleEl) titleEl.innerText = name;
     
     const menu = document.getElementById('fileContextMenu');
+    if (!menu) return;
+
     let x = window.innerWidth / 2, y = window.innerHeight / 2;
-    if (event.touches && event.touches.length > 0) { x = event.touches[0].clientX; y = event.touches[0].clientY; } 
-    else if (event.clientX !== undefined) { x = event.clientX; y = event.clientY; }
+    if (event) {
+        if (event.touches && event.touches.length > 0) { x = event.touches[0].clientX; y = event.touches[0].clientY; } 
+        else if (event.clientX !== undefined) { x = event.clientX; y = event.clientY; }
+    }
     
-    menu.style.top = y + 'px'; menu.style.left = x + 'px'; menu.style.transform = 'none'; menu.style.margin = '0'; menu.style.opacity = '0';
     menu.classList.add('open');
-    
-    setTimeout(() => {
-        const rect = menu.getBoundingClientRect();
-        if (x + rect.width > window.innerWidth) x = window.innerWidth - rect.width - 16;
-        if (y + rect.height > window.innerHeight) y = window.innerHeight - rect.height - 16;
-        menu.style.left = x + 'px'; menu.style.top = y + 'px'; menu.style.opacity = '1';
-    }, 0);
+    menu.style.transform = 'none';
+    menu.style.margin = '0';
+    menu.style.opacity = '1';
+
+    const rect = menu.getBoundingClientRect();
+    if (x + rect.width > window.innerWidth - 16) x = window.innerWidth - rect.width - 16;
+    if (y + rect.height > window.innerHeight - 16) y = window.innerHeight - rect.height - 16;
+    if (x < 16) x = 16;
+    if (y < 16) y = 16;
+
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
 };
 
 window.fileCmDownload = function() { document.getElementById('fileContextMenu').classList.remove('open'); window.triggerDownload(window.fileCmTarget.url, window.fileCmTarget.name); };
@@ -2881,13 +2891,17 @@ window.showMoveToast = function(title) {
 window.openFolderMenu = function(type, id, name, event) {
     if (window.isDraggingFolder) return;
     if (event) { event.preventDefault(); event.stopPropagation(); }
-    window.fcmTarget = { type, id, name };
-    document.getElementById('fcm-title').innerText = name;
+    window.fcmTarget = { type, id: id || name, name: name || id };
+    
+    const titleEl = document.getElementById('fcm-title');
+    if (titleEl) titleEl.innerText = window.fcmTarget.name;
     
     const zipBtn = document.getElementById('fcm-download-btn');
     if (zipBtn) zipBtn.style.display = type === 'storage' ? 'flex' : 'none';
     
     const menu = document.getElementById('folderContextMenu');
+    if (!menu) return;
+
     let x = window.innerWidth / 2;
     let y = window.innerHeight / 2;
     
@@ -2900,22 +2914,20 @@ window.openFolderMenu = function(type, id, name, event) {
             y = event.clientY;
         }
     }
-    
-    menu.style.top = y + 'px';
-    menu.style.left = x + 'px';
+
+    menu.classList.add('open');
     menu.style.transform = 'none';
     menu.style.margin = '0';
-    menu.style.opacity = '0';
-    menu.classList.add('open');
-    
-    setTimeout(() => {
-        const rect = menu.getBoundingClientRect();
-        if (x + rect.width > window.innerWidth) x = window.innerWidth - rect.width - 16;
-        if (y + rect.height > window.innerHeight) y = window.innerHeight - rect.height - 16;
-        menu.style.left = x + 'px';
-        menu.style.top = y + 'px';
-        menu.style.opacity = '1';
-    }, 0);
+    menu.style.opacity = '1';
+
+    const rect = menu.getBoundingClientRect();
+    if (x + rect.width > window.innerWidth - 16) x = window.innerWidth - rect.width - 16;
+    if (y + rect.height > window.innerHeight - 16) y = window.innerHeight - rect.height - 16;
+    if (x < 16) x = 16;
+    if (y < 16) y = 16;
+
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
 };
 
 window.bindFolderEvents = function(card, type, id, name, clickHandler) {
@@ -2962,9 +2974,83 @@ window.bindFolderEvents = function(card, type, id, name, clickHandler) {
     });
 
     card.addEventListener('pointercancel', () => {
-            clearTimeout(holdTimer);
-        });
+                clearTimeout(holdTimer);
+            });
+        };
+
+    window.fcmRename = async function() {
+        document.getElementById('folderContextMenu').classList.remove('open');
+        let t = window.fcmTarget;
+        if (!t) return;
+        let newName = prompt(`Rename folder "${t.name}" to:`, t.name);
+        if (!newName || newName === t.name) return;
+        newName = newName.trim();
+        if (!newName) return;
+    
+        if (t.type === 'note') {
+            let f = S.folders.find(x => x.id === t.id);
+            if (f) { f.name = newName; await window.saveNotesData(); window.renderNotes(); toast('Folder renamed', 'ok'); }
+        } else if (t.type === 'storage') {
+            showProgress(50);
+            let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
+            let oldPath = prefix + t.name;
+            let newPath = prefix + newName;
+            try {
+                const { data } = await supabaseClient.storage.from(BUCKET_NAME).list(oldPath);
+                if (data && data.length > 0) {
+                    for (let file of data) {
+                        await supabaseClient.storage.from(BUCKET_NAME).move(oldPath + '/' + file.name, newPath + '/' + file.name);
+                    }
+                }
+                await supabaseClient.storage.from(BUCKET_NAME).remove([oldPath + '/.emptyFolderPlaceholder']);
+                await supabaseClient.storage.from(BUCKET_NAME).upload(newPath + '/.emptyFolderPlaceholder', new Blob([''], { type: 'text/plain' }));
+                toast('Folder renamed', 'ok');
+                window.loadFiles();
+            } catch (e) {
+                console.error(e);
+                toast('Failed to rename folder', 'err');
+            }
+            hideProgress();
+        }
     };
+
+    window.fcmDelete = function() {
+        document.getElementById('folderContextMenu').classList.remove('open');
+        let t = window.fcmTarget;
+        if (!t) return;
+        if (t.type === 'note') {
+            window.deleteFolder(t.id);
+        } else if (t.type === 'storage') {
+            window.deleteStorageFolder(t.name);
+        }
+    };
+
+    window.fcmMove = async function() {
+        document.getElementById('folderContextMenu').classList.remove('open');
+        let t = window.fcmTarget;
+        if (!t) return;
+        if (t.type === 'note') {
+            return toast('Note folders are root-level only right now.', 'warn');
+        } 
+        window.pendingMove = { type: t.type, name: t.name, path: window.currentStoragePath };
+        if (window.showMoveToast) window.showMoveToast(`Moving "${t.name}"`);
+        else toast('Navigate to destination, then tap Paste', 'info');
+    };
+
+    window.cancelTapMove = function() {
+        window.pendingMove = null;
+        let mToast = document.getElementById('moveToast');
+        if (mToast) mToast.style.display = 'none';
+    };
+
+    document.addEventListener('pointerdown', function(e) {
+        ['folderContextMenu', 'fileContextMenu'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.classList.contains('open') && !el.contains(e.target)) {
+                el.classList.remove('open');
+            }
+        });
+    });
 
 // Media Pan, Zoom & FS Engine
 window._mediaScale = 1;
