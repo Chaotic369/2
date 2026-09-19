@@ -1781,10 +1781,11 @@ window.renderNotes = function() {
                                     window.notesFoldersSortable = new Sortable(fContainer, {
                                         group: { name: 'notesFolders', put: false },
                                         draggable: '.folder-card',
-                                        animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5, filter: 'button',
+                                        animation: 250, delay: 350, delayOnTouchOnly: true, touchStartThreshold: 3, filter: 'button',
                                         onStart: () => {
                                             window.isDraggingFolder = true;
-                                            document.getElementById('folderContextMenu').classList.remove('open');
+                                            const menu = document.getElementById('folderContextMenu');
+                                            if (menu) menu.classList.remove('open');
                                         },
                                         onEnd: function () {
                                             window.isDraggingFolder = false;
@@ -2373,10 +2374,11 @@ window.loadFiles = async function() {
                                     window.storageFoldersSortable = new Sortable(fContainer, {
                                         group: { name: 'storageFolders', put: false },
                                         draggable: '.folder-card',
-                                        animation: 250, delay: 250, delayOnTouchOnly: true, touchStartThreshold: 5, filter: 'button',
+                                        animation: 250, delay: 350, delayOnTouchOnly: true, touchStartThreshold: 3, filter: 'button',
                                         onStart: () => {
                                             window.isDraggingFolder = true;
-                                            document.getElementById('folderContextMenu').classList.remove('open');
+                                            const menu = document.getElementById('folderContextMenu');
+                                            if (menu) menu.classList.remove('open');
                                         },
                                         onEnd: async () => {
                                             window.isDraggingFolder = false;
@@ -2917,84 +2919,52 @@ window.openFolderMenu = function(type, id, name, event) {
 };
 
 window.bindFolderEvents = function(card, type, id, name, clickHandler) {
-    card.oncontextmenu = (e) => { e.preventDefault(); window.openFolderMenu(type, id, name, e); };
-    card.onclick = (e) => { clickHandler(e); };
-};
+    let holdTimer = null;
+    let didDragMove = false;
+    let startX = 0, startY = 0;
 
-window.fcmRename = async function() {
-    document.getElementById('folderContextMenu').classList.remove('open');
-    let t = window.fcmTarget;
-    let newName = prompt(`Rename folder "${t.name}" to:`, t.name);
-    if(!newName || newName === t.name) return;
-    
-    if (t.type === 'note') {
-        let f = S.folders.find(x => x.id === t.id);
-        if(f) { f.name = newName; await window.saveNotesData(); window.renderNotes(); toast('Folder renamed', 'ok'); }
-    } else if (t.type === 'storage') {
-        showProgress(50);
-        let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
-        let oldPath = prefix + t.name;
-        let newPath = prefix + newName;
-        const { data } = await supabaseClient.storage.from(BUCKET_NAME).list(oldPath);
-        if (data && data.length > 0) {
-            for (let file of data) {
-                 await supabaseClient.storage.from(BUCKET_NAME).move(oldPath + '/' + file.name, newPath + '/' + file.name);
+    card.oncontextmenu = (e) => { e.preventDefault(); };
+
+    card.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0 && e.pointerType === 'mouse') return;
+        didDragMove = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        clearTimeout(holdTimer);
+
+        holdTimer = setTimeout(() => {
+            if (!didDragMove && !window.isDraggingFolder) {
+                if (navigator.vibrate) navigator.vibrate(40);
+                window.openFolderMenu(type, id, name, e);
+            }
+        }, 350);
+    }, { passive: true });
+
+    card.addEventListener('pointermove', (e) => {
+        if (Math.hypot(e.clientX - startX, e.clientY - startY) > 6) {
+            didDragMove = true;
+            clearTimeout(holdTimer);
+            const menu = document.getElementById('folderContextMenu');
+            if (menu && menu.classList.contains('open')) {
+                menu.classList.remove('open');
             }
         }
-        await supabaseClient.storage.from(BUCKET_NAME).remove([oldPath + '/.emptyFolderPlaceholder']);
-        await supabaseClient.storage.from(BUCKET_NAME).upload(newPath + '/.emptyFolderPlaceholder', new Blob([''], { type: 'text/plain' }));
-        window.loadFiles();
-        hideProgress();
-        toast('Folder renamed', 'ok');
-    }
-};
+    }, { passive: true });
 
-window.fcmDelete = function() {
-    document.getElementById('folderContextMenu').classList.remove('open');
-    let t = window.fcmTarget;
-    if (t.type === 'note') {
-        window.deleteFolder(t.id);
-    } else if (t.type === 'storage') {
-        window.deleteStorageFolder(t.name);
-    }
-};
+    card.addEventListener('pointerup', (e) => {
+        clearTimeout(holdTimer);
+        if (!didDragMove && !window.isDraggingFolder) {
+            const menu = document.getElementById('folderContextMenu');
+            if (!menu || !menu.classList.contains('open')) {
+                clickHandler(e);
+            }
+        }
+    });
 
-window.fcmMove = async function() {
-    document.getElementById('folderContextMenu').classList.remove('open');
-    let t = window.fcmTarget;
-    if (t.type === 'note') {
-        return toast('Note folders are root-level only right now.', 'warn');
-    } 
-    window.pendingMove = { type: t.type, name: t.name, path: window.currentStoragePath };
-    if (window.showMoveToast) window.showMoveToast(`Moving "${t.name}"`);
-};
-
-window.cancelTapMove = function() {
-    window.pendingMove = null;
-    let mToast = document.getElementById('moveToast');
-    if (mToast) mToast.style.display = 'none';
-};
-
-document.addEventListener('click', (e) => {
-    const fMenu = document.getElementById('folderContextMenu');
-    const fileMenu = document.getElementById('fileContextMenu');
-    const wpMenu = document.getElementById('wallpaperModal');
-    const qrModal = document.getElementById('qrModal');
-    if (fMenu && fMenu.classList.contains('open') && !fMenu.contains(e.target)) fMenu.classList.remove('open');
-    if (fileMenu && fileMenu.classList.contains('open') && !fileMenu.contains(e.target)) fileMenu.classList.remove('open');
-    if (wpMenu && wpMenu.classList.contains('open') && !wpMenu.contains(e.target)) wpMenu.classList.remove('open');
-    if (qrModal && qrModal.classList.contains('open') && !qrModal.contains(e.target)) qrModal.classList.remove('open');
-});
-document.addEventListener('touchstart', (e) => {
-    const fMenu = document.getElementById('folderContextMenu');
-    const fileMenu = document.getElementById('fileContextMenu');
-    const wpMenu = document.getElementById('wallpaperModal');
-    const qrModal = document.getElementById('qrModal');
-    if (fMenu && fMenu.classList.contains('open') && !fMenu.contains(e.target)) fMenu.classList.remove('open');
-    if (fileMenu && fileMenu.classList.contains('open') && !fileMenu.contains(e.target)) fileMenu.classList.remove('open');
-    if (wpMenu && wpMenu.classList.contains('open') && !wpMenu.contains(e.target)) wpMenu.classList.remove('open');
-    if (qrModal && qrModal.classList.contains('open') && !qrModal.contains(e.target)) qrModal.classList.remove('open');
-}, {passive: true});
+    card.addEventListener('pointercancel', () => {
+            clearTimeout(holdTimer);
+        });
+    };
 
 // Media Pan, Zoom & FS Engine
 window._mediaScale = 1;
