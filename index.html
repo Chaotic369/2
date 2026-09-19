@@ -85,9 +85,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 
 /* WORKSPACE LAYOUT */
 #mainWorkspace {
-  position: fixed; top: 0; bottom: 0; left: 0; right: 0;
+  position: fixed; top: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); left: 0; right: 0;
   background: var(--bg-base); color: var(--text-main);
-  padding: 70px 24px 90px 24px; overflow-y: auto; z-index: 1;
+  padding: 70px 24px 20px 24px; overflow-y: auto; z-index: 1;
   display: block;
   transition: background 0.3s;
 }
@@ -95,27 +95,32 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 .workspace-panel { display: none; flex-direction: column; gap: 16px; width: 100%; }
 .workspace-panel.active-page { display: flex; }
 
-/* TOP NAV SWITCHER */
-.top-nav-switcher {
-  position: fixed; top: 16px; left: 24px; z-index: 10000; display: flex; gap: 4px; align-items: center;
-  background: rgba(22, 22, 22, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border-radius: 24px; padding: 4px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+/* KEYBOARD ROW SWITCHER (POSITIONED AT 'F' AND 'H') */
+.keyboard-nav-dock {
+  position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 48px); left: 50%; transform: translateX(-50%);
+  z-index: 10000; display: flex; align-items: center; justify-content: center;
+  gap: 20px; pointer-events: auto;
 }
-html.light-theme .top-nav-switcher {
-  background: rgba(255, 255, 255, 0.85);
+.kbd-nav-btn {
+  width: 58px; height: 58px; border-radius: 18px;
+  background: var(--bg-surface); color: var(--text-muted);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; cursor: pointer; transition: transform 0.15s ease, background 0.2s ease, color 0.2s ease;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25); border: none !important; outline: none !important;
 }
-.nav-page-btn {
-  width: 32px; height: 32px; border-radius: 50%; background: transparent; color: var(--text-muted);
-  display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;
-  transition: all 0.2s; border: none !important; outline: none !important;
-}
-.nav-page-btn.active {
+.kbd-nav-btn i { font-size: 20px; transition: transform 0.15s; }
+.kbd-nav-btn span { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.kbd-nav-btn.active {
   background: var(--bg-surface) !important; color: var(--amber) !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.35); outline: 2px solid var(--amber) !important;
 }
-html.has-wallpaper .top-nav-switcher {
+.kbd-nav-btn:active { transform: scale(0.92); }
+html.has-wallpaper .kbd-nav-btn {
   transform: translateZ(0);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+html.has-wallpaper .kbd-nav-btn:active {
+  transform: scale(0.92) translateZ(0);
 }
 .panel-header { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--amber); letter-spacing: 0.08em; display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; }
 
@@ -147,7 +152,7 @@ html.has-wallpaper #storage-toolbar .action-mini-btn {
 
 /* FLOATING SQUIRCLE UPLOAD BUTTON (BOTTOM RIGHT) */
 #uploadSquircleBtn {
-  position: fixed; bottom: 44px; right: 20px; z-index: 10000; width: 56px; height: 56px; border-radius: 50%;
+  position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); right: 20px; z-index: 10000; width: 56px; height: 56px; border-radius: 50%;
   background: var(--bg-surface); color: var(--text-main); border: none !important;
   display: flex; align-items: center; justify-content: center; font-size: 22px;
   cursor: pointer; transition: transform 0.2s; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
@@ -261,7 +266,7 @@ button.btn:active { transform: scale(0.96); }
   width: 52px; height: 52px; border-radius: 20px; background: var(--bg-base); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 2px;
 }
 
-.quick-input-bar { position: fixed; bottom: 44px; right: 88px; z-index: 10000; width: calc(100vw - 110px); max-width: 280px; height: 56px; display: flex; align-items: center; gap: 12px; padding: 0 20px; background: rgba(22, 22, 22, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); border: none !important; outline: none !important; transition: transform 0.2s, box-shadow 0.2s; }
+.quick-input-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); left: 50%; transform: translateX(-50%); z-index: 10000; width: calc(100vw - 48px); max-width: 320px; height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 20px; background: rgba(22, 22, 22, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); border: none !important; outline: none !important; transition: transform 0.2s, box-shadow 0.2s; }
 .quick-input-bar:focus-within { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
 #quick-note-input { color: #ffffff !important; }
 #quick-note-input::placeholder { color: rgba(255, 255, 255, 0.7) !important; opacity: 1; }
@@ -326,7 +331,7 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   display: flex; gap: 16px; align-items: center; box-shadow: 0 16px 48px rgba(0,0,0,0.4);
   z-index: 45000; transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-#multiSelectBar.active { bottom: 120px; }
+#multiSelectBar.active { bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); }
 
 .file-checkbox {
   appearance: none; width: 18px; height: 18px; border: 2px solid var(--text-main);
@@ -447,12 +452,14 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 
 <div id="progressBar"></div>
 
-<div class="top-nav-switcher">
-  <button id="navBtnFiles" class="nav-page-btn active" onclick="window.switchPage('files')" title="Files">
+<div class="keyboard-nav-dock">
+  <button id="navBtnFiles" class="kbd-nav-btn active" onclick="window.switchPage('files')" title="Files">
     <i class="fa-regular fa-folder-open"></i>
+    <span>Files</span>
   </button>
-  <button id="navBtnNotes" class="nav-page-btn" onclick="window.switchPage('notes')" title="Notes">
+  <button id="navBtnNotes" class="kbd-nav-btn" onclick="window.switchPage('notes')" title="Notes">
     <i class="fa-regular fa-note-sticky"></i>
+    <span>Notes</span>
   </button>
 </div>
 
@@ -2877,7 +2884,7 @@ window.showMoveToast = function(title) {
     if (!mToast) {
         mToast = document.createElement('div');
         mToast.id = 'moveToast';
-        mToast.style.cssText = "position:fixed; bottom:110px; left:50%; transform:translateX(-50%); background:var(--blue); color:#fff; padding:8px 16px; border-radius:32px; z-index:50000; display:flex; gap:10px; align-items:center; font-size:12px; font-weight:600; box-shadow:0 8px 32px rgba(0,0,0,0.3); white-space:nowrap; max-width:90vw;";
+        mToast.style.cssText = "position:fixed; bottom:calc(env(safe-area-inset-bottom, 0px) + 140px); left:50%; transform:translateX(-50%); background:var(--blue); color:#fff; padding:8px 16px; border-radius:32px; z-index:50000; display:flex; gap:10px; align-items:center; font-size:12px; font-weight:600; box-shadow:0 8px 32px rgba(0,0,0,0.3); white-space:nowrap; max-width:90vw;";
         document.body.appendChild(mToast);
     }
     mToast.innerHTML = `
