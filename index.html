@@ -88,11 +88,35 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
   position: fixed; top: 0; bottom: 0; left: 0; right: 0;
   background: var(--bg-base); color: var(--text-main);
   padding: 70px 24px 90px 24px; overflow-y: auto; z-index: 1;
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; align-content: start;
+  display: block;
   transition: background 0.3s;
 }
 
-.workspace-panel { display: flex; flex-direction: column; gap: 16px; }
+.workspace-panel { display: none; flex-direction: column; gap: 16px; width: 100%; }
+.workspace-panel.active-page { display: flex; }
+
+/* TOP NAV SWITCHER */
+.top-nav-switcher {
+  position: fixed; top: 16px; left: 24px; z-index: 10000; display: flex; gap: 4px; align-items: center;
+  background: rgba(22, 22, 22, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-radius: 24px; padding: 4px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+html.light-theme .top-nav-switcher {
+  background: rgba(255, 255, 255, 0.85);
+}
+.nav-page-btn {
+  width: 32px; height: 32px; border-radius: 50%; background: transparent; color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;
+  transition: all 0.2s; border: none !important; outline: none !important;
+}
+.nav-page-btn.active {
+  background: var(--bg-surface) !important; color: var(--amber) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+html.has-wallpaper .top-nav-switcher {
+  transform: translateZ(0);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
 .panel-header { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--amber); letter-spacing: 0.08em; display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; }
 
 /* TOP RIGHT MINI BUTTONS */
@@ -423,6 +447,15 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 
 <div id="progressBar"></div>
 
+<div class="top-nav-switcher">
+  <button id="navBtnFiles" class="nav-page-btn active" onclick="window.switchPage('files')" title="Files">
+    <i class="fa-regular fa-folder-open"></i>
+  </button>
+  <button id="navBtnNotes" class="nav-page-btn" onclick="window.switchPage('notes')" title="Notes">
+    <i class="fa-regular fa-note-sticky"></i>
+  </button>
+</div>
+
 <div class="top-bar-actions">
   <button class="action-mini-btn" onclick="window.openWallpaperModal(event)" title="Wallpapers">
     <i class="fa-solid fa-image"></i>
@@ -447,26 +480,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 
 <div id="mainWorkspace">
   
-  <div class="workspace-panel">
-      <div class="panel-header">
-             <div style="display:flex; align-items:center; gap:8px;">
-               <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.viewRootFolder()" title="Back to Root"><i class="fa-solid fa-arrow-left"></i></button>
-                              <span id="notes-view-title" style="display:flex; align-items:center;" title="Quick Notes"><i class="fa-regular fa-note-sticky" style="font-size:20px; color:var(--text-main);"></i></span>
-               <input id="notes-folder-edit" type="text" class="file-row-input" style="display:none; width:160px; padding:6px 10px; margin-left:8px;" onchange="window.renameCurrentFolder(this.value)">
-             </div>
-          </div>
-    
-      <div id="folders-container" style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:4px;"></div>
-      
-            <div id="note-back-dropzone" class="folder-card" style="display:none; background:var(--bg-surface); color:var(--text-main); justify-content:center; border: 1px dashed var(--amber) !important; margin-bottom:16px; max-width:100%; width:100%; white-space:normal;">
-                          <i class="fa-solid fa-arrow-left" style="color:var(--amber);"></i>
-                          <div style="font-weight:600;">Drop here to move out of folder</div>
-                        </div>
-    
-          <div id="notes-container"></div>
-  </div>
-
-  <div class="workspace-panel">
+  <div id="panelFiles" class="workspace-panel active-page">
           <div class="panel-header" style="border: none !important; margin-bottom: 12px; min-height: 34px;">
                       <div style="display: flex; align-items: center; gap: 8px; height: 26px; flex: 1;">
                         <button id="btn-back-storage" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.goBackStorage()" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
@@ -500,6 +514,25 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
             <div id="storage-folders-container" style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:4px;"></div>
 
         <div id="filesGridContainer"></div>
+  </div>
+
+  <div id="panelNotes" class="workspace-panel">
+      <div class="panel-header">
+             <div style="display:flex; align-items:center; gap:8px;">
+               <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.viewRootFolder()" title="Back to Root"><i class="fa-solid fa-arrow-left"></i></button>
+                              <span id="notes-view-title" style="display:flex; align-items:center;" title="Quick Notes"><i class="fa-regular fa-note-sticky" style="font-size:20px; color:var(--text-main);"></i></span>
+               <input id="notes-folder-edit" type="text" class="file-row-input" style="display:none; width:160px; padding:6px 10px; margin-left:8px;" onchange="window.renameCurrentFolder(this.value)">
+             </div>
+          </div>
+    
+      <div id="folders-container" style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:4px;"></div>
+      
+            <div id="note-back-dropzone" class="folder-card" style="display:none; background:var(--bg-surface); color:var(--text-main); justify-content:center; border: 1px dashed var(--amber) !important; margin-bottom:16px; max-width:100%; width:100%; white-space:normal;">
+                          <i class="fa-solid fa-arrow-left" style="color:var(--amber);"></i>
+                          <div style="font-weight:600;">Drop here to move out of folder</div>
+                        </div>
+    
+          <div id="notes-container"></div>
   </div>
   
 </div>
@@ -879,6 +912,34 @@ var $progress = document.getElementById('progressBar');
 var $toast = document.getElementById('toast');
 let S = { notes: [], folders: [] };
 window.currentFolderView = null;
+window.currentPage = 'files';
+
+window.switchPage = function(page) {
+  window.currentPage = page;
+  const pFiles = document.getElementById('panelFiles');
+  const pNotes = document.getElementById('panelNotes');
+  const bFiles = document.getElementById('navBtnFiles');
+  const bNotes = document.getElementById('navBtnNotes');
+  const uploadBtn = document.getElementById('uploadSquircleBtn');
+  const noteBar = document.querySelector('.quick-input-bar');
+
+  if (page === 'files') {
+    if (pFiles) pFiles.classList.add('active-page');
+    if (pNotes) pNotes.classList.remove('active-page');
+    if (bFiles) bFiles.classList.add('active');
+    if (bNotes) bNotes.classList.remove('active');
+    if (uploadBtn) uploadBtn.style.display = 'flex';
+    if (noteBar) noteBar.style.display = 'none';
+  } else {
+    if (pFiles) pFiles.classList.remove('active-page');
+    if (pNotes) pNotes.classList.add('active-page');
+    if (bFiles) bFiles.classList.remove('active');
+    if (bNotes) bNotes.classList.add('active');
+    if (uploadBtn) uploadBtn.style.display = 'none';
+    if (noteBar) noteBar.style.display = 'flex';
+    setTimeout(() => { if (typeof window.packMasonry === 'function') window.packMasonry(); }, 50);
+  }
+};
 window.selectedFiles = new Set();
 window.currentSort = 'date';
 window.isFormatFilterMode = false;
@@ -2989,6 +3050,7 @@ if(_imgSrc) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  window.switchPage('files');
   window.loadFiles(); window.loadNotesData(); window.syncCloudTheme(); window.syncCloudWallpaper();
   let roTimer;
   const resizeObserver = new ResizeObserver(() => {
