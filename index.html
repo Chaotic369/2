@@ -95,11 +95,11 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 .workspace-panel { display: none; flex-direction: column; gap: 16px; width: 100%; }
 .workspace-panel.active-page { display: flex; }
 
-/* BOTTOM DOCK (FILES, QR, NOTES) */
+/* BOTTOM DOCK (FILES & NOTES ROW WITH CENTRAL DYNAMIC CONTROLS) */
 .keyboard-nav-dock {
   position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); left: 50%; transform: translateX(-50%);
   z-index: 10000; display: flex; align-items: center; justify-content: center;
-  gap: 10px; pointer-events: auto;
+  gap: 12px; pointer-events: auto;
 }
 .kbd-nav-btn {
   width: 44px; height: 44px; border-radius: 14px;
@@ -270,7 +270,7 @@ button.btn:active { transform: scale(0.96); }
   width: 52px; height: 52px; border-radius: 20px; background: var(--bg-base); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 2px;
 }
 
-.quick-input-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 74px); left: 50%; transform: translateX(-50%); z-index: 10000; width: calc(100vw - 40px); max-width: 260px; height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 12px; background: rgba(22, 22, 22, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 18px; box-shadow: 0 4px 16px rgba(0,0,0,0.35); border: none !important; outline: none !important; transition: transform 0.2s, box-shadow 0.2s; }
+.quick-input-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 74px); left: 50%; transform: translateX(-50%); z-index: 10000; width: calc(100vw - 40px); max-width: 260px; height: 36px; display: none; align-items: center; gap: 8px; padding: 0 12px; background: rgba(22, 22, 22, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 18px; box-shadow: 0 4px 16px rgba(0,0,0,0.35); border: none !important; outline: none !important; transition: transform 0.2s, box-shadow 0.2s; }
 .quick-input-bar i { font-size: 12px !important; }
 #quick-note-input { font-size: 11px !important; }
 .quick-input-bar:focus-within { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
@@ -463,10 +463,6 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
     <i class="fa-regular fa-folder-open"></i>
     <span>Files</span>
   </button>
-  <button id="navBtnQr" class="kbd-nav-btn" onclick="window.openUrlQrModal(event)" title="URL QR Generator">
-    <i class="fa-solid fa-qrcode"></i>
-    <span>QR</span>
-  </button>
   <button id="navBtnNotes" class="kbd-nav-btn" onclick="window.switchPage('notes')" title="Notes">
     <i class="fa-regular fa-note-sticky"></i>
     <span>Notes</span>
@@ -474,6 +470,9 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 </div>
 
 <div class="top-bar-actions">
+  <button class="action-mini-btn" onclick="window.openUrlQrModal(event)" title="URL QR Generator">
+    <i class="fa-solid fa-qrcode"></i>
+  </button>
   <button class="action-mini-btn" onclick="window.openWallpaperModal(event)" title="Wallpapers">
     <i class="fa-solid fa-image"></i>
   </button>
@@ -606,7 +605,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   <button class="btn" style="padding:10px 24px; background:var(--bg-surface); width: 100%; border: 1px solid var(--text-muted) !important;" onclick="document.getElementById('qrModal').classList.remove('open')">Close</button>
 </div>
 
-<div id="urlQrModal" class="modal-base" style="text-align: center; align-items: center; width: 300px; padding: 24px; gap: 14px;">
+<div id="urlQrModal" class="modal-base" style="top: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 74px); left: 50%; transform: translateX(-50%); margin: 0; text-align: center; align-items: center; width: calc(100vw - 32px); max-width: 290px; padding: 16px; gap: 10px; border-radius: 22px;">
   <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
     <h4 style="color:var(--text-main); font-size:16px; font-weight:600; display:flex; align-items:center; gap:8px;">
       <i class="fa-solid fa-qrcode" style="color:var(--teal);"></i> URL QR Code
@@ -2899,9 +2898,14 @@ window.openUrlQrModal = function(event) {
     const modal = document.getElementById('urlQrModal');
     const input = document.getElementById('customQrUrlInput');
     const container = document.getElementById('customQrContainer');
+    if (!modal) return;
+    if (modal.classList.contains('open')) {
+        modal.classList.remove('open');
+        return;
+    }
     if (input) input.value = '';
     if (container) container.style.display = 'none';
-    if (modal) modal.classList.add('open');
+    modal.classList.add('open');
     if (input) setTimeout(() => input.focus(), 50);
 };
 
