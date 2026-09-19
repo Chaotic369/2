@@ -85,7 +85,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 
 /* WORKSPACE LAYOUT */
 #mainWorkspace {
-  position: fixed; top: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 124px); left: 0; right: 0;
+  position: fixed; top: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 120px); left: 0; right: 0;
   background: var(--bg-base); color: var(--text-main);
   padding: 56px 16px 16px 16px; overflow-y: auto; z-index: 1;
   display: block;
@@ -95,11 +95,11 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 .workspace-panel { display: none; flex-direction: column; gap: 16px; width: 100%; }
 .workspace-panel.active-page { display: flex; }
 
-/* KEYBOARD ROW SWITCHER (COMPACT F & H KEYS) */
+/* BOTTOM DOCK (FILES, QR, NOTES) */
 .keyboard-nav-dock {
-  position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 26px); left: 50%; transform: translateX(-50%);
+  position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); left: 50%; transform: translateX(-50%);
   z-index: 10000; display: flex; align-items: center; justify-content: center;
-  gap: 12px; pointer-events: auto;
+  gap: 10px; pointer-events: auto;
 }
 .kbd-nav-btn {
   width: 44px; height: 44px; border-radius: 14px;
@@ -156,9 +156,9 @@ html.has-wallpaper #storage-toolbar .action-mini-btn {
 
 /* FLOATING SQUIRCLE UPLOAD BUTTON (BOTTOM RIGHT) */
 #uploadSquircleBtn {
-  position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 78px); right: 16px; z-index: 10000; width: 42px; height: 42px; border-radius: 50%;
+  position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 74px); right: 16px; z-index: 10000; width: 38px; height: 38px; border-radius: 50%;
   background: var(--bg-surface); color: var(--text-main); border: none !important;
-  display: flex; align-items: center; justify-content: center; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
   cursor: pointer; transition: transform 0.2s; box-shadow: 0 4px 14px rgba(0,0,0,0.25);
 }
 #uploadSquircleBtn:hover { transform: translateY(-3px); }
@@ -270,9 +270,9 @@ button.btn:active { transform: scale(0.96); }
   width: 52px; height: 52px; border-radius: 20px; background: var(--bg-base); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 2px;
 }
 
-.quick-input-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 78px); left: 50%; transform: translateX(-50%); z-index: 10000; width: calc(100vw - 32px); max-width: 270px; height: 38px; display: flex; align-items: center; gap: 8px; padding: 0 14px; background: rgba(22, 22, 22, 0.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); border: none !important; outline: none !important; transition: transform 0.2s, box-shadow 0.2s; }
-.quick-input-bar i { font-size: 13px !important; }
-#quick-note-input { font-size: 12px !important; }
+.quick-input-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 74px); left: 50%; transform: translateX(-50%); z-index: 10000; width: calc(100vw - 40px); max-width: 260px; height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 12px; background: rgba(22, 22, 22, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 18px; box-shadow: 0 4px 16px rgba(0,0,0,0.35); border: none !important; outline: none !important; transition: transform 0.2s, box-shadow 0.2s; }
+.quick-input-bar i { font-size: 12px !important; }
+#quick-note-input { font-size: 11px !important; }
 .quick-input-bar:focus-within { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
 #quick-note-input { color: #ffffff !important; }
 #quick-note-input::placeholder { color: rgba(255, 255, 255, 0.7) !important; opacity: 1; }
@@ -463,6 +463,10 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
     <i class="fa-regular fa-folder-open"></i>
     <span>Files</span>
   </button>
+  <button id="navBtnQr" class="kbd-nav-btn" onclick="window.openUrlQrModal(event)" title="URL QR Generator">
+    <i class="fa-solid fa-qrcode"></i>
+    <span>QR</span>
+  </button>
   <button id="navBtnNotes" class="kbd-nav-btn" onclick="window.switchPage('notes')" title="Notes">
     <i class="fa-regular fa-note-sticky"></i>
     <span>Notes</span>
@@ -470,9 +474,6 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 </div>
 
 <div class="top-bar-actions">
-  <button class="action-mini-btn" onclick="window.openUrlQrModal(event)" title="URL QR Generator">
-    <i class="fa-solid fa-qrcode"></i>
-  </button>
   <button class="action-mini-btn" onclick="window.openWallpaperModal(event)" title="Wallpapers">
     <i class="fa-solid fa-image"></i>
   </button>
