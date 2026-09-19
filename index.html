@@ -2224,6 +2224,19 @@ window.loadFiles = async function() {
                     if (fetchError && data.length === 0) { container.innerHTML = `<div style="color:var(--red);">Storage Node Error: ${fetchError.message}</div>`; cleanupScroll(); return toast('Sync failed', 'err'); }
         
                     folders = data.filter(f => !f.id && f.name !== '.emptyFolderPlaceholder');
+                                        try {
+                                            const { data: stData } = await window.getCloudState();
+                                            const savedOrder = (stData && stData.state && stData.state.storageFoldersOrder) || [];
+                                            if (savedOrder.length > 0) {
+                                                folders.sort((a, b) => {
+                                                    let ia = savedOrder.indexOf(a.name);
+                                                    let ib = savedOrder.indexOf(b.name);
+                                                    if (ia === -1) return 1;
+                                                    if (ib === -1) return -1;
+                                                    return ia - ib;
+                                                });
+                                            }
+                                        } catch(e) {}
                     const rawFiles = data.filter(f => f.id && f.name !== '.emptyFolderPlaceholder');
                     rawFiles.forEach(f => {
                         f._fullPath = prefix + f.name;
@@ -2365,7 +2378,21 @@ window.loadFiles = async function() {
                                             window.isDraggingFolder = true;
                                             document.getElementById('folderContextMenu').classList.remove('open');
                                         },
-                                        onEnd: () => { window.isDraggingFolder = false; }
+                                        onEnd: async () => {
+                                            window.isDraggingFolder = false;
+                                            let items = Array.from(fContainer.querySelectorAll('.folder-card'));
+                                            let orderMap = items.map(el => el.getAttribute('data-id'));
+                                            try {
+                                                const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+                                                const prevState = (data && data.state) || {};
+                                                await supabaseClient.from('user_data').upsert({
+                                                    id: USER_DOC_ID,
+                                                    state: { ...prevState, storageFoldersOrder: orderMap }
+                                                });
+                                            } catch (e) {
+                                                console.error('Failed to sync storage folder order:', e);
+                                            }
+                                        }
                                     });
                                 }
             }
