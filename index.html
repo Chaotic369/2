@@ -685,8 +685,8 @@ label[for="storage-search-input"]::after { font-size: 5.5px; }
 .file-card [style*="font-size:13px"] { font-size: 11px !important; }
 .file-card [style*="font-size:11px"] { font-size: 8.5px !important; }
 .file-card .action-mini-btn { width: 27px !important; height: 28px !important; font-size: 10px; }
-.file-checkbox { width: 13px; height: 13px; }
-.file-checkbox:checked::after { left: 3px; top: 1px; width: 3px; height: 6px; }
+.file-checkbox { width: 7px; height: 7px; border-width: 1px; }
+.file-checkbox:checked::after { left: 1.5px; top: 0px; width: 1.5px; height: 3px; border-width: 0 1px 1px 0; }
 #emptyState { padding: 14px 0 !important; font-size: 9px; }
 #emptyState i { font-size: 22px !important; }
 
@@ -747,6 +747,11 @@ button.btn { font-size: 11px; }
 #mediaControlsBar { padding: 5px 10px; gap: 8px; bottom: 16px; }
 #mediaControlsBar .action-mini-btn { width: 38px !important; height: 32px !important; }
 #htmlCompilerModal .action-mini-btn { height: 23px !important; padding: 0 7px; }
+
+/* CHECKBOX SIZE OVERRIDE */
+.file-card .file-checkbox { width: 8px !important; height: 8px !important; min-width: 8px !important; min-height: 8px !important; flex: 0 0 8px !important; border-width: 1px !important; margin: 0 !important; }
+.file-card .file-checkbox::before { top: -12px; bottom: -12px; left: -10px; right: -10px; }
+.file-card .file-checkbox:checked::after { left: 1.5px; top: 0px; width: 2px; height: 4px; border-width: 0 1px 1px 0; }
 
 .category-card {
   background: var(--bg-surface); padding: 16px 8px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
