@@ -643,6 +643,111 @@ button.btn { font-size: 12px; }
 #nm-text::-webkit-resizer { background: transparent; box-shadow: none; }
 #nm-text { padding: 0; }
 
+/* COMPACT SCALE 3 */
+#mainWorkspace { top: calc(env(safe-area-inset-top, 0px) + 44px); bottom: calc(env(safe-area-inset-bottom, 0px) + 40px); padding: 2px 8px 10px 8px; }
+
+/* Top navigation */
+.keyboard-nav-dock, .top-bar-actions { height: 33px; border-radius: 10px; top: calc(env(safe-area-inset-top, 0px) + 5px); }
+.keyboard-nav-dock { left: 8px; padding: 2px; }
+.top-bar-actions { right: 8px; padding: 0 2px; }
+.kbd-nav-btn, html.light-theme .kbd-nav-btn { width: 34px; height: 27px; border-radius: 8px; gap: 1px; }
+.kbd-nav-btn i { font-size: 10px; }
+.kbd-nav-btn span { font-size: 5.5px; }
+.top-bar-actions .action-mini-btn { width: 30px; height: 27px; font-size: 10px; }
+
+/* Icon buttons */
+.action-mini-btn::after { font-size: 5.5px; }
+#storage-toolbar { min-height: 28px; padding: 0 3px; border-radius: 9px; }
+#storage-toolbar .action-mini-btn { width: 28px !important; height: 25px !important; }
+#storage-toolbar .action-mini-btn i { font-size: 10px !important; }
+label[for="storage-search-input"] { width: 28px !important; height: 25px !important; }
+label[for="storage-search-input"] i { font-size: 10px !important; }
+label[for="storage-search-input"]::after { font-size: 5.5px; }
+#btn-back-storage, #btn-back-folder { height: 22px !important; padding: 0 7px !important; }
+#btn-back-storage::after, #btn-back-folder::after { font-size: 8px; }
+#panelFiles .panel-header, #panelNotes .panel-header { min-height: 22px !important; }
+#panelFiles .panel-header i[title="Cloud Storage Files"], #notes-view-title i { font-size: 14px !important; }
+#storage-path-display { font-size: 9px !important; }
+
+/* Folder strip */
+.folder-section-title { font-size: 8px; }
+.folder-count-badge { font-size: 8px; padding: 0 5px; }
+#storage-folders-container, #folders-container { gap: 4px; padding: 1px 0 3px 0; }
+#storage-folders-container .folder-card, #folders-container .folder-card { padding: 2px 8px; font-size: 9px; gap: 4px; max-width: 90px; border-radius: 7px; }
+#storage-folders-container .folder-card i, #folders-container .folder-card i { font-size: 9px; }
+.folder-add-btn { padding: 2px 8px; font-size: 9px; border-radius: 7px; }
+.folder-add-btn i { font-size: 8px !important; }
+
+/* File list */
+#filesGridContainer { gap: 4px; }
+.file-card { padding: 4px 8px; gap: 6px; border-radius: 9px; }
+.file-card [style*="width:42px"] { width: 26px !important; height: 26px !important; border-radius: 7px !important; font-size: 11px !important; }
+.file-card [style*="font-size:13px"] { font-size: 11px !important; }
+.file-card [style*="font-size:11px"] { font-size: 8.5px !important; }
+.file-card .action-mini-btn { width: 27px !important; height: 28px !important; font-size: 10px; }
+.file-checkbox { width: 13px; height: 13px; }
+.file-checkbox:checked::after { left: 3px; top: 1px; width: 3px; height: 6px; }
+#emptyState { padding: 14px 0 !important; font-size: 9px; }
+#emptyState i { font-size: 22px !important; }
+
+/* Notes */
+#notes-container { gap: 6px; }
+.note-card { padding: 8px; border-radius: 10px; font-size: 10px; gap: 3px; line-height: 1.35; }
+.note-card-title { font-size: 11px; margin-bottom: 1px; }
+.md-preview pre, .md-preview code { font-size: 9px; }
+
+/* Format categories */
+.category-card { width: 66px; padding: 7px 3px; gap: 3px; border-radius: 10px; }
+.category-icon-wrapper { width: 28px; height: 28px; font-size: 13px; border-radius: 8px; }
+.category-card [style*="font-size:13px"] { font-size: 10px !important; }
+.category-card [style*="font-size:11px"] { font-size: 8px !important; }
+
+/* Floating controls */
+#uploadSquircleBtn { height: 30px; padding: 0 10px; gap: 5px; font-size: 11px; border-radius: 9px; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); right: 10px; }
+#uploadSquircleBtn::after { font-size: 10px; }
+.quick-input-bar { height: 30px; max-width: 270px; padding: 0 10px; gap: 6px; border-radius: 9px; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); }
+.quick-input-bar i { font-size: 11px !important; }
+#quick-note-input { font-size: 11px !important; }
+#multiSelectBar { padding: 6px 8px !important; gap: 5px !important; border-radius: 12px; }
+#multiSelectBar.active { bottom: calc(env(safe-area-inset-bottom, 0px) + 44px); }
+#multiSelectBar .btn { padding: 4px 8px !important; font-size: 9px; border-radius: 7px; }
+#multiSelectBar .action-mini-btn { height: 23px; padding: 0 8px; }
+#multiSelectBar > div:first-child { font-size: 10px !important; }
+button.btn { font-size: 11px; }
+
+/* Status bar */
+#statusBar { height: 16px; font-size: 8px; padding: 0 6px; gap: 5px; }
+
+/* Menus and modals */
+.modal-base { padding: 10px; font-size: 10px; gap: 6px; border-radius: 12px; max-width: 300px; }
+#fileContextMenu, #folderContextMenu { width: 168px !important; padding: 6px !important; }
+#fileContextMenu .btn, #folderContextMenu .btn { padding: 5px 7px !important; font-size: 10px; gap: 7px !important; border-radius: 8px !important; }
+#fileContextMenu .btn i, #folderContextMenu .btn i { width: 12px; font-size: 10px; }
+#wallpaperModal { width: 210px !important; padding: 10px; }
+#wallpaper-gallery { gap: 6px !important; }
+#wallpaper-gallery > div { height: 54px !important; }
+#qrModal { width: 210px; padding: 12px; }
+#qrImagePreview { width: 140px !important; height: 140px !important; }
+#urlQrModal { max-width: 230px !important; padding: 10px !important; }
+#customQrImage { width: 130px !important; height: 130px !important; }
+#wallpaperModal .action-mini-btn, #urlQrModal .action-mini-btn { height: 23px !important; padding: 0 8px; }
+.modal-base .btn, #fullNoteModal .btn { min-height: 26px; font-size: 10px; }
+.file-row-input { padding: 5px 10px; font-size: 10px; }
+#toast { top: 46px; padding: 5px 12px; font-size: 10px; border-radius: 9px; }
+
+/* Note editor modal */
+#fullNoteModal > div:not([style*="100vw"]) { padding: 12px !important; gap: 8px !important; border-radius: 14px !important; }
+#nm-title { font-size: 16px !important; }
+#nm-text { font-size: 12px !important; }
+#nm-timestamp { font-size: 8px !important; }
+#fullNoteModal .action-mini-btn { width: 40px !important; height: 34px !important; }
+#fullNoteModal .btn { height: 32px; min-height: 32px; padding: 0 12px !important; border-radius: 9px; }
+
+/* Preview and Live View */
+#mediaControlsBar { padding: 5px 10px; gap: 8px; bottom: 16px; }
+#mediaControlsBar .action-mini-btn { width: 38px !important; height: 32px !important; }
+#htmlCompilerModal .action-mini-btn { height: 23px !important; padding: 0 7px; }
+
 .category-card {
   background: var(--bg-surface); padding: 16px 8px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
   cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: none !important;
