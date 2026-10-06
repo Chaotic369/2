@@ -811,6 +811,33 @@ html.light-theme #storage-folders-container .folder-card, html.light-theme #fold
 #statusBar { box-shadow: none !important; }
 #fullNoteModal > div > div:last-child { box-shadow: none !important; }
 .nm-divider { box-shadow: none; }
+
+/* SINGLE CLEAN TOP-RIGHT BAR */
+.top-bar-actions { width: 168px !important; padding: 0 2px !important; overflow: hidden; justify-content: space-between; }
+.top-bar-actions .action-mini-btn { padding: 0 !important; flex: 0 0 auto; }
+.top-bar-actions [title="URL QR Generator"] { width: 32px !important; }
+.top-bar-actions [title="Wallpapers"] { width: 38px !important; }
+.top-bar-actions [title="Storage Info"] { width: 52px !important; }
+.top-bar-actions [title="Toggle Theme"] { width: 44px !important; }
+#storage-toolbar { right: calc(8px + 168px) !important; }
+html:has(#panelNotes.active-page) #storage-toolbar { display: none !important; }
+
+/* GLASS TOOLBAR CARDS */
+.keyboard-nav-dock, .top-bar-actions, #storage-toolbar {
+  background: rgba(23, 23, 22, 0.55) !important;
+  backdrop-filter: blur(18px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(140%) !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.22) !important;
+}
+html.light-theme .keyboard-nav-dock, html.light-theme .top-bar-actions, html.light-theme #storage-toolbar {
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(18px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(140%) !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08) !important;
+}
+.keyboard-nav-dock .kbd-nav-btn, html.light-theme .keyboard-nav-dock .kbd-nav-btn { background: transparent !important; box-shadow: none !important; }
+.keyboard-nav-dock .kbd-nav-btn.active, html.light-theme .keyboard-nav-dock .kbd-nav-btn.active { background: rgba(227,179,65,0.16) !important; }
 .keyboard-nav-dock, .top-bar-actions, #storage-toolbar { box-shadow: 0 4px 14px rgba(0,0,0,0.22) !important; }
 
 /* HIDE FOLDERS HEADER */
