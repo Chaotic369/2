@@ -779,9 +779,33 @@ label[for="storage-search-input"]::after { font-size: 5.5px; }
 .notes-fab-container { z-index: 10000; display: none; flex-direction: column; align-items: flex-end; gap: 12px; }
 .notes-fab-menu { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; opacity: 0; pointer-events: none; transform: translateY(20px); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
 .notes-fab-container.active .notes-fab-menu { opacity: 1; pointer-events: auto; transform: translateY(0); }
-.fab-item { background: var(--bg-surface); color: var(--amber); padding: 12px 20px; border-radius: 20px; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
-html.light-theme .fab-item { background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05); }
-.fab-item:hover { background: rgba(227, 179, 65, 0.15); }
+.fab-item {
+  background: rgba(18, 18, 18, 0.65) !important;
+  backdrop-filter: blur(18px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(140%) !important;
+  color: var(--amber);
+  padding: 10px 18px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+html.light-theme .fab-item {
+  background: rgba(28, 28, 27, 0.75) !important;
+  color: var(--amber);
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+.fab-item:hover {
+  background: rgba(30, 30, 30, 0.8) !important;
+  transform: translateX(-3px);
+}
 .fab-main { width: 52px; height: 52px; border-radius: 18px; background: var(--amber); color: #000; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35); cursor: pointer; border: none; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 .notes-fab-container.active .fab-main { transform: rotate(135deg); border-radius: 50%; }
 
@@ -942,15 +966,44 @@ html:has(#panelNotes.active-page) .top-bar-actions {
   width: 52px; height: 52px; border-radius: 20px; background: var(--bg-base); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 2px;
 }
 
-.quick-input-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 40px); left: 16px; right: 76px; transform: none; z-index: 10000; width: auto; max-width: none !important; height: 44px; display: none; align-items: center; gap: 10px; padding: 0 16px; background: rgba(28, 28, 27, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 22px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08) !important; outline: none !important; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+.quick-input-bar {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 40px);
+  left: 16px;
+  right: 76px;
+  transform: none;
+  z-index: 10000;
+  width: auto;
+  max-width: none !important;
+  height: 44px;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  background: rgba(14, 14, 14, 0.6) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+  border-radius: 22px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.45) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  outline: none !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
 .quick-input-bar i { font-size: 14px !important; flex-shrink: 0; }
-#quick-note-input { font-size: 13px !important; font-weight: 500; }
-.quick-input-bar:focus-within { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.45); border-color: rgba(227, 179, 65, 0.5) !important; }
-#quick-note-input { color: #ffffff !important; }
-#quick-note-input::placeholder { color: rgba(255, 255, 255, 0.5) !important; opacity: 1; }
-html.light-theme .quick-input-bar { background: rgba(255, 255, 255, 0.92); box-shadow: 0 6px 20px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.08) !important; }
-html.light-theme #quick-note-input { color: #191813 !important; }
-html.light-theme #quick-note-input::placeholder { color: rgba(25, 24, 19, 0.45) !important; opacity: 1; }
+#quick-note-input { font-size: 13px !important; font-weight: 500; color: #ffffff !important; }
+.quick-input-bar:focus-within {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.55) !important;
+  border-color: rgba(227, 179, 65, 0.5) !important;
+}
+#quick-note-input::placeholder { color: rgba(255, 255, 255, 0.45) !important; opacity: 1; }
+html.light-theme .quick-input-bar {
+  background: rgba(18, 18, 18, 0.65) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.25) !important;
+}
+html.light-theme #quick-note-input { color: #ffffff !important; }
+html.light-theme #quick-note-input::placeholder { color: rgba(255, 255, 255, 0.45) !important; opacity: 1; }
 
 #storage-toolbar { background: rgba(22, 22, 22, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 24px; padding: 4px 8px; }
 html.light-theme #storage-toolbar { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
