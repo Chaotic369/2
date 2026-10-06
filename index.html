@@ -627,6 +627,22 @@ button.btn { font-size: 12px; }
 #mediaControlsBar .action-mini-btn { width: 42px !important; height: 36px !important; }
 #htmlCompilerModal .action-mini-btn { height: 26px !important; padding: 0 8px; }
 
+/* NOTE MODAL FIX */
+#fullNoteModal > div:not([style*="100vw"]) { overflow: hidden; box-sizing: border-box; }
+#fullNoteModal > div > div:first-child { align-items: center !important; gap: 8px; min-width: 0; }
+#nm-title { min-width: 0; margin-right: 0 !important; text-overflow: ellipsis; }
+#fullNoteModal > div > div:first-child > div { gap: 2px !important; flex-shrink: 0; }
+#fullNoteModal .action-mini-btn { width: 46px !important; height: 40px !important; flex-shrink: 0; border-radius: 10px; background: transparent; box-shadow: none; }
+#fullNoteModal .action-mini-btn:hover { background: rgba(127,127,127,0.14) !important; transform: none; }
+#fullNoteModal .action-mini-btn::after { opacity: 0.8; }
+#fullNoteModal [title="Delete Note"]::after { opacity: 1; }
+#fullNoteModal > div > div:last-child { align-items: center !important; gap: 4px !important; flex-wrap: nowrap; padding-top: 10px !important; box-shadow: inset 0 1px 0 rgba(127,127,127,0.18); }
+#fullNoteModal > div > div:last-child > div { gap: 2px !important; align-items: center; }
+#fullNoteModal > div > div:last-child > div:last-child { gap: 8px !important; margin-left: auto; }
+#fullNoteModal .btn { height: 38px; min-height: 38px; padding: 0 16px !important; border-radius: 10px; }
+#nm-text::-webkit-resizer { background: transparent; box-shadow: none; }
+#nm-text { padding: 0; }
+
 .category-card {
   background: var(--bg-surface); padding: 16px 8px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
   cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: none !important;
