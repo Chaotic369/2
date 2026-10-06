@@ -791,16 +791,34 @@ html.light-theme #storage-toolbar { background: rgba(255, 255, 255, 0.9) !import
 label[for="storage-search-input"] { width: 32px !important; height: 27px !important; }
 #search-container { margin-right: 0; }
 
+/* REMOVE BORDERS */
+.keyboard-nav-dock, html.light-theme .keyboard-nav-dock,
+.top-bar-actions, html.light-theme .top-bar-actions,
+#storage-toolbar, html.light-theme #storage-toolbar,
+.quick-input-bar, html.light-theme .quick-input-bar,
+.modal-base, html.light-theme .modal-base,
+.file-card, html.light-theme .file-card,
+.kbd-nav-btn.active, html.light-theme .kbd-nav-btn.active,
+.folder-add-btn, #storage-back-dropzone, #note-back-dropzone,
+#qrModal .btn, #multiSelectBar { border: none !important; }
+.file-card, html.light-theme .file-card, .file-card:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important; }
+.note-card, html.light-theme .note-card, .note-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important; }
+.category-card, html.light-theme .category-card { box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important; }
+#storage-folders-container .folder-card, #folders-container .folder-card,
+html.light-theme #storage-folders-container .folder-card, html.light-theme #folders-container .folder-card,
+#storage-folders-container .folder-card:hover, #folders-container .folder-card:hover { box-shadow: none !important; }
+#toast { box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important; }
+#statusBar { box-shadow: none !important; }
+#fullNoteModal > div > div:last-child { box-shadow: none !important; }
+.nm-divider { box-shadow: none; }
+.keyboard-nav-dock, .top-bar-actions, #storage-toolbar { box-shadow: 0 4px 14px rgba(0,0,0,0.22) !important; }
+
 /* HIDE FOLDERS HEADER */
 #storage-folders-header, #notes-folders-header { display: none !important; }
 
 /* SMOOTH EDGE ON NOTES PAGE */
 html:has(#panelNotes.active-page) .top-bar-actions {
   border-radius: 10px !important;
-  border-left: 1px solid rgba(255,255,255,0.06) !important;
-}
-html.light-theme:has(#panelNotes.active-page) .top-bar-actions {
-  border-left: 1px solid rgba(0,0,0,0.06) !important;
 }
 .nm-divider { font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); padding: 8px 0 4px; box-shadow: inset 0 1px 0 rgba(127,127,127,0.18); margin-top: 4px; }
 
