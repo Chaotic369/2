@@ -2499,9 +2499,8 @@ window.loadFiles = async function() {
                             }
                         }
             }
-                    }
 
-                if (folders.length === 0 && allFiles.length === 0) { container.innerHTML = ''; emptyState.style.display = 'flex'; cleanupScroll(); return; }
+                            if (folders.length === 0 && allFiles.length === 0) { container.innerHTML = ''; emptyState.style.display = 'flex'; cleanupScroll(); return; }
                 container.innerHTML = '';
 
                 allFiles.sort((a,b) => {
