@@ -521,6 +521,112 @@ button.btn { border-radius: 10px; font-weight: 600; }
 /* Status bar */
 #statusBar { box-shadow: inset 0 1px 0 rgba(127,127,127,0.15); font-weight: 500; letter-spacing: 0.01em; }
 
+/* EXTRA COMPACT SCALE */
+#mainWorkspace { top: calc(env(safe-area-inset-top, 0px) + 50px); bottom: calc(env(safe-area-inset-bottom, 0px) + 46px); padding: 4px 10px 12px 10px; }
+.workspace-panel { gap: 4px; }
+
+/* Top navigation */
+.keyboard-nav-dock, .top-bar-actions { height: 38px; border-radius: 12px; top: calc(env(safe-area-inset-top, 0px) + 6px); }
+.keyboard-nav-dock { left: 10px; padding: 3px; }
+.top-bar-actions { right: 10px; padding: 0 3px; }
+.kbd-nav-btn, html.light-theme .kbd-nav-btn { width: 38px; height: 30px; border-radius: 9px; gap: 2px; }
+.kbd-nav-btn i { font-size: 11px; }
+.kbd-nav-btn span { font-size: 6px; }
+.top-bar-actions .action-mini-btn { width: 34px; height: 30px; font-size: 11px; }
+
+/* Icon buttons and labels */
+.action-mini-btn { gap: 1px; border-radius: 8px; }
+.action-mini-btn::after { font-size: 6px; }
+#storage-toolbar { min-height: 32px; padding: 1px 4px; gap: 0 !important; border-radius: 10px; }
+#storage-toolbar .action-mini-btn { width: 32px !important; height: 28px !important; }
+#storage-toolbar .action-mini-btn i { font-size: 11px !important; }
+label[for="storage-search-input"] { width: 32px !important; height: 28px !important; }
+label[for="storage-search-input"] i { font-size: 11px !important; }
+label[for="storage-search-input"]::after { font-size: 6px; }
+#btn-back-storage, #btn-back-folder { height: 24px !important; padding: 0 8px !important; }
+#btn-back-storage::after, #btn-back-folder::after { font-size: 9px; }
+#panelFiles .panel-header, #panelNotes .panel-header { min-height: 26px !important; }
+#panelFiles .panel-header i[title="Cloud Storage Files"], #notes-view-title i { font-size: 16px !important; }
+#storage-path-display { font-size: 10px !important; }
+
+/* Folder strip */
+.folder-section-title { font-size: 9px; gap: 4px; }
+.folder-count-badge { font-size: 9px; padding: 0 6px; }
+#storage-folders-container, #folders-container { gap: 5px; padding: 2px 0 4px 0; }
+#storage-folders-container .folder-card, #folders-container .folder-card { padding: 3px 9px; font-size: 10px; gap: 5px; max-width: 100px; border-radius: 8px; }
+#storage-folders-container .folder-card i, #folders-container .folder-card i { font-size: 10px; }
+.folder-add-btn { padding: 3px 9px; font-size: 10px; border-radius: 8px; }
+.folder-add-btn i { font-size: 9px !important; }
+
+/* File list */
+#filesGridContainer { gap: 5px; }
+.file-card { padding: 6px 10px; gap: 8px; border-radius: 10px; }
+.file-card [style*="width:42px"] { width: 30px !important; height: 30px !important; border-radius: 8px !important; font-size: 13px !important; }
+.file-card [style*="font-size:13px"] { font-size: 12px !important; }
+.file-card [style*="font-size:11px"] { font-size: 9.5px !important; }
+.file-card .action-mini-btn { width: 30px !important; height: 32px !important; font-size: 11px; }
+.file-checkbox { width: 15px; height: 15px; }
+.file-checkbox:checked::after { left: 4px; top: 1px; width: 3px; height: 7px; }
+#emptyState { padding: 20px 0 !important; font-size: 10px; }
+#emptyState i { font-size: 28px !important; }
+
+/* Notes */
+#notes-container { gap: 8px; }
+.note-card { padding: 10px; border-radius: 12px; font-size: 11px; gap: 4px; line-height: 1.4; }
+.note-card-title { font-size: 12px; margin-bottom: 2px; }
+.md-preview pre, .md-preview code { font-size: 10px; }
+
+/* Format categories */
+.category-card { width: 76px; padding: 9px 4px; gap: 4px; border-radius: 12px; }
+.category-icon-wrapper { width: 34px; height: 34px; font-size: 16px; border-radius: 10px; }
+.category-card [style*="font-size:13px"] { font-size: 11px !important; }
+.category-card [style*="font-size:11px"] { font-size: 9px !important; }
+
+/* Floating controls */
+#uploadSquircleBtn { height: 34px; padding: 0 12px; gap: 6px; font-size: 13px; border-radius: 10px; bottom: calc(env(safe-area-inset-bottom, 0px) + 26px); right: 12px; }
+#uploadSquircleBtn::after { font-size: 11px; }
+.quick-input-bar { height: 34px; max-width: 300px; padding: 0 12px; gap: 8px; border-radius: 10px; bottom: calc(env(safe-area-inset-bottom, 0px) + 26px); }
+#quick-note-input { font-size: 12px !important; }
+#multiSelectBar { padding: 8px 10px !important; gap: 6px !important; border-radius: 14px; }
+#multiSelectBar.active { bottom: calc(env(safe-area-inset-bottom, 0px) + 50px); }
+#multiSelectBar .btn { padding: 5px 10px !important; font-size: 10px; border-radius: 8px; }
+#multiSelectBar .action-mini-btn { height: 26px; padding: 0 10px; }
+#multiSelectBar > div:first-child { font-size: 11px !important; }
+button.btn { font-size: 12px; }
+
+/* Status bar */
+#statusBar { height: 18px; font-size: 9px; padding: 0 8px; gap: 6px; }
+
+/* Menus and modals */
+.modal-base { padding: 12px; font-size: 11px; gap: 8px; border-radius: 14px; max-width: 340px; }
+#fileContextMenu, #folderContextMenu { width: 190px !important; padding: 8px !important; }
+#fileContextMenu .btn, #folderContextMenu .btn { padding: 6px 8px !important; font-size: 11px; gap: 8px !important; border-radius: 10px !important; }
+#fileContextMenu .btn i, #folderContextMenu .btn i { width: 14px; font-size: 11px; }
+#wallpaperModal { width: 240px !important; padding: 12px; }
+#wallpaper-gallery { gap: 8px !important; }
+#wallpaper-gallery > div { height: 64px !important; }
+#qrModal { width: 240px; padding: 16px; }
+#qrImagePreview { width: 160px !important; height: 160px !important; }
+#urlQrModal { max-width: 260px !important; padding: 12px !important; }
+#customQrImage { width: 150px !important; height: 150px !important; }
+#wallpaperModal .action-mini-btn, #urlQrModal .action-mini-btn { height: 26px !important; padding: 0 10px; }
+.modal-base .btn, #fullNoteModal .btn { min-height: 30px; font-size: 11px; }
+.file-row-input { padding: 6px 12px; font-size: 11px; }
+#toast { top: 54px; padding: 6px 14px; font-size: 11px; border-radius: 10px; }
+
+/* Note editor modal */
+#fullNoteModal > div:not([style*="100vw"]) { padding: 16px !important; gap: 10px !important; border-radius: 16px !important; }
+#nm-title { font-size: 18px !important; }
+#nm-text { font-size: 13px !important; }
+#nm-timestamp { font-size: 9px !important; }
+#fullNoteModal .action-mini-btn { width: 36px; height: 36px; }
+#fullNoteModal .btn { padding: 6px 14px !important; }
+
+/* Preview and Live View */
+#mediaControlsBar { padding: 6px 12px; gap: 10px; bottom: 20px; }
+#mediaControlsBar .action-mini-btn { width: 42px !important; height: 36px !important; }
+#htmlCompilerModal .action-mini-btn { height: 26px !important; padding: 0 8px; }
+
 .category-card {
   background: var(--bg-surface); padding: 16px 8px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
   cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: none !important;
