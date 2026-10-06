@@ -1653,11 +1653,15 @@ window.fileCategories = {
 
 window.parseMarkdown = function(text, noteId, alreadyEscaped) {
     if (!text) return '';
-    let html = alreadyEscaped ? String(text) : String(text).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    let html = alreadyEscaped ? String(text) : String(text).replace(/</g, '<').replace(/>/g, '>');
     html = html.replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
     html = html.replace(/`(.*?)`/g, '<code>$1</code>');
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Auto-embed uploaded audio links directly into playable widgets
+    html = html.replace(/(https?:\/\/[^\s]+\.(?:webm|mp3|wav|ogg|m4a)(?:\?[^\s]*)?)/gi, '<br><audio controls src="$1" style="width:100%; height:32px; border-radius:16px; margin:4px 0; outline:none;" onclick="event.stopPropagation()"></audio>');
+    
     let taskIndex = 0;
     html = html.replace(/-\s\[([xX ])\]\s(.*?)(\n|$)/g, (match, state, label, newline) => {
         let isChecked = state.toLowerCase() === 'x';
@@ -1999,38 +2003,79 @@ window.sanitizeNoteText = function(str) {
     return str.replace(/[\u200B-\u200F\uFEFF\u202A-\u202E]/g, '');
 };
 
-window.startVoiceNote = function() {
+window.startVoiceNote = async function() {
     document.getElementById('notesFabContainer').classList.remove('active');
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) return toast('Voice input not supported in this browser', 'err');
+    
+    let stream;
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch(e) {
+        return toast('Microphone access denied', 'err');
+    }
+
+    const mediaRecorder = new MediaRecorder(stream);
+    const audioChunks = [];
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
     
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
     
-    toast('Listening...', 'info', 5000);
-    
-    recognition.onresult = async function(event) {
-        const transcript = event.results[0][0].transcript;
-        toast('Saving audio note...', 'info');
+    let transcript = '';
+
+    toast('Listening... Speak now', 'info', 5000);
+    mediaRecorder.start();
+    recognition.start();
+
+    recognition.onresult = function(event) {
+        transcript = event.results[0][0].transcript;
+    };
+
+    recognition.onend = function() {
+        if (mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+    };
+
+    recognition.onerror = function(event) {
+        toast('Voice recognition error: ' + event.error, 'err');
+        if (mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+    };
+
+    mediaRecorder.onstop = async function() {
+        stream.getTracks().forEach(track => track.stop());
         
+        toast('Saving voice and transcript...', 'info');
+        showProgress(30);
+
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const uniqueName = `voice_note_${Date.now()}.webm`;
+        
+        const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, audioBlob);
+        let audioUrl = '';
+        
+        if (!error) {
+            const { data } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(uniqueName);
+            audioUrl = data.publicUrl;
+            window.loadFiles(); // Sync it into the Files tab too
+        } else {
+            toast('Failed to save audio file', 'err');
+        }
+
         const newNote = {
             id: 'n_' + Date.now(),
-            text: transcript, title: 'Audio Note', color: 'var(--note-base)',
+            text: (transcript ? transcript + '\n\n' : '') + audioUrl, 
+            title: 'Audio Note', color: 'var(--note-base)',
             pinned: false, folderId: window.currentFolderView,
             images: [],
             createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
         };
+        
         S.notes.push(newNote);
         await window.saveNotesData(); window.renderNotes();
-        toast('Audio note saved', 'ok');
+        hideProgress();
+        toast('Audio and note saved', 'ok');
     };
-    
-    recognition.onerror = function(event) {
-        toast('Voice recognition error: ' + event.error, 'err');
-    };
-    
-    recognition.start();
 };
 
 window.createTextNote = function() {
