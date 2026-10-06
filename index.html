@@ -85,9 +85,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 
 /* WORKSPACE LAYOUT */
 #mainWorkspace {
-  position: fixed; top: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 120px); left: 0; right: 0;
+  position: fixed; top: calc(env(safe-area-inset-top, 0px) + 64px); bottom: calc(env(safe-area-inset-bottom, 0px) + 74px); left: 0; right: 0;
   background: var(--bg-base); color: var(--text-main);
-  padding: 56px 16px 16px 16px; overflow-y: auto; z-index: 1;
+  padding: 16px 16px 24px 16px; overflow-y: auto; z-index: 1;
   display: block;
   transition: background 0.3s;
 }
@@ -97,9 +97,17 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
 
 /* BOTTOM DOCK (FILES & NOTES ROW WITH CENTRAL DYNAMIC CONTROLS) */
 .keyboard-nav-dock {
-  position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); left: 50%; transform: translateX(-50%);
-  z-index: 10000; display: flex; align-items: center; justify-content: center;
-  gap: 12px; pointer-events: auto;
+  position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 16px; transform: none;
+  z-index: 10000; display: flex; align-items: center; justify-content: flex-start;
+  gap: 6px; pointer-events: auto;
+  background: rgba(28, 28, 27, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  padding: 4px; border-radius: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.06) !important;
+}
+html.light-theme .keyboard-nav-dock {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0,0,0,0.06) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
 }
 .kbd-nav-btn {
   width: 44px; height: 44px; border-radius: 14px;
@@ -130,15 +138,18 @@ html.has-wallpaper .kbd-nav-btn:active {
 
 /* TOP RIGHT MINI BUTTONS */
 .top-bar-actions {
-  position: fixed; top: 16px; right: 20px; z-index: 10000; display: flex; gap: 4px; align-items: center;
-  background: rgba(22, 22, 22, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border-radius: 24px; padding: 4px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); right: 16px; z-index: 10000; display: flex; gap: 6px; align-items: center;
+  background: rgba(28, 28, 27, 0.82); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-radius: 24px; padding: 4px 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.06) !important;
 }
 html.light-theme .top-bar-actions {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0,0,0,0.06) !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
 }
 .top-bar-actions .action-mini-btn {
-  background: transparent !important; box-shadow: none !important; width: 30px; height: 30px;
+  background: transparent !important; box-shadow: none !important; width: 32px; height: 32px;
 }
 #storage-toolbar .action-mini-btn {
   background: transparent !important; box-shadow: none !important;
@@ -150,18 +161,20 @@ html.has-wallpaper #storage-toolbar .action-mini-btn {
 .action-mini-btn {
   width: 36px; height: 36px; border-radius: 50%; background: var(--bg-surface); color: var(--text-main);
   display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.2s, color 0.2s; border: none !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.18s ease, color 0.18s ease, background 0.18s ease; border: none !important;
 }
-.action-mini-btn:active { transform: scale(0.9); }
+.action-mini-btn:hover { color: var(--amber); transform: scale(1.05); }
+.action-mini-btn:active { transform: scale(0.92); }
 
 /* FLOATING SQUIRCLE UPLOAD BUTTON (BOTTOM RIGHT) */
 #uploadSquircleBtn {
-  position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 74px); right: 16px; z-index: 10000; width: 38px; height: 38px; border-radius: 50%;
-  background: var(--bg-surface); color: var(--text-main); border: none !important;
-  display: flex; align-items: center; justify-content: center; font-size: 15px;
-  cursor: pointer; transition: transform 0.2s; box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); right: 18px; z-index: 10000; width: 44px; height: 44px; border-radius: 16px;
+  background: var(--amber); color: #000000; border: none !important;
+  display: flex; align-items: center; justify-content: center; font-size: 17px;
+  cursor: pointer; transition: transform 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 8px 24px rgba(227, 179, 65, 0.35);
 }
-#uploadSquircleBtn:hover { transform: translateY(-3px); }
+#uploadSquircleBtn:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 10px 28px rgba(227, 179, 65, 0.45); }
 #uploadSquircleBtn:active { transform: scale(0.92); }
 
 button.btn {
@@ -178,17 +191,21 @@ button.btn:active { transform: scale(0.96); }
 }
 
 .file-card {
-  background: var(--bg-surface); border: none !important;
-  border-radius: 24px; padding: 12px 16px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 16px;
-  transition: transform 0.15s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.04) !important;
+  border-radius: 20px; padding: 12px 16px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 14px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
   contain: layout style paint;
   -webkit-touch-callout: none;
   user-select: none;
   -webkit-user-select: none;
   touch-action: pan-y;
 }
-.file-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+html.light-theme .file-card {
+  border: 1px solid rgba(0,0,0,0.04) !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+.file-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.22); border-color: rgba(227, 179, 65, 0.3) !important; }
 
 /* MASONRY GRID SYSTEM */
 #notes-container {
@@ -270,15 +287,15 @@ button.btn:active { transform: scale(0.96); }
   width: 52px; height: 52px; border-radius: 20px; background: var(--bg-base); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 2px;
 }
 
-.quick-input-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 74px); left: 50%; transform: translateX(-50%); z-index: 10000; width: calc(100vw - 40px); max-width: 260px; height: 36px; display: none; align-items: center; gap: 8px; padding: 0 12px; background: rgba(22, 22, 22, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 18px; box-shadow: 0 4px 16px rgba(0,0,0,0.35); border: none !important; outline: none !important; transition: transform 0.2s, box-shadow 0.2s; }
-.quick-input-bar i { font-size: 12px !important; }
-#quick-note-input { font-size: 11px !important; }
-.quick-input-bar:focus-within { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+.quick-input-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); left: 50%; transform: translateX(-50%); z-index: 10000; width: calc(100vw - 32px); max-width: 360px; height: 44px; display: none; align-items: center; gap: 10px; padding: 0 16px; background: rgba(28, 28, 27, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 22px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08) !important; outline: none !important; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+.quick-input-bar i { font-size: 14px !important; flex-shrink: 0; }
+#quick-note-input { font-size: 13px !important; font-weight: 500; }
+.quick-input-bar:focus-within { transform: translateX(-50%) translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.45); border-color: rgba(227, 179, 65, 0.5) !important; }
 #quick-note-input { color: #ffffff !important; }
-#quick-note-input::placeholder { color: rgba(255, 255, 255, 0.7) !important; opacity: 1; }
-html.light-theme .quick-input-bar { background: rgba(255, 255, 255, 0.85); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+#quick-note-input::placeholder { color: rgba(255, 255, 255, 0.5) !important; opacity: 1; }
+html.light-theme .quick-input-bar { background: rgba(255, 255, 255, 0.92); box-shadow: 0 6px 20px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.08) !important; }
 html.light-theme #quick-note-input { color: #191813 !important; }
-html.light-theme #quick-note-input::placeholder { color: rgba(25, 24, 19, 0.6) !important; opacity: 1; }
+html.light-theme #quick-note-input::placeholder { color: rgba(25, 24, 19, 0.45) !important; opacity: 1; }
 
 #storage-toolbar { background: rgba(22, 22, 22, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 24px; padding: 4px 8px; }
 html.light-theme #storage-toolbar { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
@@ -303,10 +320,15 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
 @keyframes slideUp{from{opacity:0;transform:translate(-50%, 10px) translateZ(0)}to{opacity:1;transform:translate(-50%, 0) translateZ(0)}}
 
 .modal-base {
-  position: fixed; z-index: 40000; background: rgba(22, 22, 22, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 32px;
-  padding: 24px; color: var(--text-main); font-size: 13px; border: none !important; outline: none !important;
+  position: fixed; z-index: 40000; background: rgba(26, 26, 25, 0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 28px;
+  padding: 22px; color: var(--text-main); font-size: 13px; border: 1px solid rgba(255,255,255,0.08) !important; outline: none !important;
   top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90vw; max-width: 400px; display: none; flex-direction: column; gap: 12px;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+}
+html.light-theme .modal-base {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.15);
 }
 .modal-base.open { display: flex; }
 
@@ -527,7 +549,13 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
               <div style="font-weight:600;">Drop here to move out of folder</div>
             </div>
 
-            <div id="storage-folders-container" style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:4px;"></div>
+            <div id="storage-folders-wrapper" style="width: 100%;">
+                          <div class="folder-section-header" id="storage-folders-header" style="display:none;">
+                            <span class="folder-section-title"><i class="fa-regular fa-folder" style="color:var(--amber);"></i> Folders</span>
+                            <span class="folder-count-badge" id="storage-folders-count">0</span>
+                          </div>
+                          <div id="storage-folders-container"></div>
+                        </div>
 
         <div id="filesGridContainer"></div>
   </div>
@@ -541,7 +569,13 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
              </div>
           </div>
     
-      <div id="folders-container" style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:4px;"></div>
+      <div id="notes-folders-wrapper" style="width: 100%;">
+              <div class="folder-section-header" id="notes-folders-header" style="display:none;">
+                <span class="folder-section-title"><i class="fa-regular fa-folder" style="color:var(--amber);"></i> Folders</span>
+                <span class="folder-count-badge" id="notes-folders-count">0</span>
+              </div>
+              <div id="folders-container"></div>
+            </div>
       
             <div id="note-back-dropzone" class="folder-card" style="display:none; background:var(--bg-surface); color:var(--text-main); justify-content:center; border: 1px dashed var(--amber) !important; margin-bottom:16px; max-width:100%; width:100%; white-space:normal;">
                           <i class="fa-solid fa-arrow-left" style="color:var(--amber);"></i>
@@ -711,24 +745,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
        </div>
      </div>
 
-<!-- Branch Management Modal -->
-<div id="branchModal" style="width:92vw; max-width:440px; display:none; flex-direction:column; padding:16px; box-sizing:border-box;">
-  <div class="window-header" style="margin-bottom:12px; padding-bottom:8px;">
-    <div class="win-title"><i class="fa-solid fa-code-branch" style="color:var(--amber); margin-right:6px;"></i> Branch Manager</div>
-    <button class="panel-close" id="branchCloseBtn">✕</button>
-  </div>
 
-  <div style="display:flex; flex-direction:column; gap:12px;">
-    <div style="display:flex; gap:6px;">
-      <input type="text" id="newBranchNameInput" placeholder="new-branch-name" style="flex:1; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#fff; padding:6px 10px; border-radius:8px; font-size:11px; outline:none;">
-      <button id="createBranchBtn" class="btn" style="width:auto; padding:0 12px; height:28px; background:rgba(57,211,83,0.2); border:1px solid rgba(57,211,83,0.4); color:var(--green); font-size:10px; font-weight:600;"><i class="fa-solid fa-plus" style="margin-right:4px;"></i>Create</button>
-    </div>
-    <div style="font-size:10px; color:rgba(255,255,255,0.5); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Repository Branches</div>
-    <div id="branchModalList" style="display:flex; flex-direction:column; gap:4px; max-height:45vh; overflow-y:auto; padding-right:2px;">
-      <div style="color:rgba(255,255,255,0.5); font-size:11px;">Loading branches...</div>
-    </div>
-  </div>
-</div>
 
 <div id="statusBar">
   <span class="sb-item" id="sb-count">— files</span>
@@ -1795,75 +1812,79 @@ window.renderNotes = function() {
     
     fContainer.innerHTML = ''; nContainer.innerHTML = '';
 
-    if (!window.currentFolderView) {
-        backDropzone.style.display = 'none';
-        if (S.folders.length > 0) {
-                    S.folders.sort((a,b) => (a.order || 0) - (b.order || 0));
-                    S.folders.forEach(f => {
-                                            const fel = document.createElement('div');
-                                            fel.className = 'folder-card';
-                                            fel.setAttribute('data-id', f.id);
-                                                                    window.bindFolderEvents(fel, 'note', f.id, f.name, (e) => window.viewFolder(f.id, f.name, e));
-                                            fel.innerHTML = `
-                                                                                            <i class="fa-regular fa-folder" style="color:var(--text-main); font-size:16px;"></i>
-                                                                                            <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${f.name}</div>
-                                                                                        `;
-                                            fContainer.appendChild(fel);
+    const nFHeader = document.getElementById('notes-folders-header');
+        const nFCount = document.getElementById('notes-folders-count');
 
-                                            fel.addEventListener('dragover', function(e) {
-                                                                                            if (window.isDraggingFolder) return;
-                                                                                            e.preventDefault();
-                                                                                            e.stopPropagation();
-                                                                                            fel.style.transform = 'scale(1.05)';
-                                                                                        });
-                                                                                        fel.addEventListener('dragleave', function() {
-                                                                                            fel.style.transform = '';
-                                                                                        });
-                                                                                        fel.addEventListener('drop', function(e) {
-                                                                                            fel.style.transform = '';
-                                                                                            if (window.isDraggingFolder) return;
-                                                                                            e.preventDefault();
-                                                                                            e.stopPropagation();
-                                                                                            var noteId = e.dataTransfer.getData('text/plain');
-                                                                                            if (noteId && noteId.startsWith('n_')) {
-                                                                                                window.dropNoteIntoFolder(noteId, f.id, e);
-                                                                                            }
-                                                                                        });
-                                        });
-                }
-        
-                const addBtn = document.createElement('button');
-                                addBtn.style.cssText = "background:transparent; border:none; box-shadow:none; color:var(--text-main); cursor:pointer; font-size:18px; transition:transform 0.2s; outline:none; display:flex; align-items:center; justify-content:center; padding:4px 8px; flex-shrink:0;";
-                                addBtn.onmouseover = (e) => e.currentTarget.style.transform='scale(1.1)';
-                                addBtn.onmouseout = (e) => e.currentTarget.style.transform='scale(1)';
-                                addBtn.onclick = window.createNewFolder;
-                                addBtn.title = "New Folder";
-                                addBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
-                                fContainer.appendChild(addBtn);
+        if (!window.currentFolderView) {
+            backDropzone.style.display = 'none';
+            if (nFHeader) nFHeader.style.display = 'flex';
+            if (nFCount) nFCount.textContent = S.folders.length;
 
-                if (typeof Sortable !== 'undefined') {
-                                    window.notesFoldersSortable = new Sortable(fContainer, {
-                                        group: { name: 'notesFolders', put: false },
-                                        draggable: '.folder-card',
-                                        animation: 250, delay: 350, delayOnTouchOnly: true, touchStartThreshold: 3, filter: 'button',
-                                        onStart: () => {
-                                            window.isDraggingFolder = true;
-                                            const menu = document.getElementById('folderContextMenu');
-                                            if (menu) menu.classList.remove('open');
-                                        },
-                                        onEnd: function () {
-                                            window.isDraggingFolder = false;
-                                            let items = Array.from(fContainer.querySelectorAll('.folder-card'));
-                                            items.forEach((item, index) => {
-                                                let id = item.getAttribute('data-id');
-                                                let folder = S.folders.find(x => x.id === id);
-                                                if (folder) folder.order = index;
-                                            });
-                                            window.saveNotesData();
-                                        }
-                                    });
-                                }
-                                        } else {
+            if (S.folders.length > 0) {
+                S.folders.sort((a,b) => (a.order || 0) - (b.order || 0));
+                S.folders.forEach(f => {
+                    const fel = document.createElement('div');
+                    fel.className = 'folder-card';
+                    fel.setAttribute('data-id', f.id);
+                    window.bindFolderEvents(fel, 'note', f.id, f.name, (e) => window.viewFolder(f.id, f.name, e));
+                    fel.innerHTML = `
+                        <i class="fa-regular fa-folder"></i>
+                        <div>${f.name}</div>
+                    `;
+                    fContainer.appendChild(fel);
+
+                    fel.addEventListener('dragover', function(e) {
+                        if (window.isDraggingFolder) return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        fel.style.transform = 'scale(1.03)';
+                    });
+                    fel.addEventListener('dragleave', function() {
+                        fel.style.transform = '';
+                    });
+                    fel.addEventListener('drop', function(e) {
+                        fel.style.transform = '';
+                        if (window.isDraggingFolder) return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var noteId = e.dataTransfer.getData('text/plain');
+                        if (noteId && noteId.startsWith('n_')) {
+                            window.dropNoteIntoFolder(noteId, f.id, e);
+                        }
+                    });
+                });
+            }
+
+            const addBtn = document.createElement('button');
+            addBtn.className = 'folder-add-btn';
+            addBtn.onclick = window.createNewFolder;
+            addBtn.title = "New Folder";
+            addBtn.innerHTML = '<i class="fa-solid fa-plus" style="font-size:12px;"></i><span>New Folder</span>';
+            fContainer.appendChild(addBtn);
+
+            if (typeof Sortable !== 'undefined') {
+                window.notesFoldersSortable = new Sortable(fContainer, {
+                    group: { name: 'notesFolders', put: false },
+                    draggable: '.folder-card',
+                    animation: 250, delay: 350, delayOnTouchOnly: true, touchStartThreshold: 3, filter: 'button',
+                    onStart: () => {
+                        window.isDraggingFolder = true;
+                        const menu = document.getElementById('folderContextMenu');
+                        if (menu) menu.classList.remove('open');
+                    },
+                    onEnd: function () {
+                        window.isDraggingFolder = false;
+                        let items = Array.from(fContainer.querySelectorAll('.folder-card'));
+                        items.forEach((item, index) => {
+                            let id = item.getAttribute('data-id');
+                            let folder = S.folders.find(x => x.id === id);
+                            if (folder) folder.order = index;
+                        });
+                        window.saveNotesData();
+                    }
+                });
+            }
+        } else {
                                                         backDropzone.style.display = 'none';
                                                         if (typeof Sortable !== 'undefined' && !backDropzone._sortableInitialized) {
                                                                                                                     new Sortable(backDropzone, {
@@ -2408,69 +2429,75 @@ window.loadFiles = async function() {
             return window.fileCategories[window.activeFormatType].exts.includes(ext);
         });
     } else {
-            folders.forEach(folder => {
-                                                                const card = document.createElement('div');
-                                                                card.className = 'folder-card';
-                                                                card.setAttribute('data-id', folder.name);
-                                                                window.bindFolderEvents(card, 'storage', folder.name, folder.name, () => window.enterStorageFolder(folder.name));
-                                                    card.innerHTML = `<i class="fa-regular fa-folder" style="color:var(--text-main); font-size:16px;"></i><div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${folder.name}</div>`;
-                                                    if (fContainer) fContainer.appendChild(card); else container.appendChild(card);
-                                        
-                                                    card.addEventListener('dragover', function(e) {
-                                                                                                            if (window.isDraggingFolder) return;
-                                                                                                            e.preventDefault();
-                                                                                                            e.stopPropagation();
-                                                                                                            card.style.transform = 'scale(1.05)';
-                                                                                                        });
-                                                                                                        card.addEventListener('dragleave', function() {
-                                                                                                            card.style.transform = '';
-                                                                                                        });
-                                                                                                        card.addEventListener('drop', function(e) {
-                                                                                                            card.style.transform = '';
-                                                                                                            if (window.isDraggingFolder) return;
-                                                                                                            e.preventDefault();
-                                                                                                            e.stopPropagation();
-                                                                                                            var fileName = e.dataTransfer.getData('text/plain');
-                                                                                                            if (fileName && fileName !== 'drag_folder') {
-                                                                                                                window.dropIntoStorageFolder(fileName, folder.name);
-                                                                                                            }
-                                                                                                        });
-                                                });
-        
-            if (fContainer && !searchVal) {
-                            const addBtn = document.createElement('button');
-                                            addBtn.style.cssText = "background:transparent; border:none; box-shadow:none; color:var(--text-main); cursor:pointer; font-size:18px; outline:none; display:flex; align-items:center; justify-content:center; padding:4px 8px; flex-shrink:0;";
-                                            addBtn.onclick = window.createStorageFolder;
-                                            addBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
-                                            fContainer.appendChild(addBtn);
-            
-                if (typeof Sortable !== 'undefined') {
-                                    window.storageFoldersSortable = new Sortable(fContainer, {
-                                        group: { name: 'storageFolders', put: false },
-                                        draggable: '.folder-card',
-                                        animation: 250, delay: 350, delayOnTouchOnly: true, touchStartThreshold: 3, filter: 'button',
-                                        onStart: () => {
-                                            window.isDraggingFolder = true;
-                                            const menu = document.getElementById('folderContextMenu');
-                                            if (menu) menu.classList.remove('open');
-                                        },
-                                        onEnd: async () => {
-                                            window.isDraggingFolder = false;
-                                            let items = Array.from(fContainer.querySelectorAll('.folder-card'));
-                                            let orderMap = items.map(el => el.getAttribute('data-id'));
-                                            try {
-                                                const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
-                                                const prevState = (data && data.state) || {};
-                                                await supabaseClient.from('user_data').upsert({
-                                                    id: USER_DOC_ID,
-                                                    state: { ...prevState, storageFoldersOrder: orderMap }
-                                                });
-                                            } catch (e) {
-                                                console.error('Failed to sync storage folder order:', e);
-                                            }
-                                        }
-                                    });
+            const sFHeader = document.getElementById('storage-folders-header');
+                        const sFCount = document.getElementById('storage-folders-count');
+                        if (sFHeader) sFHeader.style.display = (!searchVal && !window.isFormatFilterMode) ? 'flex' : 'none';
+                        if (sFCount) sFCount.textContent = folders.length;
+
+                        folders.forEach(folder => {
+                            const card = document.createElement('div');
+                            card.className = 'folder-card';
+                            card.setAttribute('data-id', folder.name);
+                            window.bindFolderEvents(card, 'storage', folder.name, folder.name, () => window.enterStorageFolder(folder.name));
+                            card.innerHTML = `<i class="fa-regular fa-folder"></i><div>${folder.name}</div>`;
+                            if (fContainer) fContainer.appendChild(card); else container.appendChild(card);
+    
+                            card.addEventListener('dragover', function(e) {
+                                if (window.isDraggingFolder) return;
+                                e.preventDefault();
+                                e.stopPropagation();
+                                card.style.transform = 'scale(1.03)';
+                            });
+                            card.addEventListener('dragleave', function() {
+                                card.style.transform = '';
+                            });
+                            card.addEventListener('drop', function(e) {
+                                card.style.transform = '';
+                                if (window.isDraggingFolder) return;
+                                e.preventDefault();
+                                e.stopPropagation();
+                                var fileName = e.dataTransfer.getData('text/plain');
+                                if (fileName && fileName !== 'drag_folder') {
+                                    window.dropIntoStorageFolder(fileName, folder.name);
                                 }
+                            });
+                        });
+
+                        if (fContainer && !searchVal) {
+                            const addBtn = document.createElement('button');
+                            addBtn.className = 'folder-add-btn';
+                            addBtn.onclick = window.createStorageFolder;
+                            addBtn.innerHTML = '<i class="fa-solid fa-plus" style="font-size:12px;"></i><span>New Folder</span>';
+                            fContainer.appendChild(addBtn);
+
+                            if (typeof Sortable !== 'undefined') {
+                                window.storageFoldersSortable = new Sortable(fContainer, {
+                                    group: { name: 'storageFolders', put: false },
+                                    draggable: '.folder-card',
+                                    animation: 250, delay: 350, delayOnTouchOnly: true, touchStartThreshold: 3, filter: 'button',
+                                    onStart: () => {
+                                        window.isDraggingFolder = true;
+                                        const menu = document.getElementById('folderContextMenu');
+                                        if (menu) menu.classList.remove('open');
+                                    },
+                                    onEnd: async () => {
+                                        window.isDraggingFolder = false;
+                                        let items = Array.from(fContainer.querySelectorAll('.folder-card'));
+                                        let orderMap = items.map(el => el.getAttribute('data-id'));
+                                        try {
+                                            const { data } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
+                                            const prevState = (data && data.state) || {};
+                                            await supabaseClient.from('user_data').upsert({
+                                                id: USER_DOC_ID,
+                                                state: { ...prevState, storageFoldersOrder: orderMap }
+                                            });
+                                        } catch (e) {
+                                            console.error('Failed to sync storage folder order:', e);
+                                        }
+                                    }
+                                });
+                            }
+                        }
             }
                     }
 
