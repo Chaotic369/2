@@ -2,23 +2,10 @@
 <html lang="en">
 <head>
 <script>
-window.startVoiceNote = async function() {
-    document.getElementById('notesFabContainer').classList.remove('active');
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return toast('Voice input not supported in this browser', 'err');
-    
-    let stream;
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-                echoCancellation: false,
-                noiseSuppression: false,
-                autoGainControl: false,
-                channelCount: 1
-            }
-        });
-    } catch(e) {
-        return toast('Microphone access denied', 'err');
+  // Zero-Latency Local Cache Boot
+  (function() {
+    if (localStorage.getItem('sovereign_theme') === 'light') {
+        document.documentElement.classList.add('light-theme');
     } else {
         document.documentElement.classList.remove('light-theme');
     }
@@ -2247,7 +2234,6 @@ window.startVoiceNote = async function() {
 
     let stream;
     try {
-        // Pure high-fidelity mic capture matching the chat app pipeline
         stream = await navigator.mediaDevices.getUserMedia({
             audio: {
                 echoCancellation: false,
@@ -2278,51 +2264,29 @@ window.startVoiceNote = async function() {
     const audioChunks = [];
     mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
 
-    let transcript = '';
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition = null;
-
-    if (SpeechRecognition) {
-        try {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            recognition.onresult = (event) => {
-                if (event.results && event.results[0] && event.results[0][0]) {
-                    transcript = event.results[0][0].transcript;
-                }
-            };
-            recognition.onerror = () => {};
-            recognition.start();
-        } catch (recErr) {
-            console.warn('Speech recognition bypassed for audio clarity:', recErr);
-        }
-    }
-
-    toast('Recording... tap screen or wait to finish', 'info', 6000);
+    toast('Recording... Tap screen to stop', 'info', 10000);
     mediaRecorder.start();
 
-    // Auto-stop after 30s or on user tap to finish
     let finished = false;
-    const stopRecordingSession = () => {
+    const stopRecordingSession = (e) => {
         if (finished) return;
         finished = true;
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         window.removeEventListener('pointerdown', stopRecordingSession, true);
-        if (recognition) { try { recognition.stop(); } catch(e) {} }
         if (mediaRecorder.state !== 'inactive') mediaRecorder.stop();
     };
 
     setTimeout(() => {
         window.addEventListener('pointerdown', stopRecordingSession, { once: true, capture: true });
-    }, 400);
-
-    const autoStopTimer = setTimeout(stopRecordingSession, 30000);
+    }, 350);
 
     mediaRecorder.onstop = async function() {
-        clearTimeout(autoStopTimer);
         stream.getTracks().forEach(track => track.stop());
 
-        toast('Saving crystal clear voice note...', 'info');
+        toast('Saving...', 'info');
         showProgress(30);
 
         const isMp4 = mediaRecorder.mimeType && mediaRecorder.mimeType.includes('mp4');
@@ -2342,10 +2306,9 @@ window.startVoiceNote = async function() {
             toast('Failed to save audio file', 'err');
         }
 
-        const transcriptClean = transcript ? transcript.trim() : '';
         const newNote = {
             id: 'n_' + Date.now(),
-            text: (transcriptClean ? transcriptClean + '\n' : '') + audioUrl,
+            text: audioUrl,
             title: '',
             color: 'var(--note-base)',
             pinned: false,
@@ -2360,67 +2323,7 @@ window.startVoiceNote = async function() {
         await window.saveNotesData();
         window.renderNotes();
         hideProgress();
-        toast('Voice note saved cleanly!', 'ok');
-    };
-};
-    
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    
-    let transcript = '';
-
-    toast('Listening... Speak now', 'info', 5000);
-    mediaRecorder.start();
-    recognition.start();
-
-    recognition.onresult = function(event) {
-        transcript = event.results[0][0].transcript;
-    };
-
-    recognition.onend = function() {
-        if (mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-    };
-
-    recognition.onerror = function(event) {
-        toast('Voice recognition error: ' + event.error, 'err');
-        if (mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-    };
-
-    mediaRecorder.onstop = async function() {
-        stream.getTracks().forEach(track => track.stop());
-        
-        toast('Saving voice and transcript...', 'info');
-        showProgress(30);
-
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        const uniqueName = `voice_note_${Date.now()}.webm`;
-        
-        const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, audioBlob);
-        let audioUrl = '';
-        
-        if (!error) {
-            const { data } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(uniqueName);
-            audioUrl = data.publicUrl;
-            window.loadFiles(); // Sync it into the Files tab too
-        } else {
-            toast('Failed to save audio file', 'err');
-        }
-
-        const transcriptClean = transcript ? transcript.trim() : '';
-                const newNote = {
-                    id: 'n_' + Date.now(),
-                    text: (transcriptClean ? transcriptClean + '\n' : '') + audioUrl, 
-                    title: '', color: 'var(--note-base)',
-                    pinned: false, folderId: window.currentFolderView,
-                    images: [],
-                    createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
-                };
-        
-        S.notes.push(newNote);
-        await window.saveNotesData(); window.renderNotes();
-        hideProgress();
-        toast('Audio and note saved', 'ok');
+        toast('Note saved', 'ok');
     };
 };
 
