@@ -711,6 +711,25 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
        </div>
      </div>
 
+<!-- Branch Management Modal -->
+<div id="branchModal" style="width:92vw; max-width:440px; display:none; flex-direction:column; padding:16px; box-sizing:border-box;">
+  <div class="window-header" style="margin-bottom:12px; padding-bottom:8px;">
+    <div class="win-title"><i class="fa-solid fa-code-branch" style="color:var(--amber); margin-right:6px;"></i> Branch Manager</div>
+    <button class="panel-close" id="branchCloseBtn">✕</button>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:12px;">
+    <div style="display:flex; gap:6px;">
+      <input type="text" id="newBranchNameInput" placeholder="new-branch-name" style="flex:1; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#fff; padding:6px 10px; border-radius:8px; font-size:11px; outline:none;">
+      <button id="createBranchBtn" class="btn" style="width:auto; padding:0 12px; height:28px; background:rgba(57,211,83,0.2); border:1px solid rgba(57,211,83,0.4); color:var(--green); font-size:10px; font-weight:600;"><i class="fa-solid fa-plus" style="margin-right:4px;"></i>Create</button>
+    </div>
+    <div style="font-size:10px; color:rgba(255,255,255,0.5); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Repository Branches</div>
+    <div id="branchModalList" style="display:flex; flex-direction:column; gap:4px; max-height:45vh; overflow-y:auto; padding-right:2px;">
+      <div style="color:rgba(255,255,255,0.5); font-size:11px;">Loading branches...</div>
+    </div>
+  </div>
+</div>
+
 <div id="statusBar">
   <span class="sb-item" id="sb-count">— files</span>
   <span class="sb-sep">|</span>
