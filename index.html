@@ -702,6 +702,16 @@ label[for="storage-search-input"]::after { font-size: 5.5px; }
 .category-card [style*="font-size:13px"] { font-size: 10px !important; }
 .category-card [style*="font-size:11px"] { font-size: 8px !important; }
 
+.section-label { grid-column: 1 / -1; width: 100%; font-size: 13px; font-weight: 700; color: var(--text-muted); margin: 8px 0 4px 0; padding: 0 4px; }
+.notes-fab-container { position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); right: 18px; z-index: 10000; display: none; flex-direction: column; align-items: flex-end; gap: 12px; }
+.notes-fab-menu { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; opacity: 0; pointer-events: none; transform: translateY(20px); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.notes-fab-container.active .notes-fab-menu { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.fab-item { background: var(--bg-surface); color: var(--amber); padding: 12px 20px; border-radius: 20px; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
+html.light-theme .fab-item { background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05); }
+.fab-item:hover { background: rgba(227, 179, 65, 0.15); }
+.fab-main { width: 52px; height: 52px; border-radius: 18px; background: var(--amber); color: #000; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 6px 20px rgba(227, 179, 65, 0.4); cursor: pointer; border: none; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.notes-fab-container.active .fab-main { transform: rotate(135deg); border-radius: 50%; }
+
 /* Floating controls */
 #uploadSquircleBtn { height: 30px; padding: 0 10px; gap: 5px; font-size: 11px; border-radius: 9px; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); right: 10px; }
 #uploadSquircleBtn::after { font-size: 10px; }
@@ -1087,6 +1097,32 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   <i class="fa-solid fa-bolt" style="color:var(--amber); font-size:16px;"></i>
   <input id="quick-note-input" type="text" style="flex:1; background:transparent; border:none; color:#ffffff; font-family:inherit; font-size:14px; outline:none;" placeholder="add new notes" autocomplete="off" onkeydown="if(event.key==='Enter')window.quickAddNote()">
   </div>
+
+<div id="notesFabContainer" class="notes-fab-container">
+  <div class="notes-fab-menu" id="notesFabMenu">
+    <button class="fab-item" onclick="window.startVoiceNote()"><i class="fa-solid fa-microphone"></i> Audio</button>
+    <button class="fab-item" onclick="document.getElementById('noteImageUploadInput').click()"><i class="fa-solid fa-image"></i> Image</button>
+    <button class="fab-item" onclick="window.openDrawingModal()"><i class="fa-solid fa-paintbrush"></i> Drawing</button>
+    <button class="fab-item" onclick="window.createListNote()"><i class="fa-solid fa-square-check"></i> List</button>
+    <button class="fab-item" onclick="window.createTextNote()"><i class="fa-solid fa-font"></i> Text</button>
+  </div>
+  <button class="fab-main" onclick="document.getElementById('notesFabContainer').classList.toggle('active')">
+    <i class="fa-solid fa-plus"></i>
+  </button>
+</div>
+<input type="file" id="noteImageUploadInput" style="display:none;" accept="image/*" onchange="window.handleFabImage(event)">
+
+<div id="drawingModal" class="modal-base" style="width: 90vw; max-width: 500px; height: 70vh; max-height: 600px; padding: 16px; display: none; flex-direction: column; gap: 12px; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 55000;">
+   <div style="display:flex; justify-content:space-between; align-items:center;">
+     <h4 style="font-weight:600; font-size:16px;">Drawing</h4>
+     <button class="action-mini-btn" onclick="document.getElementById('drawingModal').classList.remove('open'); document.getElementById('drawingModal').style.display='none';"><i class="fa-solid fa-xmark"></i></button>
+   </div>
+   <canvas id="drawCanvas" style="flex:1; background:#fff; border-radius:12px; touch-action:none; border: 1px solid var(--text-muted);"></canvas>
+   <div style="display:flex; justify-content:space-between; gap:12px;">
+     <button class="btn" style="padding:8px 16px; background:var(--bg-surface);" onclick="window.clearDrawing()"><i class="fa-solid fa-trash"></i> Clear</button>
+     <button class="btn" style="padding:8px 16px; background:var(--amber); color:#000;" onclick="window.saveDrawing()"><i class="fa-solid fa-check"></i> Save</button>
+   </div>
+</div>
 
 <div id="mainWorkspace">
   
@@ -1577,6 +1613,7 @@ window.switchPage = function(page) {
   const bNotes = document.getElementById('navBtnNotes');
   const uploadBtn = document.getElementById('uploadSquircleBtn');
   const noteBar = document.querySelector('.quick-input-bar');
+  const notesFab = document.getElementById('notesFabContainer');
 
   if (page === 'files') {
     if (pFiles) pFiles.classList.add('active-page');
@@ -1585,6 +1622,7 @@ window.switchPage = function(page) {
     if (bNotes) bNotes.classList.remove('active');
     if (uploadBtn) uploadBtn.style.display = 'flex';
     if (noteBar) noteBar.style.display = 'none';
+    if (notesFab) notesFab.style.display = 'none';
   } else {
     if (pFiles) pFiles.classList.remove('active-page');
     if (pNotes) pNotes.classList.add('active-page');
@@ -1592,6 +1630,7 @@ window.switchPage = function(page) {
     if (bNotes) bNotes.classList.add('active');
     if (uploadBtn) uploadBtn.style.display = 'none';
     if (noteBar) noteBar.style.display = 'flex';
+    if (notesFab) notesFab.style.display = 'flex';
     setTimeout(() => { if (typeof window.packMasonry === 'function') window.packMasonry(); }, 50);
   }
 };
@@ -1957,6 +1996,162 @@ window.loadNotesData = async function() {
 window.sanitizeNoteText = function(str) {
     if (!str) return str;
     return str.replace(/[\u200B-\u200F\uFEFF\u202A-\u202E]/g, '');
+};
+
+window.startVoiceNote = function() {
+    document.getElementById('notesFabContainer').classList.remove('active');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return toast('Voice input not supported in this browser', 'err');
+    
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    
+    toast('Listening...', 'info', 5000);
+    
+    recognition.onresult = async function(event) {
+        const transcript = event.results[0][0].transcript;
+        toast('Saving audio note...', 'info');
+        
+        const newNote = {
+            id: 'n_' + Date.now(),
+            text: transcript, title: 'Audio Note', color: 'var(--note-base)',
+            pinned: false, folderId: window.currentFolderView,
+            images: [],
+            createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
+        };
+        S.notes.push(newNote);
+        await window.saveNotesData(); window.renderNotes();
+        toast('Audio note saved', 'ok');
+    };
+    
+    recognition.onerror = function(event) {
+        toast('Voice recognition error: ' + event.error, 'err');
+    };
+    
+    recognition.start();
+};
+
+window.createTextNote = function() {
+    document.getElementById('notesFabContainer').classList.remove('active');
+    const newNote = {
+        id: 'n_' + Date.now(),
+        text: '', title: '', color: 'var(--note-base)',
+        pinned: false, folderId: window.currentFolderView, images: [],
+        createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
+    };
+    S.notes.push(newNote);
+    window.saveNotesData().then(() => {
+        window.renderNotes();
+        window.openNoteModal(newNote.id);
+    });
+};
+
+window.createListNote = function() {
+    document.getElementById('notesFabContainer').classList.remove('active');
+    const newNote = {
+        id: 'n_' + Date.now(),
+        text: '- [ ] ', title: '', color: 'var(--note-base)',
+        pinned: false, folderId: window.currentFolderView, images: [],
+        createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
+    };
+    S.notes.push(newNote);
+    window.saveNotesData().then(() => {
+        window.renderNotes();
+        window.openNoteModal(newNote.id);
+    });
+};
+
+window.handleFabImage = async function(event) {
+    document.getElementById('notesFabContainer').classList.remove('active');
+    try {
+        const file = event.target.files[0];
+        if(!file) return;
+        event.target.value = '';
+        showProgress(20); toast('Uploading image...', 'info');
+        
+        const uniqueName = `note_img_${Date.now()}_${file.name}`;
+        const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, file);
+        if(error) { hideProgress(); return toast('Upload failed', 'err'); }
+        
+        const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(uniqueName);
+        
+        const newNote = {
+            id: 'n_' + Date.now(),
+            text: '', title: '', color: 'var(--note-base)',
+            pinned: false, folderId: window.currentFolderView,
+            images: [urlData.publicUrl],
+            createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
+        };
+        S.notes.push(newNote);
+        await window.saveNotesData(); window.renderNotes(); window.loadFiles();
+        hideProgress(); toast('Image note created!', 'ok');
+    } catch (err) { hideProgress(); toast('Upload exception', 'err'); }
+};
+
+window.openDrawingModal = function() {
+    document.getElementById('notesFabContainer').classList.remove('active');
+    const m = document.getElementById('drawingModal');
+    m.style.display = 'flex';
+    m.classList.add('open');
+    setTimeout(window.initDrawing, 50);
+};
+
+window.initDrawing = function() {
+    const cvs = document.getElementById('drawCanvas');
+    if(!cvs) return;
+    cvs.width = cvs.clientWidth; cvs.height = cvs.clientHeight;
+    const ctx = cvs.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,cvs.width,cvs.height);
+    ctx.strokeStyle = '#000000'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    let drawing=false;
+    
+    cvs.onpointerdown = e => { 
+        drawing=true; 
+        const rect = cvs.getBoundingClientRect();
+        ctx.beginPath(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top); 
+    };
+    cvs.onpointermove = e => { 
+        if(drawing){ 
+            const rect = cvs.getBoundingClientRect();
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top); 
+            ctx.stroke(); 
+        }
+    };
+    cvs.onpointerup = () => drawing=false;
+    cvs.onpointerout = () => drawing=false;
+};
+
+window.clearDrawing = function() {
+    const cvs = document.getElementById('drawCanvas');
+    if(!cvs) return;
+    const ctx = cvs.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,cvs.width,cvs.height);
+};
+
+window.saveDrawing = function() {
+    const cvs = document.getElementById('drawCanvas');
+    if(!cvs) return;
+    document.getElementById('drawingModal').classList.remove('open');
+    document.getElementById('drawingModal').style.display='none';
+    
+    cvs.toBlob(async (blob) => {
+        showProgress(20); toast('Uploading drawing...', 'info');
+        const file = new File([blob], 'drawing.png', {type: 'image/png'});
+        const uniqueName = `note_draw_${Date.now()}.png`;
+        const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(uniqueName, file);
+        if(error) { hideProgress(); return toast('Upload failed', 'err'); }
+        const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(uniqueName);
+        
+        const newNote = {
+            id: 'n_' + Date.now(), text: '', title: 'Drawing', color: 'var(--note-base)',
+            pinned: false, folderId: window.currentFolderView, images: [urlData.publicUrl],
+            createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
+        };
+        S.notes.push(newNote);
+        await window.saveNotesData(); window.renderNotes(); window.loadFiles();
+        hideProgress(); toast('Drawing saved!', 'ok');
+    });
 };
 
 window.quickAddNote = async function() {
@@ -2688,14 +2883,25 @@ window.renderNotes = function() {
                                                     }
 
                                 let visibleNotes = S.notes.filter(n => window.currentFolderView ? n.folderId === window.currentFolderView : !n.folderId);
-                                    visibleNotes.sort((a, b) => {
-                                        if(a.pinned && !b.pinned) return -1;
-                                        if(!a.pinned && b.pinned) return 1;
-                                        return (b.order || 0) - (a.order || 0);
-                                    });
+                                                                    visibleNotes.sort((a, b) => {
+                                                                        if(a.pinned && !b.pinned) return -1;
+                                                                        if(!a.pinned && b.pinned) return 1;
+                                                                        return (b.order || 0) - (a.order || 0);
+                                                                    });
 
-    visibleNotes.forEach(n => {
-            const el = document.createElement('div');
+                                    let hasShownPinned = false;
+                                    let hasShownOthers = false;
+
+                                    visibleNotes.forEach(n => {
+                                        if (n.pinned && !hasShownPinned) {
+                                            const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.textContent = 'Pinned'; nContainer.appendChild(lbl);
+                                            hasShownPinned = true;
+                                        } else if (!n.pinned && !hasShownOthers && hasShownPinned) {
+                                            const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.textContent = 'Others'; nContainer.appendChild(lbl);
+                                            hasShownOthers = true;
+                                        }
+
+                                            const el = document.createElement('div');
             let txtLen = n.text ? n.text.length : 0;
             let spanClass = ' span-small';
         
