@@ -766,6 +766,10 @@ button.btn { font-size: 11px; }
 .nm-add { display: flex; align-items: center; gap: 10px; padding: 6px 0; background: transparent; color: var(--text-muted); font-size: 12px; cursor: pointer; text-align: left; }
 .nm-add i { width: 16px; text-align: center; font-size: 11px; }
 .nm-add:hover { color: var(--amber); }
+.md-preview > div[style*="display:flex"] { margin: 1px 0 !important; line-height: 1.35; }
+.md-preview input[type="checkbox"] { appearance: none; -webkit-appearance: none; flex: 0 0 13px; width: 13px; height: 13px; margin: 0 8px 0 0 !important; border: 1.5px solid var(--text-muted) !important; border-radius: 4px; background: transparent; position: relative; cursor: pointer; }
+.md-preview input[type="checkbox"]:checked { background: var(--amber); border-color: var(--amber) !important; }
+.md-preview input[type="checkbox"]:checked::after { content: ''; position: absolute; left: 3.5px; top: 0.5px; width: 3px; height: 6.5px; border: solid #000; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
 .nm-divider { font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); padding: 8px 0 4px; box-shadow: inset 0 1px 0 rgba(127,127,127,0.18); margin-top: 4px; }
 
 .category-card {
@@ -1543,7 +1547,7 @@ window.parseMarkdown = function(text, noteId, alreadyEscaped) {
         let chk = `<input type="checkbox" ${isChecked ? 'checked' : ''} onchange="window.toggleTaskState('${noteId}', ${taskIndex}, this.checked)" onclick="event.stopPropagation()" style="margin-right:8px; cursor:pointer; accent-color:var(--amber);">`;
         let txt = `<span style="${isChecked ? 'text-decoration:line-through;opacity:0.5;' : ''}">${label}</span>`;
         taskIndex++;
-        return `<div style="display:flex;align-items:center;margin:2px 0;">${chk}${txt}</div>` + newline;
+        return `<div style="display:flex;align-items:center;margin:2px 0;">${chk}${txt}</div>`;
     });
     return `<div class="md-preview" style="white-space:pre-wrap; word-break:break-word;">${html}</div>`;
 };
