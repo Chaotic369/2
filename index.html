@@ -1892,15 +1892,29 @@ window.parseMarkdown = function(text, noteId, alreadyEscaped) {
     html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
     
     // Google Keep style audio chip with clean round play button
-    html = html.replace(/(?:<br\s*\/?>|\n)?\s*(https?:\/\/[^\s]+\.(?:webm|mp3|wav|ogg|m4a)(?:\?[^\s]*)?)/gi, (match, url) => {
-        return `<div class="keep-audio-chip" onclick="event.stopPropagation()">` +
-            `<button class="keep-audio-play-btn" type="button" onclick="window.toggleKeepAudio(this, '${url}', event)"><i class="fa-solid fa-play"></i></button>` +
-            `<div class="keep-audio-track">` +
-                `<div class="keep-audio-bar" onclick="window.seekKeepAudio(this, event)"><div class="keep-audio-fill"></div></div>` +
-                `<span class="keep-audio-time">0:00</span>` +
-            `</div>` +
-        `</div>`;
-    });
+        html = html.replace(/(?:<br\s*\/?>|\n)?\s*(https?:\/\/[^\s]+\.(?:webm|mp3|wav|ogg|m4a)(?:\?[^\s]*)?)/gi, (match, url) => {
+            const tempId = 'kat_' + Math.random().toString(36).substr(2, 9);
+            const preloadAudio = new Audio();
+            preloadAudio.preload = 'metadata';
+            preloadAudio.src = url;
+            preloadAudio.onloadedmetadata = () => {
+                const el = document.getElementById(tempId);
+                if (el && preloadAudio.duration) {
+                    const total = Math.ceil(preloadAudio.duration);
+                    const m = Math.floor(total / 60);
+                    const s = total % 60;
+                    el.textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+                }
+            };
+
+            return `<div class="keep-audio-chip" onclick="event.stopPropagation()">` +
+                `<button class="keep-audio-play-btn" type="button" onclick="window.toggleKeepAudio(this, '${url}', event)"><i class="fa-solid fa-play"></i></button>` +
+                `<div class="keep-audio-track">` +
+                    `<div class="keep-audio-bar" onclick="window.seekKeepAudio(this, event)"><div class="keep-audio-fill"></div></div>` +
+                    `<span class="keep-audio-time" id="${tempId}">--:--</span>` +
+                `</div>` +
+            `</div>`;
+        });
     
     let taskIndex = 0;
     html = html.replace(/-\s\[([xX ])\]\s(.*?)(\n|$)/g, (match, state, label, newline) => {
