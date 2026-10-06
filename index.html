@@ -240,11 +240,11 @@ html.has-wallpaper #storage-toolbar .action-mini-btn {
 
 /* FLOATING SQUIRCLE UPLOAD BUTTON (BOTTOM RIGHT) */
 #uploadSquircleBtn {
-  position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 38px); right: 18px; z-index: 10000; width: 44px; height: 44px; border-radius: 16px;
+  position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 38px); right: 18px; z-index: 10000; width: 52px; height: 52px; border-radius: 18px;
   background: var(--amber); color: #000000; border: none !important;
-  display: flex; align-items: center; justify-content: center; font-size: 17px;
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
   cursor: pointer; transition: transform 0.18s ease, box-shadow 0.18s ease;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 #uploadSquircleBtn:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4); }
 #uploadSquircleBtn:active { transform: scale(0.92); }
@@ -487,8 +487,8 @@ label[for="storage-search-input"]::after { content: "Search"; font-size: 7px; fo
 #btn-back-storage::after, #btn-back-folder::after { content: "Back"; font-size: 10px; text-transform: none; letter-spacing: 0; }
 
 /* Upload button */
-#uploadSquircleBtn { width: auto; padding: 0 14px; gap: 8px; }
-#uploadSquircleBtn::after { content: "Upload"; font-size: 12px; font-weight: 700; }
+#uploadSquircleBtn { width: 52px !important; height: 52px !important; padding: 0 !important; gap: 0 !important; border-radius: 18px !important; font-size: 22px !important; }
+#uploadSquircleBtn::after { display: none !important; }
 
 /* File card buttons */
 .file-card .action-mini-btn { width: 36px !important; height: 38px !important; }
