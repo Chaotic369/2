@@ -31,6 +31,78 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <style>
+/* Google Keep Audio Player Component */
+.keep-audio-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  padding: 4px 12px 4px 4px;
+  margin-top: 6px;
+  user-select: none;
+  max-width: 100%;
+}
+html.light-theme .keep-audio-chip {
+  background: rgba(0, 0, 0, 0.06);
+}
+.keep-audio-play-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--text-main);
+  color: var(--bg-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.keep-audio-play-btn:hover {
+  transform: scale(1.06);
+}
+.keep-audio-play-btn:active {
+  transform: scale(0.92);
+}
+.keep-audio-play-btn i {
+  margin-left: 2px;
+}
+.keep-audio-play-btn.playing i {
+  margin-left: 0;
+}
+.keep-audio-track {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 80px;
+}
+.keep-audio-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(127, 127, 127, 0.35);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.keep-audio-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--text-main);
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+.keep-audio-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
 :root {
   /* Claude Dark Theme */
   --bg-base: #000000;
@@ -1301,8 +1373,9 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
                </div>
             </div>
         <div id="nm-gallery" style="display:none; flex-wrap:wrap; gap:8px; margin-bottom:12px;"></div>
-        <textarea id="nm-text" style="width:100%; min-height:250px; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:15px; line-height:1.6; resize:vertical; outline:none;" placeholder="Start typing..." oninput="window.autoSaveNote()" onkeydown="window.noteListEnter(event)"></textarea>
-                <div id="nm-list" style="display:none; flex-direction:column; gap:2px; min-height:120px; max-height:50vh; overflow-y:auto;"></div>
+                <div id="nm-audio-preview" style="display:none; margin-bottom:10px;"></div>
+                <textarea id="nm-text" style="width:100%; min-height:250px; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:15px; line-height:1.6; resize:vertical; outline:none;" placeholder="Start typing..." oninput="window.autoSaveNote()" onkeydown="window.noteListEnter(event)"></textarea>
+                        <div id="nm-list" style="display:none; flex-direction:column; gap:2px; min-height:120px; max-height:50vh; overflow-y:auto;"></div>
         <div id="nm-timestamp" style="font-size:11px; color:var(--text-muted); opacity:0.7; text-align:right; font-family:'JetBrains Mono', monospace; margin-top:4px;"></div>
     <input type="hidden" id="nm-id"><input type="hidden" id="nm-color"><input type="hidden" id="nm-pinned">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:16px; border:none !important;">
@@ -1651,6 +1724,75 @@ window.fileCategories = {
     'Others': { icon: 'fa-solid fa-file', color: 'var(--text-muted)', exts: [] }
 };
 
+window.toggleKeepAudio = function(btn, url, event) {
+    if (event) event.stopPropagation();
+    const chip = btn.closest('.keep-audio-chip');
+    if (!chip) return;
+    let audio = chip._audioInstance;
+    const icon = btn.querySelector('i');
+    const fill = chip.querySelector('.keep-audio-fill');
+    const timeDisplay = chip.querySelector('.keep-audio-time');
+
+    if (!audio) {
+        audio = new Audio(url);
+        chip._audioInstance = audio;
+
+        audio.addEventListener('timeupdate', () => {
+            if (audio.duration) {
+                const pct = (audio.currentTime / audio.duration) * 100;
+                if (fill) fill.style.width = pct + '%';
+                if (timeDisplay) {
+                    const sec = Math.floor(audio.currentTime);
+                    const m = Math.floor(sec / 60);
+                    const s = sec % 60;
+                    timeDisplay.textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+                }
+            }
+        });
+
+        audio.addEventListener('ended', () => {
+            btn.classList.remove('playing');
+            if (icon) icon.className = 'fa-solid fa-play';
+            if (fill) fill.style.width = '0%';
+            if (timeDisplay) timeDisplay.textContent = '0:00';
+        });
+    }
+
+    if (window._activeKeepAudio && window._activeKeepAudio !== audio) {
+        window._activeKeepAudio.pause();
+        document.querySelectorAll('.keep-audio-play-btn.playing').forEach(b => {
+            b.classList.remove('playing');
+            const i = b.querySelector('i');
+            if (i) i.className = 'fa-solid fa-play';
+        });
+    }
+
+    if (audio.paused) {
+        audio.play().then(() => {
+            btn.classList.add('playing');
+            if (icon) icon.className = 'fa-solid fa-pause';
+            window._activeKeepAudio = audio;
+        }).catch(err => {
+            console.error('Playback error:', err);
+        });
+    } else {
+        audio.pause();
+        btn.classList.remove('playing');
+        if (icon) icon.className = 'fa-solid fa-play';
+    }
+};
+
+window.seekKeepAudio = function(bar, event) {
+    if (event) event.stopPropagation();
+    const chip = bar.closest('.keep-audio-chip');
+    if (!chip || !chip._audioInstance) return;
+    const rect = bar.getBoundingClientRect();
+    const pos = (event.clientX - rect.left) / rect.width;
+    if (chip._audioInstance.duration) {
+        chip._audioInstance.currentTime = pos * chip._audioInstance.duration;
+    }
+};
+
 window.parseMarkdown = function(text, noteId, alreadyEscaped) {
     if (!text) return '';
     let html = alreadyEscaped ? String(text) : String(text).replace(/</g, '<').replace(/>/g, '>');
@@ -1659,8 +1801,16 @@ window.parseMarkdown = function(text, noteId, alreadyEscaped) {
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
     
-    // Auto-embed uploaded audio links directly into playable widgets
-    html = html.replace(/(https?:\/\/[^\s]+\.(?:webm|mp3|wav|ogg|m4a)(?:\?[^\s]*)?)/gi, '<br><audio controls src="$1" style="width:100%; height:32px; border-radius:16px; margin:4px 0; outline:none;" onclick="event.stopPropagation()"></audio>');
+    // Google Keep style audio chip with clean round play button
+    html = html.replace(/(?:<br\s*\/?>|\n)?\s*(https?:\/\/[^\s]+\.(?:webm|mp3|wav|ogg|m4a)(?:\?[^\s]*)?)/gi, (match, url) => {
+        return `<div class="keep-audio-chip" onclick="event.stopPropagation()">` +
+            `<button class="keep-audio-play-btn" type="button" onclick="window.toggleKeepAudio(this, '${url}', event)"><i class="fa-solid fa-play"></i></button>` +
+            `<div class="keep-audio-track">` +
+                `<div class="keep-audio-bar" onclick="window.seekKeepAudio(this, event)"><div class="keep-audio-fill"></div></div>` +
+                `<span class="keep-audio-time">0:00</span>` +
+            `</div>` +
+        `</div>`;
+    });
     
     let taskIndex = 0;
     html = html.replace(/-\s\[([xX ])\]\s(.*?)(\n|$)/g, (match, state, label, newline) => {
@@ -2062,14 +2212,15 @@ window.startVoiceNote = async function() {
             toast('Failed to save audio file', 'err');
         }
 
-        const newNote = {
-            id: 'n_' + Date.now(),
-            text: (transcript ? transcript + '\n\n' : '') + audioUrl, 
-            title: 'Audio Note', color: 'var(--note-base)',
-            pinned: false, folderId: window.currentFolderView,
-            images: [],
-            createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
-        };
+        const transcriptClean = transcript ? transcript.trim() : '';
+                const newNote = {
+                    id: 'n_' + Date.now(),
+                    text: (transcriptClean ? transcriptClean + '\n' : '') + audioUrl, 
+                    title: '', color: 'var(--note-base)',
+                    pinned: false, folderId: window.currentFolderView,
+                    images: [],
+                    createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
+                };
         
         S.notes.push(newNote);
         await window.saveNotesData(); window.renderNotes();
@@ -2327,9 +2478,30 @@ window.openNoteModal = function(id) {
     const nmTextReset = document.getElementById('nm-text');
     if (nmTextReset) { nmTextReset.style.flex = ''; nmTextReset.style.height = ''; }
     document.getElementById('nm-id').value = n.id;
-    document.getElementById('nm-title').value = n.title || '';
-    document.getElementById('nm-text').value = n.text || '';
-        window.applyNoteListMode(n.text || '');
+        document.getElementById('nm-title').value = n.title || '';
+
+        const audioMatch = (n.text || '').match(/(https?:\/\/[^\s]+\.(?:webm|mp3|wav|ogg|m4a)(?:\?[^\s]*)?)/i);
+        const audioHost = document.getElementById('nm-audio-preview');
+        if (audioHost) {
+            if (audioMatch) {
+                const aUrl = audioMatch[1];
+                audioHost.innerHTML = `<div class="keep-audio-chip" style="width:100%; padding:6px 14px 6px 6px;">` +
+                    `<button class="keep-audio-play-btn" type="button" onclick="window.toggleKeepAudio(this, '${aUrl}', event)"><i class="fa-solid fa-play"></i></button>` +
+                    `<div class="keep-audio-track">` +
+                        `<div class="keep-audio-bar" onclick="window.seekKeepAudio(this, event)"><div class="keep-audio-fill"></div></div>` +
+                        `<span class="keep-audio-time">0:00</span>` +
+                    `</div>` +
+                `</div>`;
+                audioHost.style.display = 'block';
+            } else {
+                audioHost.innerHTML = '';
+                audioHost.style.display = 'none';
+            }
+        }
+
+        const cleanDisplayText = (n.text || '').replace(/(?:<br\s*\/?>|\n)?\s*https?:\/\/[^\s]+\.(?:webm|mp3|wav|ogg|m4a)(?:\?[^\s]*)?/gi, '').trim();
+        document.getElementById('nm-text').value = cleanDisplayText;
+        window.applyNoteListMode(cleanDisplayText);
     
     window._initialNoteState = { title: n.title || '', text: n.text || '', color: n.color };
     
@@ -2406,6 +2578,10 @@ window.removeModalImage = async function(event, idx) {
 };
 
 window.saveNoteModal = function() {
+    if (window._activeKeepAudio) {
+        window._activeKeepAudio.pause();
+        window._activeKeepAudio = null;
+    }
     const id = document.getElementById('nm-id').value;
     const n = S.notes.find(x => x.id === id);
     if(n) {
@@ -2413,6 +2589,11 @@ window.saveNoteModal = function() {
         let newText = window.sanitizeNoteText(document.getElementById('nm-text').value.trim());
         let newColor = document.getElementById('nm-color').value;
         let newPinned = document.getElementById('nm-pinned').value === 'true';
+
+        const existingAudio = (n.text || '').match(/(https?:\/\/[^\s]+\.(?:webm|mp3|wav|ogg|m4a)(?:\?[^\s]*)?)/i);
+        if (existingAudio && !newText.includes(existingAudio[1])) {
+            newText = (newText ? newText + '\n' : '') + existingAudio[1];
+        }
 
         if ((n.title || '') !== newTitle || (n.text || '') !== newText || window.getUpgradedColor(n.color) !== newColor || (!!n.pinned) !== newPinned) {
             n.title = newTitle;
