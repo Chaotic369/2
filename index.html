@@ -277,6 +277,250 @@ html.light-theme .file-card {
 }
 .folder-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
 
+/* COMPACT HORIZONTAL FOLDER STRIP */
+#storage-folders-container, #folders-container {
+  display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 8px;
+  overflow-x: auto; overflow-y: hidden; width: 100%; padding: 4px 2px 8px 2px;
+  -webkit-overflow-scrolling: touch;
+}
+#storage-folders-container .folder-card, #folders-container .folder-card {
+  padding: 5px 12px; font-size: 12px; gap: 6px; border-radius: 16px; max-width: 140px; flex: 0 0 auto;
+  touch-action: pan-x pan-y;
+}
+#storage-folders-container .folder-card i, #folders-container .folder-card i { font-size: 12px; color: var(--amber); }
+#storage-folders-container .folder-card > div, #folders-container .folder-card > div { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.folder-add-btn {
+  display: flex; align-items: center; gap: 6px; flex: 0 0 auto; padding: 5px 12px; border-radius: 16px;
+  background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer;
+  border: 1px dashed var(--text-muted) !important; transition: transform 0.15s, color 0.15s;
+}
+.folder-add-btn:hover { color: var(--amber); transform: translateY(-2px); }
+.folder-add-btn:active { transform: scale(0.95); }
+.folder-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; padding: 0 4px; }
+.folder-section-title { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); }
+.folder-count-badge { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 10px; background: var(--bg-surface); color: var(--text-muted); }
+#storage-folders-wrapper, #notes-folders-wrapper { margin-bottom: 4px; }
+
+/* BUTTON ORGANIZATION */
+.action-mini-btn { flex-shrink: 0; }
+.top-bar-actions { gap: 2px; padding: 4px; border-radius: 22px; }
+.top-bar-actions .action-mini-btn { width: 34px; height: 34px; font-size: 14px; }
+.top-bar-actions .action-mini-btn:hover,
+#storage-toolbar .action-mini-btn:hover { background: rgba(127,127,127,0.18) !important; transform: none; }
+#storage-toolbar { gap: 2px !important; padding: 3px 6px; border-radius: 22px; }
+#storage-toolbar .action-mini-btn { width: 30px !important; height: 30px !important; }
+#storage-toolbar .action-mini-btn i { font-size: 15px !important; }
+#search-container { margin-right: 2px; }
+
+#fileContextMenu, #folderContextMenu { gap: 2px !important; padding: 12px !important; }
+#fileContextMenu .btn, #folderContextMenu .btn {
+  width: 100%; padding: 10px 12px !important; justify-content: flex-start; gap: 12px !important;
+  border-radius: 14px !important; font-size: 13px; font-weight: 500; background: transparent;
+}
+#fileContextMenu .btn i, #folderContextMenu .btn i { width: 18px; text-align: center; }
+#fileContextMenu .btn:hover, #folderContextMenu .btn:hover { background: rgba(127,127,127,0.16); filter: none; }
+
+#multiSelectBar { justify-content: center; gap: 8px !important; padding: 10px 14px !important; }
+#multiSelectBar > div:first-child { width: 100%; text-align: center; margin: 0 !important; }
+#multiSelectBar .btn { padding: 8px 14px !important; font-size: 12px; font-weight: 600; flex: 0 0 auto; border-radius: 18px; }
+#multiSelectBar .action-mini-btn { margin-left: 0 !important; }
+
+.modal-base .btn, #fullNoteModal .btn { min-height: 36px; font-size: 13px; font-weight: 600; }
+#renameModal > div:last-child, #fullNoteModal > div > div:last-child > div:last-child { align-items: center; }
+
+/* COMPACT UI SCALE */
+#mainWorkspace { top: calc(env(safe-area-inset-top, 0px) + 54px); bottom: calc(env(safe-area-inset-bottom, 0px) + 60px); padding: 10px 12px 16px 12px; }
+.workspace-panel { gap: 10px; }
+.keyboard-nav-dock { top: calc(env(safe-area-inset-top, 0px) + 8px); left: 12px; padding: 3px; gap: 4px; border-radius: 15px; }
+.kbd-nav-btn { width: 36px; height: 36px; border-radius: 12px; }
+.kbd-nav-btn i { font-size: 13px; }
+.kbd-nav-btn span { font-size: 6.5px; }
+.top-bar-actions { top: calc(env(safe-area-inset-top, 0px) + 8px); right: 12px; padding: 3px; }
+.top-bar-actions .action-mini-btn { width: 28px; height: 28px; font-size: 12px; }
+#storage-toolbar .action-mini-btn { width: 26px !important; height: 26px !important; }
+#storage-toolbar .action-mini-btn i { font-size: 13px !important; }
+.panel-header { font-size: 11px; padding-bottom: 4px; }
+#uploadSquircleBtn { width: 38px; height: 38px; border-radius: 13px; font-size: 15px; bottom: calc(env(safe-area-inset-bottom, 0px) + 32px); right: 14px; }
+.quick-input-bar { height: 38px; bottom: calc(env(safe-area-inset-bottom, 0px) + 32px); max-width: 320px; }
+#statusBar { height: 20px; font-size: 10px; padding: 0 10px; gap: 8px; }
+#multiSelectBar.active { bottom: calc(env(safe-area-inset-bottom, 0px) + 60px); }
+.file-card { padding: 8px 12px; gap: 10px; border-radius: 16px; }
+#filesGridContainer { gap: 8px; }
+.file-card .action-mini-btn { width: 28px !important; height: 28px !important; font-size: 12px; }
+.file-card [style*="width:42px"] { width: 34px !important; height: 34px !important; border-radius: 11px !important; font-size: 15px !important; }
+.note-card { padding: 12px; border-radius: 18px; font-size: 12px; gap: 6px; }
+.note-card-title { font-size: 13px; }
+#notes-container { gap: 10px; }
+.folder-card { font-size: 11px; }
+.category-card { width: 88px; padding: 12px 6px; border-radius: 20px; }
+.category-icon-wrapper { width: 42px; height: 42px; font-size: 20px; border-radius: 16px; }
+.modal-base { padding: 16px; font-size: 12px; border-radius: 22px; gap: 10px; }
+#fileContextMenu, #folderContextMenu { width: 220px !important; }
+#fileContextMenu .btn, #folderContextMenu .btn { padding: 8px 10px !important; font-size: 12px; }
+#multiSelectBar .btn { padding: 6px 12px !important; font-size: 11px; }
+#toast { top: 64px; padding: 8px 18px; font-size: 12px; }
+.file-row-input { padding: 8px 14px; font-size: 12px; }
+
+/* LAYOUT POLISH */
+.keyboard-nav-dock, .top-bar-actions { height: 44px; align-items: center; box-sizing: border-box; }
+.keyboard-nav-dock { padding: 3px 4px; gap: 4px; }
+.kbd-nav-btn { width: 38px; height: 36px; }
+.top-bar-actions { padding: 0 8px; gap: 4px; }
+.top-bar-actions .action-mini-btn { width: 32px; height: 32px; font-size: 14px; }
+
+#mainWorkspace { top: calc(env(safe-area-inset-top, 0px) + 60px); padding: 6px 12px 16px 12px; }
+.workspace-panel { gap: 6px; }
+
+#panelFiles .panel-header, #panelNotes .panel-header { margin-bottom: 0 !important; min-height: 30px !important; padding-bottom: 0; }
+#panelFiles .panel-header > div { height: auto !important; }
+#storage-toolbar { gap: 4px !important; padding: 2px 8px; height: 32px; }
+#storage-toolbar .action-mini-btn { width: 28px !important; height: 28px !important; color: var(--text-main); }
+#storage-toolbar .action-mini-btn i { font-size: 14px !important; }
+
+#emptyState { padding: 28px 0 !important; font-size: 12px; color: var(--text-muted); letter-spacing: 0.06em; }
+
+.folder-section-header { margin: 2px 0 0 0; padding: 0 2px; }
+#storage-folders-container, #folders-container {
+  padding: 4px 0 6px 0; gap: 6px;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+}
+#storage-folders-container .folder-card, #folders-container .folder-card { padding: 4px 11px; font-size: 11px; max-width: 120px; }
+.folder-add-btn { padding: 4px 11px; font-size: 11px; }
+
+/* BUTTON LABELS */
+.action-mini-btn { flex-direction: column; gap: 2px; border-radius: 12px; }
+.action-mini-btn::after { font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1; opacity: 0.85; white-space: nowrap; }
+
+/* Top bar */
+.top-bar-actions { height: 46px; padding: 0 6px; gap: 2px; }
+.top-bar-actions .action-mini-btn { width: 42px; height: 38px; font-size: 14px; }
+[title="URL QR Generator"]::after { content: "QR"; }
+[title="Wallpapers"]::after { content: "Wall"; }
+[title="Storage Info"]::after { content: "Storage"; }
+[title="Toggle Theme"]::after { content: "Theme"; }
+
+/* Files toolbar */
+#storage-toolbar { height: auto; min-height: 38px; gap: 2px !important; padding: 2px 6px; }
+#storage-toolbar .action-mini-btn { width: 38px !important; height: 34px !important; }
+#storage-toolbar .action-mini-btn i { font-size: 13px !important; }
+label[for="storage-search-input"] { flex-direction: column; gap: 2px !important; width: 38px !important; height: 34px !important; }
+label[for="storage-search-input"]::after { content: "Search"; font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1; color: var(--text-main); opacity: 0.85; }
+[title="Filter by Format"]::after { content: "Filter"; }
+[title="Download View as Zip"]::after { content: "Zip"; }
+[title="Toggle Sort"]::after { content: "Sort"; }
+
+/* Back buttons */
+#btn-back-storage, #btn-back-folder { flex-direction: row !important; gap: 4px !important; width: auto !important; height: 28px !important; padding: 0 10px !important; }
+#btn-back-storage::after, #btn-back-folder::after { content: "Back"; font-size: 10px; text-transform: none; letter-spacing: 0; }
+
+/* Upload button */
+#uploadSquircleBtn { width: auto; padding: 0 14px; gap: 8px; }
+#uploadSquircleBtn::after { content: "Upload"; font-size: 12px; font-weight: 700; }
+
+/* File card buttons */
+.file-card .action-mini-btn { width: 36px !important; height: 38px !important; }
+[title="Live View"]::after { content: "Live"; }
+[title="Quick Download"]::after { content: "Save"; }
+[title="More Options"]::after { content: "More"; }
+
+/* Multi-select bar */
+#multiSelectBar .action-mini-btn { flex-direction: row; gap: 6px; width: auto; height: 32px; padding: 0 12px; }
+#multiSelectBar .action-mini-btn::after { content: "Clear"; font-size: 10px; text-transform: none; letter-spacing: 0; }
+
+/* Wallpaper and URL QR modal close */
+#wallpaperModal .action-mini-btn, #urlQrModal .action-mini-btn { flex-direction: row; gap: 6px; width: auto !important; height: 30px !important; padding: 0 12px; }
+#wallpaperModal .action-mini-btn::after, #urlQrModal .action-mini-btn::after { content: "Close"; font-size: 10px; text-transform: none; letter-spacing: 0; }
+
+/* Note modal buttons */
+#fullNoteModal .action-mini-btn { width: 42px; height: 42px; }
+#fullNoteModal > div > div:last-child { flex-wrap: wrap; gap: 8px; }
+[title="Pin Note"]::after { content: "Pin"; }
+[title="Copy Text"]::after { content: "Copy"; }
+[title="Expand"]::after { content: "Expand"; }
+[title="Change Color"]::after { content: "Color"; }
+[title="Attach Image Asset"]::after { content: "Attach"; }
+[title="Undo Typo"]::after { content: "Undo"; }
+[title="Delete Note"]::after { content: "Delete"; }
+
+/* Live View modal buttons */
+#htmlCompilerModal .action-mini-btn { flex-direction: row; gap: 6px; width: auto !important; height: 30px !important; padding: 0 10px; }
+#htmlCompilerModal .action-mini-btn::after { font-size: 10px; text-transform: none; letter-spacing: 0; }
+[title="Toggle Fullscreen"]::after { content: "Full"; }
+#htmlCompilerModal [title="Close"]::after { content: "Close"; }
+
+/* Media preview controls */
+#mediaControlsBar .action-mini-btn { width: 50px !important; height: 42px !important; }
+#btn-zoom-in::after { content: "Zoom +"; }
+#btn-zoom-out::after { content: "Zoom -"; }
+#btn-zoom-reset::after { content: "Reset"; }
+#btn-fs-video::after { content: "Full"; }
+
+/* PROFESSIONAL POLISH */
+:root {
+  --bg-base: #0e0e0d;
+  --bg-surface: #171716;
+  --bg-solid-surface: #191918;
+  --bg-box: #0e0e0d;
+  --text-main: #ececea;
+  --text-muted: #8e8c87;
+}
+html, body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; letter-spacing: -0.005em; }
+
+/* Top navigation: matched height, radius and elevation */
+.keyboard-nav-dock, .top-bar-actions { height: 46px; border-radius: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.25), 0 8px 20px rgba(0,0,0,0.2); }
+.keyboard-nav-dock { padding: 4px; gap: 2px; }
+.kbd-nav-btn, html.light-theme .kbd-nav-btn { width: 46px; height: 38px; border-radius: 10px; background: transparent; box-shadow: none; gap: 3px; }
+.kbd-nav-btn span { font-size: 7.5px; letter-spacing: 0.05em; font-weight: 600; }
+.kbd-nav-btn.active, html.light-theme .kbd-nav-btn.active { background: rgba(227,179,65,0.14); box-shadow: none; border: 1px solid transparent !important; }
+.top-bar-actions { padding: 0 4px; gap: 0; }
+.top-bar-actions .action-mini-btn { border-radius: 10px; }
+
+/* Icon button labels */
+.action-mini-btn::after { font-size: 7.5px; font-weight: 600; letter-spacing: 0.04em; opacity: 0.7; }
+.action-mini-btn { border-radius: 10px; }
+#storage-toolbar { border-radius: 12px; }
+
+/* Cards: hairline borders, flat surfaces */
+.file-card { border-radius: 12px; border: 1px solid rgba(255,255,255,0.07) !important; box-shadow: none; }
+html.light-theme .file-card { border: 1px solid rgba(0,0,0,0.08) !important; }
+.file-card:hover { transform: none; box-shadow: none; border-color: rgba(227,179,65,0.4) !important; }
+.file-card [style*="width:42px"] { border-radius: 9px !important; }
+.note-card { border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07); }
+html.light-theme .note-card { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.07); }
+.note-card:hover { transform: translateY(-1px); box-shadow: inset 0 0 0 1px rgba(227,179,65,0.4), 0 6px 16px rgba(0,0,0,0.12); }
+.note-card-title { font-weight: 600; letter-spacing: -0.01em; }
+.category-card { border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07); }
+html.light-theme .category-card { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.07); }
+.category-icon-wrapper { border-radius: 12px; }
+
+/* Folder strip */
+#storage-folders-container .folder-card, #folders-container .folder-card { border-radius: 10px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07); }
+html.light-theme #storage-folders-container .folder-card, html.light-theme #folders-container .folder-card { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08); }
+#storage-folders-container .folder-card:hover, #folders-container .folder-card:hover { transform: none; box-shadow: inset 0 0 0 1px rgba(227,179,65,0.45); }
+.folder-add-btn { border-radius: 10px; }
+.folder-section-title { letter-spacing: 0.08em; font-size: 10px; }
+
+/* Checkbox */
+.file-checkbox { border-radius: 5px; border-width: 1.5px; }
+
+/* Primary action buttons */
+#uploadSquircleBtn { height: 40px; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.35); }
+#uploadSquircleBtn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,0.4); }
+.quick-input-bar { border-radius: 12px; height: 40px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+button.btn { border-radius: 10px; font-weight: 600; }
+#multiSelectBar { border-radius: 16px; box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
+#multiSelectBar .btn { border-radius: 10px; }
+
+/* Modals, menus, toast */
+.modal-base { border-radius: 16px; box-shadow: 0 16px 48px rgba(0,0,0,0.45); }
+#fullNoteModal > div:not([style*="100vw"]) { border-radius: 20px !important; }
+#toast { border-radius: 12px; font-weight: 500; box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 8px 24px rgba(0,0,0,0.3); }
+#fileContextMenu .btn:hover, #folderContextMenu .btn:hover { background: rgba(127,127,127,0.14); }
+
+/* Status bar */
+#statusBar { box-shadow: inset 0 1px 0 rgba(127,127,127,0.15); font-weight: 500; letter-spacing: 0.01em; }
+
 .category-card {
   background: var(--bg-surface); padding: 16px 8px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
   cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: none !important;
