@@ -752,6 +752,7 @@ button.btn { font-size: 11px; }
 .file-card .file-checkbox { width: 8px !important; height: 8px !important; min-width: 8px !important; min-height: 8px !important; flex: 0 0 8px !important; border-width: 1px !important; margin: 0 !important; }
 .file-card .file-checkbox::before { top: -12px; bottom: -12px; left: -10px; right: -10px; }
 .file-card .file-checkbox:checked::after { left: 1.5px; top: 0px; width: 2px; height: 4px; border-width: 0 1px 1px 0; }
+[title="Make List"]::after { content: "List"; }
 
 .category-card {
   background: var(--bg-surface); padding: 16px 8px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
@@ -1168,7 +1169,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
                </div>
             </div>
         <div id="nm-gallery" style="display:none; flex-wrap:wrap; gap:8px; margin-bottom:12px;"></div>
-        <textarea id="nm-text" style="width:100%; min-height:250px; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:15px; line-height:1.6; resize:vertical; outline:none;" placeholder="Start typing..." oninput="window.autoSaveNote()"></textarea>
+        <textarea id="nm-text" style="width:100%; min-height:250px; background:transparent; border:none; color:var(--text-main); font-family:inherit; font-size:15px; line-height:1.6; resize:vertical; outline:none;" placeholder="Start typing..." oninput="window.autoSaveNote()" onkeydown="window.noteListEnter(event)"></textarea>
         <div id="nm-timestamp" style="font-size:11px; color:var(--text-muted); opacity:0.7; text-align:right; font-family:'JetBrains Mono', monospace; margin-top:4px;"></div>
     <input type="hidden" id="nm-id"><input type="hidden" id="nm-color"><input type="hidden" id="nm-pinned">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:16px; border:none !important;">
@@ -1177,6 +1178,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
                  <input type="file" id="modalAttachInput" style="display:none;" accept="image/*" onchange="window.triggerModalImageUpload(event)">
                  <button class="action-mini-btn" onclick="document.getElementById('modalAttachInput').click()" title="Attach Image Asset"><i class="fa-solid fa-paperclip"></i></button>
                                   <button class="action-mini-btn" onmousedown="event.preventDefault()" onclick="window.undoModalNote()" title="Undo Typo"><i class="fa-solid fa-rotate-left"></i></button>
+                                                                    <button class="action-mini-btn" onmousedown="event.preventDefault()" onclick="window.makeModalList()" title="Make List"><i class="fa-solid fa-list-check"></i></button>
                                   <button class="action-mini-btn" style="color:var(--red);" onclick="window.deleteModalNote()" title="Delete Note"><i class="fa-solid fa-trash"></i></button>
               </div>
        <div style="display:flex; gap:12px;">
@@ -2261,6 +2263,54 @@ window.copyModalNote = function() {
     var content = title ? (title + '\n\n' + text) : text;
     navigator.clipboard.writeText(content);
     toast('Copied to clipboard!', 'ok');
+};
+
+window.makeModalList = function() {
+    const ta = document.getElementById('nm-text');
+    if (!ta) return;
+    const val = ta.value;
+    let start = ta.selectionStart, end = ta.selectionEnd;
+    if (start === end) { start = 0; end = val.length; }
+    const lineStart = start === 0 ? 0 : val.lastIndexOf('\n', start - 1) + 1;
+    let lineEnd = val.indexOf('\n', end);
+    if (lineEnd === -1) lineEnd = val.length;
+    const lines = val.substring(lineStart, lineEnd).split('\n');
+    const taskRe = /^(\s*)- \[[xX ]\] /;
+    const filled = lines.filter(l => l.trim());
+    const allTasks = filled.length > 0 && filled.every(l => taskRe.test(l));
+    const out = lines.map(l => {
+        if (!l.trim()) return l;
+        if (allTasks) return l.replace(taskRe, '$1');
+        if (taskRe.test(l)) return l;
+        return l.replace(/^(\s*)(?:[-*•]\s+|\d+[.)]\s+)?/, '$1- [ ] ');
+    });
+    const joined = out.join('\n');
+    ta.value = val.substring(0, lineStart) + joined + val.substring(lineEnd);
+    ta.focus();
+    ta.setSelectionRange(lineStart, lineStart + joined.length);
+    window.autoSaveNote();
+};
+
+window.noteListEnter = function(e) {
+    if (e.key !== 'Enter' || e.shiftKey || e.isComposing) return;
+    const ta = e.target;
+    if (ta.selectionStart !== ta.selectionEnd) return;
+    const pos = ta.selectionStart;
+    const val = ta.value;
+    const ls = pos === 0 ? 0 : val.lastIndexOf('\n', pos - 1) + 1;
+    const m = val.substring(ls, pos).match(/^(\s*)- \[[xX ]\] (.*)$/);
+    if (!m) return;
+    e.preventDefault();
+    if (!m[2].trim()) {
+        ta.value = val.substring(0, ls) + val.substring(pos);
+        ta.setSelectionRange(ls, ls);
+    } else {
+        const ins = '\n' + m[1] + '- [ ] ';
+        ta.value = val.substring(0, pos) + ins + val.substring(pos);
+        const np = pos + ins.length;
+        ta.setSelectionRange(np, np);
+    }
+    window.autoSaveNote();
 };
 
 window.dropNoteIntoFolder = function(noteId, folderId, event) {
