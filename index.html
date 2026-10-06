@@ -1017,7 +1017,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
           <div class="panel-header" style="border: none !important; margin-bottom: 12px; min-height: 34px;">
                       <div style="display: flex; align-items: center; gap: 8px; height: 26px; flex: 1;">
                         <button id="btn-back-storage" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.goBackStorage()" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
-                                                                        <i class="fa-regular fa-folder-open" style="font-size:20px; color:var(--text-main);" title="Cloud Storage Files"></i>
+                                                                        
                         <span id="storage-path-display" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted);"></span>
         
                         <div id="storage-toolbar" style="margin-left:auto; display:flex; gap:6px; align-items:center;">
@@ -1059,7 +1059,7 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
       <div class="panel-header">
              <div style="display:flex; align-items:center; gap:8px;">
                <button id="btn-back-folder" class="action-mini-btn" style="display:none; width:26px; height:26px; box-shadow:none; transition: transform 0.2s, color 0.2s;" onclick="window.viewRootFolder()" title="Back to Root"><i class="fa-solid fa-arrow-left"></i></button>
-                              <span id="notes-view-title" style="display:flex; align-items:center;" title="Quick Notes"><i class="fa-regular fa-note-sticky" style="font-size:20px; color:var(--text-main);"></i></span>
+                              <span id="notes-view-title" style="display:flex; align-items:center;" title="Quick Notes"></span>
                <input id="notes-folder-edit" type="text" class="file-row-input" style="display:none; width:160px; padding:6px 10px; margin-left:8px;" onchange="window.renameCurrentFolder(this.value)">
              </div>
           </div>
@@ -1945,7 +1945,7 @@ window.viewRootFolder = function() {
     window.currentFolderView = null;
     document.getElementById('btn-back-folder').style.display = 'none';
     document.getElementById('notes-view-title').style.display = 'flex';
-    document.getElementById('notes-view-title').innerHTML = '<i class="fa-regular fa-note-sticky" style="font-size:20px; color:var(--text-main);"></i>';
+    document.getElementById('notes-view-title').innerHTML = '';
     document.getElementById('notes-folder-edit').style.display = 'none';
     window.renderNotes();
 };
