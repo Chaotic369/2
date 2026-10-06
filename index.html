@@ -240,7 +240,7 @@ html.has-wallpaper #storage-toolbar .action-mini-btn {
 
 /* FLOATING SQUIRCLE UPLOAD BUTTON (BOTTOM RIGHT) */
 #uploadSquircleBtn {
-  position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); right: 18px; z-index: 10000; width: 44px; height: 44px; border-radius: 16px;
+  position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 38px); right: 18px; z-index: 10000; width: 44px; height: 44px; border-radius: 16px;
   background: var(--amber); color: #000000; border: none !important;
   display: flex; align-items: center; justify-content: center; font-size: 17px;
   cursor: pointer; transition: transform 0.18s ease, box-shadow 0.18s ease;
@@ -775,7 +775,7 @@ label[for="storage-search-input"]::after { font-size: 5.5px; }
 .category-card [style*="font-size:11px"] { font-size: 8px !important; }
 
 .section-label { grid-column: 1 / -1; width: 100%; font-size: 13px; font-weight: 700; color: var(--text-muted); margin: 8px 0 4px 0; padding: 0 4px; }
-.notes-fab-container { position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); right: 18px; z-index: 10000; display: none; flex-direction: column; align-items: flex-end; gap: 12px; }
+.notes-fab-container { position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 38px); right: 18px; z-index: 10000; display: none; flex-direction: column; align-items: flex-end; gap: 12px; }
 .notes-fab-container { z-index: 10000; display: none; flex-direction: column; align-items: flex-end; gap: 12px; }
 .notes-fab-menu { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; opacity: 0; pointer-events: none; transform: translateY(20px); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
 .notes-fab-container.active .notes-fab-menu { opacity: 1; pointer-events: auto; transform: translateY(0); }
@@ -786,9 +786,9 @@ html.light-theme .fab-item { background: #fff; box-shadow: 0 4px 16px rgba(0,0,0
 .notes-fab-container.active .fab-main { transform: rotate(135deg); border-radius: 50%; }
 
 /* Floating controls */
-#uploadSquircleBtn { height: 30px; padding: 0 10px; gap: 5px; font-size: 11px; border-radius: 9px; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); right: 10px; }
+#uploadSquircleBtn { height: 30px; padding: 0 10px; gap: 5px; font-size: 11px; border-radius: 9px; bottom: calc(env(safe-area-inset-bottom, 0px) + 38px); right: 10px; }
 #uploadSquircleBtn::after { font-size: 10px; }
-.quick-input-bar { height: 30px; max-width: 270px; padding: 0 10px; gap: 6px; border-radius: 9px; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); }
+.quick-input-bar { height: 30px; max-width: 270px; padding: 0 10px; gap: 6px; border-radius: 9px; bottom: calc(env(safe-area-inset-bottom, 0px) + 38px); }
 .quick-input-bar i { font-size: 11px !important; }
 #quick-note-input { font-size: 11px !important; }
 #multiSelectBar { padding: 6px 8px !important; gap: 5px !important; border-radius: 12px; }
@@ -942,7 +942,7 @@ html:has(#panelNotes.active-page) .top-bar-actions {
   width: 52px; height: 52px; border-radius: 20px; background: var(--bg-base); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 2px;
 }
 
-.quick-input-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); left: 16px; right: 76px; transform: none; z-index: 10000; width: auto; max-width: none !important; height: 44px; display: none; align-items: center; gap: 10px; padding: 0 16px; background: rgba(28, 28, 27, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 22px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08) !important; outline: none !important; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+.quick-input-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 40px); left: 16px; right: 76px; transform: none; z-index: 10000; width: auto; max-width: none !important; height: 44px; display: none; align-items: center; gap: 10px; padding: 0 16px; background: rgba(28, 28, 27, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 22px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08) !important; outline: none !important; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
 .quick-input-bar i { font-size: 14px !important; flex-shrink: 0; }
 #quick-note-input { font-size: 13px !important; font-weight: 500; }
 .quick-input-bar:focus-within { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.45); border-color: rgba(227, 179, 65, 0.5) !important; }
