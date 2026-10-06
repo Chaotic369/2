@@ -6,8 +6,6 @@
   (function() {
     if (localStorage.getItem('sovereign_theme') === 'light') {
         document.documentElement.classList.add('light-theme');
-    } else {
-        document.documentElement.classList.remove('light-theme');
     }
     
     const cachedWp = localStorage.getItem('sovereign_wp_url');
@@ -3311,24 +3309,26 @@ window.renderNotes = function() {
                                         }
 
                                             const el = document.createElement('div');
-            let txtLen = n.text ? n.text.length : 0;
-            let spanClass = ' span-small';
+                                                        let txtLen = n.text ? n.text.length : 0;
+                                                        let spanClass = ' span-small';
         
-            let imgs = n.images || (n.imageUrl ? [n.imageUrl] : []);
+                                                        let imgs = n.images || (n.imageUrl ? [n.imageUrl] : []);
+                                                        let isDrawing = n.title === 'Drawing' || (imgs.length === 1 && imgs[0] && imgs[0].includes('note_draw_'));
         
-            if (imgs.length > 0 || txtLen > 300) spanClass = ' span-half';
-            else if (txtLen < 60 && (!n.title || n.title.length < 20)) spanClass = ' span-tiny';
+                                                        if (isDrawing) spanClass = ' span-small';
+                                                        else if (imgs.length > 0 || txtLen > 300) spanClass = ' span-half';
+                                                        else if (txtLen < 60 && (!n.title || n.title.length < 20)) spanClass = ' span-tiny';
         
-            el.className = 'note-card' + spanClass;
+                                                        el.className = 'note-card' + spanClass;
         
-            let upColor = window.getUpgradedColor(n.color);
-                                    if (upColor === 'var(--note-base)') {
-                                        el.style.background = 'var(--bg-surface)';
-                                    } else {
-                                        el.style.background = `linear-gradient(${upColor}, ${upColor}), var(--bg-surface)`;
-                                    }
+                                                        let upColor = window.getUpgradedColor(n.color);
+                                                                                if (upColor === 'var(--note-base)') {
+                                                                                    el.style.background = 'var(--bg-surface)';
+                                                                                } else {
+                                                                                    el.style.background = `linear-gradient(${upColor}, ${upColor}), var(--bg-surface)`;
+                                                                                }
         
-        el.setAttribute('data-id', n.id);
+                                                    el.setAttribute('data-id', n.id);
                 el.onclick = () => window.openNoteModal(n.id);
                 el.oncontextmenu = (e) => { e.preventDefault(); return false; };
 
