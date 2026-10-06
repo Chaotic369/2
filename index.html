@@ -2417,10 +2417,9 @@ window.createTextNote = function() {
         createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
     };
     S.notes.push(newNote);
-    window.saveNotesData().then(() => {
-        window.renderNotes();
-        window.openNoteModal(newNote.id);
-    });
+    window.openNoteModal(newNote.id);
+    window.renderNotes();
+    window.saveNotesData();
 };
 
 window.createListNote = function() {
@@ -2432,10 +2431,9 @@ window.createListNote = function() {
         createdAt: Date.now(), updatedAt: Date.now(), order: Date.now()
     };
     S.notes.push(newNote);
-    window.saveNotesData().then(() => {
-        window.renderNotes();
-        window.openNoteModal(newNote.id);
-    });
+    window.openNoteModal(newNote.id);
+    window.renderNotes();
+    window.saveNotesData();
 };
 
 window.handleFabImage = async function(event) {
