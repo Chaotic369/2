@@ -1142,7 +1142,10 @@ html.is-scrolling.has-wallpaper .category-card {
 }
 
 /* Fixed UI: High quality blur, hardware accelerated */
-html.has-wallpaper .modal-base,
+html.has-wallpaper .modal-base {
+  transform: translate(-50%, -50%) translateZ(0) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
 html.has-wallpaper #multiSelectBar,
 html.has-wallpaper #statusBar,
 html.has-wallpaper .top-bar-actions,
