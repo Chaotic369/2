@@ -2,10 +2,23 @@
 <html lang="en">
 <head>
 <script>
-  // Zero-Latency Local Cache Boot
-  (function() {
-    if (localStorage.getItem('sovereign_theme') === 'light') {
-        document.documentElement.classList.add('light-theme');
+window.startVoiceNote = async function() {
+    document.getElementById('notesFabContainer').classList.remove('active');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return toast('Voice input not supported in this browser', 'err');
+    
+    let stream;
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+                echoCancellation: false,
+                noiseSuppression: false,
+                autoGainControl: false,
+                channelCount: 1
+            }
+        });
+    } catch(e) {
+        return toast('Microphone access denied', 'err');
     } else {
         document.documentElement.classList.remove('light-theme');
     }
@@ -1349,6 +1362,23 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
   </div>
 </div>
 
+<div id="uiConfirmModal" class="modal-base" style="z-index: 70000; max-width: 320px; border-radius: 20px; padding: 18px; text-align: left;">
+  <div id="uiConfirmMessage" style="font-size: 14px; font-weight: 600; color: var(--text-main); line-height: 1.5; margin-bottom: 6px;">Confirm Action</div>
+  <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px;">
+    <button class="btn" id="uiConfirmCancelBtn" style="padding: 6px 14px; font-size: 12px; background: transparent; color: var(--text-muted);">Cancel</button>
+    <button class="btn" id="uiConfirmOkBtn" style="padding: 6px 14px; font-size: 12px; background: var(--amber); color: #000; font-weight: 700;">Confirm</button>
+  </div>
+</div>
+
+<div id="uiPromptModal" class="modal-base" style="z-index: 70000; max-width: 320px; border-radius: 20px; padding: 18px; text-align: left;">
+  <div id="uiPromptMessage" style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 10px;">Enter Value</div>
+  <input type="text" id="uiPromptInput" class="file-row-input" style="width: 100%; border-radius: 12px; padding: 8px 12px; font-size: 13px;" autocomplete="off">
+  <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px;">
+    <button class="btn" id="uiPromptCancelBtn" style="padding: 6px 14px; font-size: 12px; background: transparent; color: var(--text-muted);">Cancel</button>
+    <button class="btn" id="uiPromptOkBtn" style="padding: 6px 14px; font-size: 12px; background: var(--amber); color: #000; font-weight: 700;">OK</button>
+  </div>
+</div>
+
 <div id="renameModal" class="modal-base">
   <h4 style="color:var(--text-main); margin-bottom:16px; font-size:16px; font-weight:600; padding-bottom:12px;">📁 Rename Cloud Asset</h4>
   <div style="display:flex; flex-direction:column; gap:4px;">
@@ -1446,6 +1476,64 @@ html.has-wallpaper.light-theme #uploadSquircleBtn {
 const SUPABASE_URL = 'https://fxnrugbvbfyamtrfmjea.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_FnWYWD7C9Tvc1YNtVYQ1dA_aPwVsCmE';
 
+window.uiConfirm = function(msg) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('uiConfirmModal');
+        const msgEl = document.getElementById('uiConfirmMessage');
+        const okBtn = document.getElementById('uiConfirmOkBtn');
+        const cancelBtn = document.getElementById('uiConfirmCancelBtn');
+        if (!modal) return resolve(window.confirm(msg));
+
+        msgEl.textContent = msg;
+        modal.classList.add('open');
+
+        const cleanup = () => {
+            modal.classList.remove('open');
+            okBtn.onclick = null;
+            cancelBtn.onclick = null;
+        };
+
+        okBtn.onclick = () => { cleanup(); resolve(true); };
+        cancelBtn.onclick = () => { cleanup(); resolve(false); };
+    });
+};
+
+window.uiPrompt = function(msg, defVal = '') {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('uiPromptModal');
+        const msgEl = document.getElementById('uiPromptMessage');
+        const inputEl = document.getElementById('uiPromptInput');
+        const okBtn = document.getElementById('uiPromptOkBtn');
+        const cancelBtn = document.getElementById('uiPromptCancelBtn');
+        if (!modal) return resolve(window.prompt(msg, defVal));
+
+        msgEl.textContent = msg;
+        inputEl.value = defVal;
+        modal.classList.add('open');
+        setTimeout(() => { inputEl.focus(); inputEl.select(); }, 50);
+
+        const cleanup = () => {
+            modal.classList.remove('open');
+            okBtn.onclick = null;
+            cancelBtn.onclick = null;
+            inputEl.onkeydown = null;
+        };
+
+        const submit = () => {
+            const val = inputEl.value;
+            cleanup();
+            resolve(val);
+        };
+
+        okBtn.onclick = submit;
+        cancelBtn.onclick = () => { cleanup(); resolve(null); };
+        inputEl.onkeydown = (e) => {
+            if (e.key === 'Enter') submit();
+            else if (e.key === 'Escape') { cleanup(); resolve(null); }
+        };
+    });
+};
+
 window.setWallpaper = async function(e) {
   const files = Array.from(e.target.files);
   if(!files.length) return;
@@ -1515,7 +1603,8 @@ window.openWallpaperModal = async function(event) {
 
 window.deleteWallpaperFile = async function(event, filename, wasActive) {
     event.stopPropagation();
-    if(!confirm('Permanently delete this wallpaper?')) return;
+    const confirmed = await window.uiConfirm('Permanently delete this wallpaper?');
+    if(!confirmed) return;
     
     if(wasActive === 'true') window.applyWallpaper(null);
     
@@ -2402,8 +2491,8 @@ window.attachImageToNote = async function(event) {
     }
 };
 
-window.createNewFolder = function() {
-    let folderName = prompt('Enter folder name:');
+window.createNewFolder = async function() {
+    let folderName = await window.uiPrompt('Enter folder name:');
     if (!folderName || !folderName.trim()) return;
     folderName = folderName.trim();
     S.folders.push({id: 'f_'+Date.now(), name: folderName, createdAt: Date.now()});
@@ -2439,7 +2528,8 @@ window.renameCurrentFolder = function(val) {
 
 window.deleteFolder = async function(id, event) {
     if(event) event.stopPropagation();
-    if(!confirm('Delete folder and all notes inside?')) return;
+    const confirmed = await window.uiConfirm('Delete folder and all notes inside?');
+    if(!confirmed) return;
     
     let notesInFolder = S.notes.filter(n => n.folderId === id);
     for (let n of notesInFolder) {
@@ -2667,7 +2757,8 @@ window.undoModalNote = function() {
 };
 
 window.deleteModalNote = async function() {
-    if(!confirm('Delete this note?')) return;
+    const confirmed = await window.uiConfirm('Delete this note?');
+    if(!confirmed) return;
     const id = document.getElementById('nm-id').value;
     const n = S.notes.find(x => x.id === id);
     if (n) {
@@ -3396,7 +3487,7 @@ window.goBackStorage = function() {
 };
 
 window.createStorageFolder = async function() {
-    let folderName = prompt('Enter folder name:');
+    let folderName = await window.uiPrompt('Enter folder name:');
     if (!folderName || !folderName.trim()) return;
     folderName = folderName.trim();
     let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
@@ -3410,7 +3501,8 @@ window.createStorageFolder = async function() {
 };
 
 window.deleteStorageFolder = async function(folderName) {
-    if (!confirm(`Delete folder "${folderName}" and ALL its contents?`)) return;
+    const confirmed = await window.uiConfirm(`Delete folder "${folderName}" and ALL its contents?`);
+    if (!confirmed) return;
     showProgress(40);
     let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
     let targetPath = prefix + folderName;
@@ -3878,7 +3970,8 @@ window.uploadFile = function(event) {
 };
 
 window.deleteFile = async function(fileName) {
-    if(!confirm('Purge this asset permanently?')) return;
+    const confirmed = await window.uiConfirm('Purge this asset permanently?');
+    if(!confirmed) return;
     showProgress(40); 
     let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
     const { error } = await supabaseClient.storage.from(BUCKET_NAME).remove([prefix + fileName]);
@@ -3890,7 +3983,8 @@ window.deleteFile = async function(fileName) {
 
 window.msDelete = async function() {
     if (window.selectedFiles.size === 0) return;
-    if(!confirm(`Purge ${window.selectedFiles.size} assets permanently?`)) return;
+    const confirmed = await window.uiConfirm(`Purge ${window.selectedFiles.size} assets permanently?`);
+    if(!confirmed) return;
     showProgress(40); toast('Purging batch...', 'info');
     let prefix = window.currentStoragePath ? window.currentStoragePath + '/' : '';
     let pathsToRemove = Array.from(window.selectedFiles).map(name => prefix + name);
@@ -4335,12 +4429,12 @@ window.bindFolderEvents = function(card, type, id, name, clickHandler) {
         };
 
     window.fcmRename = async function() {
-        document.getElementById('folderContextMenu').classList.remove('open');
-        let t = window.fcmTarget;
-        if (!t) return;
-        let newName = prompt(`Rename folder "${t.name}" to:`, t.name);
-        if (!newName || newName === t.name) return;
-        newName = newName.trim();
+            document.getElementById('folderContextMenu').classList.remove('open');
+            let t = window.fcmTarget;
+            if (!t) return;
+            let newName = await window.uiPrompt(`Rename folder "${t.name}" to:`, t.name);
+            if (!newName || newName === t.name) return;
+            newName = newName.trim();
         if (!newName) return;
     
         if (t.type === 'note') {
