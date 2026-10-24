@@ -456,7 +456,7 @@ html.light-theme .file-card {
 
 /* BUTTON LABELS */
 .action-mini-btn { flex-direction: column; gap: 2px; border-radius: 12px; }
-.action-mini-btn::after { font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1; opacity: 0.85; white-space: nowrap; }
+.action-mini-btn::after { display: block; content: attr(title); font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1; opacity: 0.85; white-space: nowrap; color: inherit; }
 
 /* Top bar */
 .top-bar-actions { height: 46px; padding: 0 6px; gap: 2px; }
@@ -552,7 +552,7 @@ html, body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grays
 .action-mini-btn::after { font-size: 7.5px; font-weight: 600; letter-spacing: 0.04em; opacity: 0.7; }
 .action-mini-btn { border-radius: 10px; }
 #storage-toolbar { border-radius: 12px; }
-[title*="Setting"]::after, [title*="setting"]::after, [title*="Settings"]::after, [title*="settings"]::after { content: "Config"; }
+[title*="Setting"]::after, [title*="setting"]::after, [title*="Settings"]::after, [title*="settings"]::after, [title*="config"]::after, [title*="Config"]::after, [title*="gear"]::after, [title*="Gear"]::after { content: "Config"; }
 
 /* Cards: hairline borders, flat surfaces */
 .file-card { border-radius: 12px; border: 1px solid rgba(255,255,255,0.07) !important; box-shadow: none; }
@@ -610,7 +610,7 @@ button.btn { border-radius: 10px; font-weight: 600; }
 /* Icon buttons and labels */
 .action-mini-btn { gap: 1px; border-radius: 8px; }
 .action-mini-btn::after { font-size: 6px; }
-[title*="Setting"]::after, [title*="setting"]::after, [title*="Settings"]::after, [title*="settings"]::after { content: "Config"; }
+[title*="Setting"]::after, [title*="setting"]::after, [title*="Settings"]::after, [title*="settings"]::after, [title*="config"]::after, [title*="Config"]::after, [title*="gear"]::after, [title*="Gear"]::after { content: "Config"; }
 #storage-toolbar { min-height: 32px; padding: 1px 4px; gap: 0 !important; border-radius: 10px; }
 #storage-toolbar .action-mini-btn { width: 32px !important; height: 28px !important; }
 #storage-toolbar .action-mini-btn i { font-size: 11px !important; }
@@ -728,6 +728,7 @@ button.btn { font-size: 12px; }
 
 /* Icon buttons */
 .action-mini-btn::after { font-size: 5.5px; }
+[title*="Setting"]::after, [title*="setting"]::after, [title*="Settings"]::after, [title*="settings"]::after, [title*="config"]::after, [title*="Config"]::after, [title*="gear"]::after, [title*="Gear"]::after { content: "Config"; }
 #storage-toolbar { min-height: 28px; padding: 0 3px; border-radius: 9px; }
 #storage-toolbar .action-mini-btn { width: 28px !important; height: 25px !important; }
 #storage-toolbar .action-mini-btn i { font-size: 10px !important; }
