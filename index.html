@@ -1609,6 +1609,13 @@ html.light-theme #multiSelectBar {
 }
 #statusBar { display: none !important; }
 </style>
+<style id="micro-labels">
+.action-mini-btn { overflow: visible !important; }
+.action-mini-btn::after { display: block !important; visibility: visible !important; position: static !important; width: auto !important; height: auto !important; opacity: 0.85 !important; font-size: 7px !important; font-weight: 700 !important; line-height: 1 !important; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; color: inherit; content: attr(title); }
+#btn-back-storage::after, #btn-back-folder::after, #multiSelectBar .action-mini-btn::after, #urlQrModal .action-mini-btn::after, #htmlCompilerModal .action-mini-btn::after { text-transform: none; font-size: 10px !important; }
+.keyboard-nav-dock .kbd-nav-btn { width: 44px !important; height: 38px !important; border-radius: 12px !important; gap: 1px !important; }
+.keyboard-nav-dock .kbd-nav-btn span { display: block !important; visibility: visible !important; font-size: 6.5px !important; line-height: 1 !important; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+</style>
 </head>
 <body>
 
