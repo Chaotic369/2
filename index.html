@@ -1619,6 +1619,8 @@ label[for="storage-search-input"] { display: flex !important; flex-direction: co
 #btn-back-storage .micro-lbl, #btn-back-folder .micro-lbl, #multiSelectBar .micro-lbl, #urlQrModal .micro-lbl, #htmlCompilerModal .micro-lbl { font-size: 10px; text-transform: none; letter-spacing: 0; }
 .action-mini-btn::after { display: block !important; visibility: visible !important; position: static !important; width: auto !important; height: auto !important; opacity: 0.85 !important; font-size: 7px !important; font-weight: 700 !important; line-height: 1 !important; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; color: inherit; content: attr(title); }
 #btn-back-storage::after, #btn-back-folder::after, #multiSelectBar .action-mini-btn::after, #urlQrModal .action-mini-btn::after, #htmlCompilerModal .action-mini-btn::after { text-transform: none; font-size: 10px !important; }
+#btn-back-storage[style*="display:none"], #btn-back-storage[style*="display: none"], #btn-back-folder[style*="display:none"], #btn-back-folder[style*="display: none"] { display: none !important; }
+html.hide-labels .micro-lbl, html.hide-labels .kbd-nav-btn span { display: none !important; }
 .keyboard-nav-dock .kbd-nav-btn { width: 44px !important; height: 38px !important; border-radius: 12px !important; gap: 1px !important; }
 .keyboard-nav-dock .kbd-nav-btn span { display: block !important; visibility: visible !important; font-size: 6.5px !important; line-height: 1 !important; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
 </style>
@@ -1674,6 +1676,60 @@ label[for="storage-search-input"] { display: flex !important; flex-direction: co
     run();
     var raf = 0;
         new MutationObserver(function () { if (raf) return; raf = requestAnimationFrame(function () { raf = 0; run(); }); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['title'] });
+  });
+})();
+</script>
+<script>
+(function () {
+  try { if (localStorage.getItem('sovereign_labels') === 'off') document.documentElement.classList.add('hide-labels'); } catch (e) {}
+  var panel = null, pressTimer = 0, suppressClick = false;
+  var ITEMS = [
+    { icon: 'fa-circle-half-stroke', text: 'Theme', fn: function () { window.toggleTheme(); } },
+    { icon: 'fa-arrow-down-a-z', text: 'Sort', fn: function () { window.toggleSort(); } },
+    { icon: 'fa-table-cells-large', text: 'Filter', fn: function () { window.toggleFormatFilter(); } },
+    { icon: 'fa-hard-drive', text: 'Storage', fn: function () { window.checkStorage(); } },
+    { icon: 'fa-qrcode', text: 'URL QR', fn: function () { window.openUrlQrModal(); } },
+    { icon: 'fa-tag', text: 'Labels on/off', fn: function () {
+        var on = document.documentElement.classList.toggle('hide-labels');
+        try { localStorage.setItem('sovereign_labels', on ? 'off' : 'on'); } catch (e) {}
+      } }
+  ];
+  function closePanel() { if (panel) { panel.remove(); panel = null; } }
+  function openPanel() {
+    closePanel();
+    panel = document.createElement('div');
+    panel.id = 'settingsPanel';
+    panel.style.cssText = 'position:fixed; top:58px; right:8px; z-index:70000; min-width:170px; padding:8px; display:flex; flex-direction:column; gap:4px; background:var(--bg-solid-surface); color:var(--text-main); border-radius:16px; box-shadow:0 12px 40px rgba(0,0,0,0.45);';
+    var h = document.createElement('div');
+    h.textContent = 'Settings';
+    h.style.cssText = 'font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); padding:4px 8px;';
+    panel.appendChild(h);
+    ITEMS.forEach(function (it) {
+      var b = document.createElement('button');
+      b.style.cssText = 'display:flex; align-items:center; gap:10px; padding:9px 10px; border:none; border-radius:10px; background:transparent; color:var(--text-main); font-family:inherit; font-size:13px; cursor:pointer; text-align:left;';
+      b.innerHTML = '<i class="fa-solid ' + it.icon + '" style="width:16px; text-align:center;"></i><span>' + it.text + '</span>';
+      b.onclick = function (e) { e.stopPropagation(); closePanel(); try { it.fn(); } catch (err) { console.error(err); } };
+      panel.appendChild(b);
+    });
+    panel.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.body.appendChild(panel);
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    var bar = document.querySelector('.top-bar-actions');
+    if (!bar) return;
+    bar.addEventListener('contextmenu', function (e) { e.preventDefault(); e.stopPropagation(); if (panel) closePanel(); else openPanel(); });
+    bar.addEventListener('touchstart', function () {
+      clearTimeout(pressTimer);
+      pressTimer = setTimeout(function () { suppressClick = true; openPanel(); }, 550);
+    }, { passive: true });
+    ['touchend', 'touchmove', 'touchcancel'].forEach(function (ev) {
+      bar.addEventListener(ev, function () { clearTimeout(pressTimer); }, { passive: true });
+    });
+    bar.addEventListener('click', function (e) {
+      if (suppressClick) { suppressClick = false; e.preventDefault(); e.stopPropagation(); }
+    }, true);
+    document.addEventListener('click', closePanel);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePanel(); });
   });
 })();
 </script>
