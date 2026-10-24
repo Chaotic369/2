@@ -1098,7 +1098,504 @@ html.light-theme .file-checkbox {
   contain-intrinsic-size: auto 80px;
 }
 
+/* ============================================================================
+   MOBILE-FIRST ERGONOMIC UX/UI RECONSTRUCTION
+   Thumb-Zone Bottom Navigation, Native Bottom Sheets, 44px Touch Targets
+============================================================================ */
+:root {
+  --bg-base: #0a0a0c !important;
+  --bg-surface: #16161a !important;
+  --bg-solid-surface: #1c1c21 !important;
+  --bg-box: #111114 !important;
+  --text-main: #f4f4f6 !important;
+  --text-muted: #8e8e99 !important;
+  --amber: #f5b041 !important;
+}
+html.light-theme {
+  --bg-base: #f5f5f8 !important;
+  --bg-surface: #ffffff !important;
+  --bg-solid-surface: #ffffff !important;
+  --bg-box: #ebebf0 !important;
+  --text-main: #141417 !important;
+  --text-muted: #6e6e77 !important;
+}
 
+* { -webkit-tap-highlight-color: transparent; }
+
+/* 1. Ergonomic Workspace Bounds */
+#mainWorkspace {
+  top: calc(env(safe-area-inset-top, 0px) + 56px) !important;
+  bottom: 0 !important;
+  padding: 8px 14px calc(env(safe-area-inset-bottom, 0px) + 148px) 14px !important;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+.workspace-panel { gap: 14px !important; }
+
+/* 2. Thumb-Zone Bottom Segmented Navigation Bar */
+.keyboard-nav-dock {
+  top: auto !important;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: calc(100vw - 32px) !important;
+  max-width: 380px !important;
+  height: 58px !important;
+  padding: 5px !important;
+  border-radius: 29px !important;
+  background: rgba(24, 24, 28, 0.88) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5) !important;
+  justify-content: space-between !important;
+  gap: 6px !important;
+  z-index: 20000 !important;
+}
+html.light-theme .keyboard-nav-dock {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.12) !important;
+}
+.kbd-nav-btn, html.light-theme .kbd-nav-btn {
+  flex: 1 !important;
+  width: auto !important;
+  height: 48px !important;
+  border-radius: 24px !important;
+  flex-direction: row !important;
+  gap: 8px !important;
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+}
+.kbd-nav-btn i { font-size: 16px !important; }
+.kbd-nav-btn span {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+.kbd-nav-btn.active, html.light-theme .kbd-nav-btn.active {
+  background: var(--amber) !important;
+  color: #000000 !important;
+  box-shadow: 0 4px 16px rgba(245, 176, 65, 0.35) !important;
+}
+
+/* 3. Clean Top Header Bar (Left-Aligned Toolbar + Right System Pills) */
+.top-bar-actions {
+  top: calc(env(safe-area-inset-top, 0px) + 8px) !important;
+  right: 14px !important;
+  height: 42px !important;
+  width: auto !important;
+  padding: 0 4px !important;
+  gap: 2px !important;
+  border-radius: 21px !important;
+  background: rgba(24, 24, 28, 0.82) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+html.light-theme .top-bar-actions {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid rgba(0, 0, 0, 0.07) !important;
+}
+.top-bar-actions .action-mini-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 18px !important;
+  font-size: 14px !important;
+}
+.top-bar-actions .action-mini-btn::after,
+#storage-toolbar .action-mini-btn::after,
+label[for="storage-search-input"]::after,
+.file-card .action-mini-btn::after,
+#fullNoteModal .action-mini-btn::after {
+  display: none !important;
+}
+
+#storage-toolbar {
+  position: fixed !important;
+  top: calc(env(safe-area-inset-top, 0px) + 8px) !important;
+  left: 14px !important;
+  right: auto !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 6px !important;
+  gap: 2px !important;
+  border-radius: 21px !important;
+  background: rgba(24, 24, 28, 0.82) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+}
+html.light-theme #storage-toolbar {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid rgba(0, 0, 0, 0.07) !important;
+}
+#storage-toolbar .action-mini-btn,
+label[for="storage-search-input"] {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 17px !important;
+}
+#storage-toolbar .action-mini-btn i,
+label[for="storage-search-input"] i {
+  font-size: 14px !important;
+}
+#storage-search-input:focus, #storage-search-input:valid {
+  width: calc(100vw - 295px) !important;
+  max-width: 180px !important;
+  font-size: 14px !important;
+}
+
+/* 4. Breadcrumb & Folder Pills */
+#panelFiles .panel-header, #panelNotes .panel-header {
+  min-height: 32px !important;
+  padding: 2px 2px !important;
+}
+#storage-path-display, #notes-view-title {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: var(--text-main) !important;
+}
+#btn-back-storage, #btn-back-folder {
+  height: 34px !important;
+  padding: 0 14px !important;
+  border-radius: 17px !important;
+  background: var(--bg-surface) !important;
+  font-size: 13px !important;
+  gap: 6px !important;
+}
+#btn-back-storage::after, #btn-back-folder::after {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+#storage-folders-container, #folders-container {
+  gap: 8px !important;
+  padding: 4px 2px 8px 2px !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+#storage-folders-container .folder-card,
+#folders-container .folder-card {
+  padding: 9px 14px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  gap: 8px !important;
+  max-width: 180px !important;
+  border-radius: 14px !important;
+  background: var(--bg-surface) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+html.light-theme #storage-folders-container .folder-card,
+html.light-theme #folders-container .folder-card {
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+}
+#storage-folders-container .folder-card i,
+#folders-container .folder-card i {
+  font-size: 14px !important;
+}
+.folder-add-btn {
+  padding: 9px 14px !important;
+  font-size: 13px !important;
+  border-radius: 14px !important;
+}
+.folder-add-btn i { font-size: 12px !important; }
+
+/* 5. Touch-Friendly File Cards & Checkboxes */
+#filesGridContainer { gap: 10px !important; }
+.file-card {
+  padding: 12px 14px !important;
+  gap: 12px !important;
+  border-radius: 18px !important;
+  background: var(--bg-surface) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.14) !important;
+}
+html.light-theme .file-card {
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+.file-card:active { transform: scale(0.985) !important; }
+.file-card [style*="width:42px"] {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 13px !important;
+  font-size: 18px !important;
+  flex-shrink: 0 !important;
+}
+.file-card [style*="font-size:13px"] {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+}
+.file-card [style*="font-size:11px"] {
+  font-size: 11.5px !important;
+  margin-top: 2px !important;
+}
+.file-card .action-mini-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 12px !important;
+  font-size: 14px !important;
+  background: rgba(127, 127, 127, 0.1) !important;
+}
+.file-card .file-checkbox {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  flex: 0 0 20px !important;
+  border-radius: 6px !important;
+  border: 1.5px solid var(--text-muted) !important;
+}
+.file-card .file-checkbox:checked {
+  background: var(--amber) !important;
+  border-color: var(--amber) !important;
+}
+.file-card .file-checkbox:checked::after {
+  left: 6px !important;
+  top: 2px !important;
+  width: 5px !important;
+  height: 10px !important;
+  border-color: #000 !important;
+  border-width: 0 2px 2px 0 !important;
+}
+
+/* 6. 2-Column Mobile Masonry Note Grid */
+#notes-container {
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+}
+@media (min-width: 768px) {
+  #notes-container {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 14px !important;
+  }
+}
+@media (min-width: 1200px) {
+  #notes-container {
+    grid-template-columns: repeat(6, 1fr) !important;
+  }
+}
+.note-card {
+  padding: 14px !important;
+  border-radius: 18px !important;
+  font-size: 13.5px !important;
+  gap: 6px !important;
+  line-height: 1.45 !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+html.light-theme .note-card {
+  border: 1px solid rgba(0, 0, 0, 0.07) !important;
+}
+.note-card-title {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  margin-bottom: 2px !important;
+}
+@media (max-width: 767px) {
+  .note-card.span-tiny { grid-column: span 1 !important; }
+  .note-card.span-small { grid-column: span 1 !important; }
+  .note-card.span-half { grid-column: span 2 !important; }
+}
+
+/* 7. Format Category Cards */
+.category-card {
+  width: 96px !important;
+  padding: 14px 8px !important;
+  gap: 6px !important;
+  border-radius: 18px !important;
+}
+.category-icon-wrapper {
+  width: 44px !important;
+  height: 44px !important;
+  font-size: 20px !important;
+  border-radius: 14px !important;
+}
+.category-card [style*="font-size:13px"] { font-size: 12.5px !important; font-weight: 600 !important; }
+.category-card [style*="font-size:11px"] { font-size: 10.5px !important; }
+
+/* 8. Floating Action Controls & Quick Note Input (Positioned Above Bottom Nav) */
+#uploadSquircleBtn {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 20px !important;
+  font-size: 22px !important;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 82px) !important;
+  right: 16px !important;
+  box-shadow: 0 8px 24px rgba(245, 176, 65, 0.4) !important;
+}
+.notes-fab-container {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 82px) !important;
+  right: 16px !important;
+}
+.fab-main {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 20px !important;
+  font-size: 24px !important;
+  box-shadow: 0 8px 24px rgba(245, 176, 65, 0.4) !important;
+}
+.fab-item {
+  padding: 12px 20px !important;
+  font-size: 14px !important;
+  border-radius: 18px !important;
+}
+.quick-input-bar {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 86px) !important;
+  left: 16px !important;
+  right: 84px !important;
+  height: 48px !important;
+  border-radius: 24px !important;
+  padding: 0 18px !important;
+  background: rgba(24, 24, 28, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+html.light-theme .quick-input-bar {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+html.light-theme #quick-note-input { color: #141417 !important; }
+html.light-theme #quick-note-input::placeholder { color: rgba(0, 0, 0, 0.45) !important; }
+.quick-input-bar i { font-size: 15px !important; }
+#quick-note-input { font-size: 14px !important; }
+
+/* 9. Mobile Bottom Sheets for Context Menus & Multi-Select */
+#fileContextMenu, #folderContextMenu {
+  position: fixed !important;
+  left: 50% !important;
+  top: auto !important;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px) !important;
+  transform: translateX(-50%) !important;
+  width: calc(100vw - 24px) !important;
+  max-width: 420px !important;
+  padding: 16px !important;
+  border-radius: 26px !important;
+  gap: 6px !important;
+  z-index: 60000 !important;
+  background: var(--bg-solid-surface) !important;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.55) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+html.light-theme #fileContextMenu, html.light-theme #folderContextMenu {
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18) !important;
+}
+#file-cm-title, #fcm-title {
+  font-size: 13px !important;
+  padding: 4px 8px 8px 8px !important;
+  text-align: center !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.15) !important;
+  margin-bottom: 4px !important;
+}
+#fileContextMenu .btn, #folderContextMenu .btn {
+  min-height: 46px !important;
+  padding: 12px 16px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  gap: 14px !important;
+  border-radius: 16px !important;
+}
+#fileContextMenu .btn i, #folderContextMenu .btn i {
+  width: 22px !important;
+  font-size: 16px !important;
+}
+
+#multiSelectBar {
+  padding: 12px 16px !important;
+  gap: 8px !important;
+  border-radius: 24px !important;
+  width: calc(100vw - 24px) !important;
+  max-width: 420px !important;
+  background: rgba(24, 24, 28, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+html.light-theme #multiSelectBar {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+#multiSelectBar.active {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 80px) !important;
+}
+#multiSelectBar .btn {
+  padding: 10px 14px !important;
+  font-size: 13px !important;
+  border-radius: 14px !important;
+  min-height: 40px !important;
+}
+#multiSelectBar > div:first-child { font-size: 13px !important; }
+
+/* 10. Full-Screen Mobile Note Editor Sheet */
+@media (max-width: 767px) {
+  #fullNoteModal {
+    align-items: flex-end !important;
+  }
+  #fullNoteModal > div {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 92dvh !important;
+    max-height: 92dvh !important;
+    border-radius: 28px 28px 0 0 !important;
+    padding: 20px 18px calc(env(safe-area-inset-bottom, 0px) + 18px) 18px !important;
+    gap: 12px !important;
+  }
+  #nm-text {
+    flex: 1 !important;
+    min-height: 180px !important;
+  }
+}
+#nm-title { font-size: 20px !important; font-weight: 700 !important; }
+#nm-text { font-size: 15px !important; line-height: 1.6 !important; }
+#nm-timestamp { font-size: 11px !important; }
+#fullNoteModal .action-mini-btn {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  font-size: 15px !important;
+}
+#fullNoteModal .btn {
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 18px !important;
+  font-size: 14px !important;
+  border-radius: 14px !important;
+}
+
+/* 11. Modals, Inputs & Toast Polish */
+.modal-base {
+  padding: 20px !important;
+  font-size: 14px !important;
+  border-radius: 24px !important;
+  width: calc(100vw - 32px) !important;
+  max-width: 360px !important;
+  gap: 12px !important;
+}
+.file-row-input {
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  border-radius: 14px !important;
+}
+#urlQrModal {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 82px) !important;
+  max-width: 340px !important;
+  padding: 20px !important;
+}
+#toast {
+  top: calc(env(safe-area-inset-top, 0px) + 60px) !important;
+  padding: 10px 20px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border-radius: 20px !important;
+}
+#statusBar { display: none !important; }
 </style>
 </head>
 <body>
@@ -3217,19 +3714,23 @@ window.openFileContextMenu = function(name, url, event) {
     }
     
     menu.classList.add('open');
-    menu.style.transform = 'none';
-    menu.style.margin = '0';
-    menu.style.opacity = '1';
-
-    const rect = menu.getBoundingClientRect();
-    if (x + rect.width > window.innerWidth - 16) x = window.innerWidth - rect.width - 16;
-    if (y + rect.height > window.innerHeight - 16) y = window.innerHeight - rect.height - 16;
-    if (x < 16) x = 16;
-    if (y < 16) y = 16;
-
-    menu.style.left = x + 'px';
-    menu.style.top = y + 'px';
-};
+        menu.style.opacity = '1';
+        if (window.innerWidth > 768) {
+            menu.style.transform = 'none';
+            menu.style.margin = '0';
+            const rect = menu.getBoundingClientRect();
+            if (x + rect.width > window.innerWidth - 16) x = window.innerWidth - rect.width - 16;
+            if (y + rect.height > window.innerHeight - 16) y = window.innerHeight - rect.height - 16;
+            if (x < 16) x = 16;
+            if (y < 16) y = 16;
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+        } else {
+            menu.style.left = '';
+            menu.style.top = '';
+            menu.style.transform = '';
+        }
+    };
 
 window.fileCmDownload = function() { document.getElementById('fileContextMenu').classList.remove('open'); window.triggerDownload(window.fileCmTarget.url, window.fileCmTarget.name); };
 window.fileCmRename = function() { document.getElementById('fileContextMenu').classList.remove('open'); window.openRenameModal(window.fileCmTarget.name); };
@@ -4153,29 +4654,33 @@ window.openFolderMenu = function(type, id, name, event) {
     let y = window.innerHeight / 2;
     
     if (event) {
-        if (event.touches && event.touches.length > 0) {
-            x = event.touches[0].clientX;
-            y = event.touches[0].clientY;
-        } else if (event.clientX !== undefined) {
-            x = event.clientX;
-            y = event.clientY;
+            if (event.touches && event.touches.length > 0) {
+                x = event.touches[0].clientX;
+                y = event.touches[0].clientY;
+            } else if (event.clientX !== undefined) {
+                x = event.clientX;
+                y = event.clientY;
+            }
         }
-    }
 
-    menu.classList.add('open');
-    menu.style.transform = 'none';
-    menu.style.margin = '0';
-    menu.style.opacity = '1';
-
-    const rect = menu.getBoundingClientRect();
-    if (x + rect.width > window.innerWidth - 16) x = window.innerWidth - rect.width - 16;
-    if (y + rect.height > window.innerHeight - 16) y = window.innerHeight - rect.height - 16;
-    if (x < 16) x = 16;
-    if (y < 16) y = 16;
-
-    menu.style.left = x + 'px';
-    menu.style.top = y + 'px';
-};
+        menu.classList.add('open');
+        menu.style.opacity = '1';
+        if (window.innerWidth > 768) {
+            menu.style.transform = 'none';
+            menu.style.margin = '0';
+            const rect = menu.getBoundingClientRect();
+            if (x + rect.width > window.innerWidth - 16) x = window.innerWidth - rect.width - 16;
+            if (y + rect.height > window.innerHeight - 16) y = window.innerHeight - rect.height - 16;
+            if (x < 16) x = 16;
+            if (y < 16) y = 16;
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+        } else {
+            menu.style.left = '';
+            menu.style.top = '';
+            menu.style.transform = '';
+        }
+    };
 
 window.bindFolderEvents = function(card, type, id, name, clickHandler) {
     let holdTimer = null;
