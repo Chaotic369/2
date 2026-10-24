@@ -1610,7 +1610,12 @@ html.light-theme #multiSelectBar {
 #statusBar { display: none !important; }
 </style>
 <style id="micro-labels">
-.action-mini-btn { overflow: visible !important; }
+.action-mini-btn { overflow: visible !important; display: inline-flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 2px !important; width: auto !important; min-width: 34px; height: auto !important; min-height: 32px; padding: 3px 5px !important; }
+html body .action-mini-btn::after, html body label[for="storage-search-input"]::after { content: none !important; display: none !important; }
+.micro-lbl { display: block !important; visibility: visible !important; font-size: 7px; font-weight: 700; line-height: 1; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; color: inherit; opacity: 0.85; pointer-events: none; }
+label[for="storage-search-input"] { display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 2px !important; width: auto !important; height: auto !important; min-width: 34px; }
+#btn-back-storage, #btn-back-folder, #multiSelectBar .action-mini-btn, #urlQrModal .action-mini-btn, #htmlCompilerModal .action-mini-btn { flex-direction: row !important; gap: 4px !important; }
+#btn-back-storage .micro-lbl, #btn-back-folder .micro-lbl, #multiSelectBar .micro-lbl, #urlQrModal .micro-lbl, #htmlCompilerModal .micro-lbl { font-size: 10px; text-transform: none; letter-spacing: 0; }
 .action-mini-btn::after { display: block !important; visibility: visible !important; position: static !important; width: auto !important; height: auto !important; opacity: 0.85 !important; font-size: 7px !important; font-weight: 700 !important; line-height: 1 !important; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; color: inherit; content: attr(title); }
 #btn-back-storage::after, #btn-back-folder::after, #multiSelectBar .action-mini-btn::after, #urlQrModal .action-mini-btn::after, #htmlCompilerModal .action-mini-btn::after { text-transform: none; font-size: 10px !important; }
 .keyboard-nav-dock .kbd-nav-btn { width: 44px !important; height: 38px !important; border-radius: 12px !important; gap: 1px !important; }
@@ -1620,6 +1625,56 @@ html.light-theme #multiSelectBar {
 <body>
 
 <div id="progressBar"></div>
+<script>
+(function () {
+  var MAP = {
+    'URL QR Generator': 'QR', 'Storage Info': 'Storage', 'Toggle Theme': 'Theme',
+    'Filter by Format': 'Filter', 'Download View as Zip': 'Zip', 'Toggle Sort': 'Sort',
+    'Live View': 'Live', 'Quick Download': 'Save', 'More Options': 'More',
+    'Pin Note': 'Pin', 'Copy Text': 'Copy', 'Expand': 'Expand', 'Change Color': 'Color',
+    'Attach Image Asset': 'Attach', 'Undo Typo': 'Undo', 'Make List': 'List',
+    'Delete Note': 'Delete', 'Checklist Mode': 'List', 'Text Mode': 'Text',
+    'Back to Root': 'Back', 'Back': 'Back', 'Close Editor': 'Close',
+    'Close Preview': 'Close', 'Close': 'Close', 'Toggle Fullscreen': 'Full'
+  };
+  var BY_ID = { 'btn-zoom-in': 'Zoom +', 'btn-zoom-out': 'Zoom -', 'btn-zoom-reset': 'Reset', 'btn-fs-video': 'Full' };
+  function labelFor(el) {
+    if (el.id && BY_ID[el.id]) return BY_ID[el.id];
+    if (el.tagName === 'LABEL') return 'Search';
+    var oc = el.getAttribute('onclick') || '';
+    if (el.closest('#multiSelectBar')) return 'Clear';
+    if (el.closest('#urlQrModal') || /closeCompiler/.test(oc)) return 'Close';
+    var t = el.getAttribute('title') || '';
+    return MAP[t] || t;
+  }
+  function apply(root) {
+    var list = (root || document).querySelectorAll('.action-mini-btn, label[for="storage-search-input"]');
+    for (var i = 0; i < list.length; i++) {
+      var el = list[i];
+      var txt = labelFor(el);
+      if (!txt) continue;
+      var s = el.querySelector(':scope > .micro-lbl');
+      if (!s) {
+        s = document.createElement('span');
+        s.className = 'micro-lbl';
+        el.appendChild(s);
+      }
+      if (s.textContent !== txt) s.textContent = txt;
+    }
+  }
+  var busy = false;
+  function run() {
+    if (busy) return;
+    busy = true;
+    try { apply(document); } catch (e) { console.error(e); }
+    busy = false;
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    run();
+    new MutationObserver(function () { run(); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['title'] });
+  });
+})();
+</script>
 
 <div class="keyboard-nav-dock">
   <button id="navBtnFiles" class="kbd-nav-btn active" onclick="window.switchPage('files')" title="Files">
