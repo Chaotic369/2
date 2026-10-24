@@ -507,8 +507,10 @@ label[for="storage-search-input"]::after { content: "Search"; font-size: 7px; fo
 [title="Change Color"]::after { content: "Color"; }
 [title="Attach Image Asset"]::after { content: "Attach"; }
 [title="Undo Typo"]::after { content: "Undo"; }
+[title="Make List"]::after { content: "List"; }
 [title="Delete Note"]::after { content: "Delete"; }
 [title="Checklist Mode"]::after, [title="Text Mode"]::after { content: "List"; }
+[title="Back to Root"]::after { content: "Back"; }
 [title="Close Editor"]::after { content: "Close"; }
 [title="Save Note"]::after { content: "Save"; }
 
@@ -550,6 +552,7 @@ html, body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grays
 .action-mini-btn::after { font-size: 7.5px; font-weight: 600; letter-spacing: 0.04em; opacity: 0.7; }
 .action-mini-btn { border-radius: 10px; }
 #storage-toolbar { border-radius: 12px; }
+[title*="Setting"]::after, [title*="setting"]::after, [title*="Settings"]::after, [title*="settings"]::after { content: "Config"; }
 
 /* Cards: hairline borders, flat surfaces */
 .file-card { border-radius: 12px; border: 1px solid rgba(255,255,255,0.07) !important; box-shadow: none; }
@@ -607,6 +610,7 @@ button.btn { border-radius: 10px; font-weight: 600; }
 /* Icon buttons and labels */
 .action-mini-btn { gap: 1px; border-radius: 8px; }
 .action-mini-btn::after { font-size: 6px; }
+[title*="Setting"]::after, [title*="setting"]::after, [title*="Settings"]::after, [title*="settings"]::after { content: "Config"; }
 #storage-toolbar { min-height: 32px; padding: 1px 4px; gap: 0 !important; border-radius: 10px; }
 #storage-toolbar .action-mini-btn { width: 32px !important; height: 28px !important; }
 #storage-toolbar .action-mini-btn i { font-size: 11px !important; }
