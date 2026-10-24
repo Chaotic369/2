@@ -1623,6 +1623,9 @@ label[for="storage-search-input"] { display: flex !important; flex-direction: co
 html.hide-labels .micro-lbl, html.hide-labels .kbd-nav-btn span { display: none !important; }
 .keyboard-nav-dock .kbd-nav-btn { width: 44px !important; height: 38px !important; border-radius: 12px !important; gap: 1px !important; }
 .keyboard-nav-dock .kbd-nav-btn span { display: block !important; visibility: visible !important; font-size: 6.5px !important; line-height: 1 !important; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+:root { --r-box: 14px; --r-btn: 10px; }
+.top-bar-actions, .keyboard-nav-dock, #storage-toolbar, .quick-input-bar, #multiSelectBar, .file-card, .note-card, .folder-card, .category-card, .modal-base, #fileContextMenu, #folderContextMenu, #urlQrModal, #qrModal, #uiConfirmModal, #uiPromptModal, #renameModal, #toast, #settingsPanel, #fullNoteModal > div, #compilerContainer, .fab-item, .notes-fab-container .fab-main, #uploadSquircleBtn, .folder-add-btn, #storage-folders-container .folder-card, #folders-container .folder-card { border-radius: var(--r-box) !important; }
+.action-mini-btn, .kbd-nav-btn, html.light-theme .kbd-nav-btn, button.btn, #fileContextMenu .btn, #folderContextMenu .btn, #multiSelectBar .btn, #btn-back-storage, #btn-back-folder, .file-row-input { border-radius: var(--r-btn) !important; }
 </style>
 </head>
 <body>
@@ -1699,7 +1702,18 @@ html.hide-labels .micro-lbl, html.hide-labels .kbd-nav-btn span { display: none 
     closePanel();
     panel = document.createElement('div');
     panel.id = 'settingsPanel';
-    panel.style.cssText = 'position:fixed; top:58px; right:8px; z-index:70000; min-width:170px; padding:8px; display:flex; flex-direction:column; gap:4px; background:var(--bg-solid-surface); color:var(--text-main); border-radius:16px; box-shadow:0 12px 40px rgba(0,0,0,0.45);';
+    panel.style.cssText = 'position:fixed; top:58px; right:8px; z-index:70000; min-width:170px; padding:8px; display:flex; flex-direction:column; gap:4px; color:var(--text-main);';
+        try {
+          var tb = document.querySelector('.top-bar-actions');
+          var cs = tb ? getComputedStyle(tb) : null;
+          var bg = cs ? cs.backgroundColor : '';
+          var transparent = !bg || bg === 'transparent' || /rgba\(\s*0,\s*0,\s*0,\s*0\s*\)/.test(bg);
+          panel.style.background = (cs && !transparent) ? bg : 'var(--bg-solid-surface)';
+          if (cs && cs.backgroundImage && cs.backgroundImage !== 'none') panel.style.backgroundImage = cs.backgroundImage;
+          if (cs && cs.backdropFilter && cs.backdropFilter !== 'none') { panel.style.backdropFilter = cs.backdropFilter; panel.style.webkitBackdropFilter = cs.backdropFilter; }
+          panel.style.boxShadow = (cs && cs.boxShadow && cs.boxShadow !== 'none') ? cs.boxShadow : '0 12px 40px rgba(0,0,0,0.45)';
+          if (cs && cs.borderTopWidth !== '0px' && cs.borderTopStyle !== 'none') panel.style.border = cs.borderTopWidth + ' ' + cs.borderTopStyle + ' ' + cs.borderTopColor;
+        } catch (e) { panel.style.background = 'var(--bg-solid-surface)'; }
     var h = document.createElement('div');
     h.textContent = 'Settings';
     h.style.cssText = 'font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); padding:4px 8px;';
