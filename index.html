@@ -1159,21 +1159,26 @@ html.light-theme .keyboard-nav-dock {
 }
 .kbd-nav-btn, html.light-theme .kbd-nav-btn {
   flex: 0 0 auto !important;
-  width: 36px !important;
-  height: 36px !important;
-  border-radius: 18px !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 17px !important;
   flex-direction: column !important;
   gap: 0 !important;
   background: transparent !important;
-  color: var(--text-muted) !important;
+  color: var(--text-main) !important;
+  opacity: 0.65;
+  box-shadow: none !important;
+  border: none !important;
   transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
 }
 .kbd-nav-btn i { font-size: 14px !important; }
 .kbd-nav-btn span { display: none !important; }
-.kbd-nav-btn.active, html.light-theme .kbd-nav-btn.active {
-  background: var(--amber) !important;
-  color: #000000 !important;
-  box-shadow: 0 2px 10px rgba(245, 176, 65, 0.35) !important;
+.kbd-nav-btn.active, html.light-theme .kbd-nav-btn.active,
+.keyboard-nav-dock .kbd-nav-btn.active, html.light-theme .keyboard-nav-dock .kbd-nav-btn.active {
+  background: rgba(245, 176, 65, 0.18) !important;
+  color: var(--amber) !important;
+  opacity: 1;
+  box-shadow: none !important;
 }
 
 /* 3. Clean Top Header Bar (Left-Aligned Toolbar + Right System Pills) */
