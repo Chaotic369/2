@@ -480,8 +480,9 @@ label[for="storage-search-input"]::after { content: "Search"; font-size: 7px; fo
 #btn-back-storage::after, #btn-back-folder::after { content: "Back"; font-size: 10px; text-transform: none; letter-spacing: 0; }
 
 /* Upload button */
-#uploadSquircleBtn { width: 52px !important; height: 52px !important; padding: 0 !important; gap: 0 !important; border-radius: 18px !important; font-size: 22px !important; }
-#uploadSquircleBtn::after { display: none !important; }
+#uploadSquircleBtn { width: 52px !important; height: 52px !important; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px !important; border-radius: 18px !important; }
+#uploadSquircleBtn i { font-size: 20px !important; }
+#uploadSquircleBtn::after { content: "Upload"; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1; opacity: 0.9; }
 
 /* File card buttons */
 .file-card .action-mini-btn { width: 36px !important; height: 38px !important; }
@@ -507,6 +508,9 @@ label[for="storage-search-input"]::after { content: "Search"; font-size: 7px; fo
 [title="Attach Image Asset"]::after { content: "Attach"; }
 [title="Undo Typo"]::after { content: "Undo"; }
 [title="Delete Note"]::after { content: "Delete"; }
+[title="Checklist Mode"]::after, [title="Text Mode"]::after { content: "List"; }
+[title="Close Editor"]::after { content: "Close"; }
+[title="Save Note"]::after { content: "Save"; }
 
 /* Live View modal buttons */
 #htmlCompilerModal .action-mini-btn { flex-direction: row; gap: 6px; width: auto !important; height: 30px !important; padding: 0 10px; }
@@ -520,6 +524,7 @@ label[for="storage-search-input"]::after { content: "Search"; font-size: 7px; fo
 #btn-zoom-out::after { content: "Zoom -"; }
 #btn-zoom-reset::after { content: "Reset"; }
 #btn-fs-video::after { content: "Full"; }
+#mediaPreviewModal [title="Close Preview"]::after, #mediaPreviewModal [title="Close"]::after { content: "Close"; }
 
 /* PROFESSIONAL POLISH */
 :root {
