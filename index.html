@@ -15,9 +15,7 @@ if ('serviceWorker' in navigator) {
   // Zero-Latency Local Cache Boot
   (function() {
     try { var _pc = document.createElement('link'); _pc.rel = 'preconnect'; _pc.href = 'https://fxnrugbvbfyamtrfmjea.supabase.co'; _pc.crossOrigin = ''; document.head.appendChild(_pc); } catch (e) {}
-        if (localStorage.getItem('sovereign_theme') === 'light') {
-            document.documentElement.classList.add('light-theme');
-        }
+        
       })();
 </script>
 <meta charset="UTF-8">
@@ -44,9 +42,7 @@ if ('serviceWorker' in navigator) {
   user-select: none;
   max-width: 100%;
 }
-html.light-theme .keep-audio-chip {
-  background: rgba(0, 0, 0, 0.06);
-}
+
 .keep-audio-play-btn {
   width: 32px;
   height: 32px;
@@ -107,12 +103,12 @@ html.light-theme .keep-audio-chip {
 :root {
   /* Claude Dark Theme */
   --bg-base: #000000;
-  --bg-surface: #1c1c1b;
-  --bg-solid-surface: #1c1c1b;
+  --bg-surface: #111110;
+    --bg-solid-surface: #111110;
   --bg-box: #000000;
   --text-main: #e5e0da;
   --text-muted: #8b8984;
-  --accent: #d8cebc;
+  --accent: #e3b341;
   --blue: #5c9dff; --green: #39d353; --red: #f85149; --amber: #e3b341; --teal: #2dd4bf;
   
   /* Dark Mode Note Phases (Balanced Brightness) */
@@ -123,24 +119,7 @@ html.light-theme .keep-audio-chip {
   --note-red: rgba(248, 81, 73, 0.22);
   --note-purple: rgba(188, 140, 255, 0.22);
 }
-html.light-theme {
-  /* Claude Light Theme */
-  --bg-base: #ffffff;
-  --bg-surface: #ffffff;
-  --bg-solid-surface: #ffffff;
-  --bg-box: #ffffff;
-  --text-main: #191813;
-  --text-muted: #5c5a55;
-  --accent: #e5e0da;
 
-  /* Light Mode Note Phases (Brighter pastel for perfect text contrast) */
-  --note-base: rgba(0, 0, 0, 0.04);
-  --note-amber: rgba(227, 179, 65, 0.2);
-  --note-blue: rgba(92, 157, 255, 0.2);
-  --note-green: rgba(57, 211, 83, 0.2);
-  --note-red: rgba(248, 81, 73, 0.2);
-  --note-purple: rgba(188, 140, 255, 0.2);
-}
 
 * { margin: 0; padding: 0; box-sizing: border-box; outline: none !important; border: none; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-base); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--text-main); transition: background 0.3s, color 0.3s; }
@@ -177,11 +156,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-b
   padding: 4px; border-radius: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.35);
   border: 1px solid rgba(255,255,255,0.06) !important;
 }
-html.light-theme .keyboard-nav-dock {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(0,0,0,0.06) !important;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-}
+
 .kbd-nav-btn {
   width: 44px; height: 44px; border-radius: 14px;
   background: rgba(28, 28, 27, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -190,9 +165,7 @@ html.light-theme .keyboard-nav-dock {
   gap: 2px; cursor: pointer; transition: transform 0.15s ease, color 0.2s ease;
   box-shadow: 0 4px 14px rgba(0,0,0,0.35); border: none !important; outline: none !important;
 }
-html.light-theme .kbd-nav-btn {
-  background: rgba(255, 255, 255, 0.9);
-}
+
 .kbd-nav-btn i { font-size: 15px; }
 .kbd-nav-btn span { font-size: 7.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1; }
 .kbd-nav-btn.active {
@@ -210,11 +183,7 @@ html.light-theme .kbd-nav-btn {
   border-radius: 24px; padding: 4px 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.25);
   border: 1px solid rgba(255,255,255,0.06) !important;
 }
-html.light-theme .top-bar-actions {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0,0,0,0.06) !important;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-}
+
 .top-bar-actions .action-mini-btn {
   background: transparent !important; box-shadow: none !important; width: 32px; height: 32px;
 }
@@ -268,10 +237,7 @@ button.btn:active { transform: scale(0.96); }
   -webkit-user-select: none;
   touch-action: pan-y;
 }
-html.light-theme .file-card {
-  border: 1px solid rgba(0,0,0,0.04) !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-}
+
 .file-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.22); border-color: rgba(227, 179, 65, 0.3) !important; }
 
 /* MASONRY GRID SYSTEM */
@@ -543,9 +509,9 @@ html, body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grays
 /* Top navigation: matched height, radius and elevation */
 .keyboard-nav-dock, .top-bar-actions { height: 46px; border-radius: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.25), 0 8px 20px rgba(0,0,0,0.2); }
 .keyboard-nav-dock { padding: 4px; gap: 2px; }
-.kbd-nav-btn, html.light-theme .kbd-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 46px; height: 38px; border-radius: 10px; background: transparent; box-shadow: none; gap: 3px; }
+.kbd-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 46px; height: 38px; border-radius: 10px; background: transparent; box-shadow: none; gap: 3px; }
 .kbd-nav-btn span { font-size: 7.5px; letter-spacing: 0.05em; font-weight: 600; }
-.kbd-nav-btn.active, html.light-theme .kbd-nav-btn.active { background: rgba(227,179,65,0.14); box-shadow: none; border: 1px solid transparent !important; }
+.kbd-nav-btn.active { background: rgba(227,179,65,0.14); box-shadow: none; border: 1px solid transparent !important; }
 .top-bar-actions { padding: 0 4px; gap: 0; }
 .top-bar-actions .action-mini-btn { border-radius: 10px; }
 
@@ -561,16 +527,16 @@ html.light-theme .file-card { border: 1px solid rgba(0,0,0,0.08) !important; }
 .file-card:hover { transform: none; box-shadow: none; border-color: rgba(227,179,65,0.4) !important; }
 .file-card [style*="width:42px"] { border-radius: 9px !important; }
 .note-card { border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07); }
-html.light-theme .note-card { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.07); }
+
 .note-card:hover { transform: translateY(-1px); box-shadow: inset 0 0 0 1px rgba(227,179,65,0.4), 0 6px 16px rgba(0,0,0,0.12); }
 .note-card-title { font-weight: 600; letter-spacing: -0.01em; }
 .category-card { border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07); }
-html.light-theme .category-card { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.07); }
+
 .category-icon-wrapper { border-radius: 12px; }
 
 /* Folder strip */
 #storage-folders-container .folder-card, #folders-container .folder-card { border-radius: 10px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07); }
-html.light-theme #storage-folders-container .folder-card, html.light-theme #folders-container .folder-card { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08); }
+
 #storage-folders-container .folder-card:hover, #folders-container .folder-card:hover { transform: none; box-shadow: inset 0 0 0 1px rgba(227,179,65,0.45); }
 .folder-add-btn { border-radius: 10px; }
 .folder-section-title { letter-spacing: 0.08em; font-size: 10px; }
@@ -797,12 +763,7 @@ label[for="storage-search-input"]::after { font-size: 5.5px; }
   border: 1px solid rgba(255,255,255,0.08) !important;
   transition: transform 0.15s ease, background 0.2s ease;
 }
-html.light-theme .fab-item {
-  background: rgba(28, 28, 27, 0.75) !important;
-  color: var(--amber);
-  border: 1px solid rgba(255,255,255,0.1) !important;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-}
+
 .fab-item:hover {
   background: rgba(30, 30, 30, 0.8) !important;
   transform: translateX(-3px);
@@ -894,7 +855,7 @@ button.btn { font-size: 11px; }
   border-radius: 10px 0 0 10px !important;
   box-shadow: 0 1px 2px rgba(0,0,0,0.25), 0 8px 20px rgba(0,0,0,0.2) !important;
 }
-html.light-theme #storage-toolbar { background: rgba(255, 255, 255, 0.9) !important; border: 1px solid rgba(0,0,0,0.06) !important; border-right: none !important; box-shadow: 0 6px 20px rgba(0,0,0,0.08) !important; }
+
 #storage-toolbar .action-mini-btn { width: 32px !important; height: 27px !important; padding: 0; background: transparent !important; color: var(--text-main); border-radius: 8px; }
 #storage-toolbar .action-mini-btn i { font-size: 10px !important; }
 #storage-toolbar [title="Download View as Zip"] { color: var(--teal); }
@@ -902,18 +863,18 @@ label[for="storage-search-input"] { width: 32px !important; height: 27px !import
 #search-container { margin-right: 0; }
 
 /* REMOVE BORDERS */
-.keyboard-nav-dock, html.light-theme .keyboard-nav-dock,
-.top-bar-actions, html.light-theme .top-bar-actions,
-#storage-toolbar, html.light-theme #storage-toolbar,
-.quick-input-bar, html.light-theme .quick-input-bar,
-.modal-base, html.light-theme .modal-base,
-.file-card, html.light-theme .file-card,
-.kbd-nav-btn.active, html.light-theme .kbd-nav-btn.active,
+.keyboard-nav-dock,
+.top-bar-actions,
+#storage-toolbar,
+.quick-input-bar,
+.modal-base,
+.file-card,
+.kbd-nav-btn.active,
 .folder-add-btn, #storage-back-dropzone, #note-back-dropzone,
 #qrModal .btn, #multiSelectBar { border: none !important; }
-.file-card, html.light-theme .file-card, .file-card:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important; }
-.note-card, html.light-theme .note-card, .note-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important; }
-.category-card, html.light-theme .category-card { box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important; }
+.file-card, .file-card:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important; }
+.note-card, .note-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important; }
+.category-card { box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important; }
 #storage-folders-container .folder-card, #folders-container .folder-card,
 html.light-theme #storage-folders-container .folder-card, html.light-theme #folders-container .folder-card,
 #storage-folders-container .folder-card:hover, #folders-container .folder-card:hover { box-shadow: none !important; }
@@ -927,7 +888,7 @@ html.light-theme #storage-folders-container .folder-card, html.light-theme #fold
 .top-bar-actions .action-mini-btn { padding: 0 !important; flex: 0 0 auto; }
 .top-bar-actions [title="URL QR Generator"] { width: 32px !important; }
 .top-bar-actions [title="Storage Info"] { width: 52px !important; }
-.top-bar-actions [title="Toggle Theme"] { width: 44px !important; }
+
 #storage-toolbar { right: calc(8px + 130px) !important; }
 html:has(#panelNotes.active-page) #storage-toolbar { display: none !important; }
 
@@ -939,14 +900,9 @@ html:has(#panelNotes.active-page) #storage-toolbar { display: none !important; }
   border: none !important;
   box-shadow: 0 4px 14px rgba(0,0,0,0.22) !important;
 }
-html.light-theme .keyboard-nav-dock, html.light-theme .top-bar-actions, html.light-theme #storage-toolbar {
-  background: rgba(255, 255, 255, 0.6) !important;
-  backdrop-filter: blur(18px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(140%) !important;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.08) !important;
-}
-.keyboard-nav-dock .kbd-nav-btn, html.light-theme .keyboard-nav-dock .kbd-nav-btn { background: transparent !important; box-shadow: none !important; }
-.keyboard-nav-dock .kbd-nav-btn.active, html.light-theme .keyboard-nav-dock .kbd-nav-btn.active { background: rgba(227,179,65,0.16) !important; }
+
+.keyboard-nav-dock .kbd-nav-btn { background: transparent !important; box-shadow: none !important; }
+.keyboard-nav-dock .kbd-nav-btn.active { background: rgba(227,179,65,0.16) !important; }
 .keyboard-nav-dock, .top-bar-actions, #storage-toolbar { box-shadow: 0 4px 14px rgba(0,0,0,0.22) !important; }
 
 /* HIDE FOLDERS HEADER */
@@ -999,13 +955,7 @@ html:has(#panelNotes.active-page) .top-bar-actions {
   border-color: rgba(227, 179, 65, 0.5) !important;
 }
 #quick-note-input::placeholder { color: rgba(255, 255, 255, 0.45) !important; opacity: 1; }
-html.light-theme .quick-input-bar {
-  background: rgba(18, 18, 18, 0.65) !important;
-  border: 1px solid rgba(255,255,255,0.1) !important;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.25) !important;
-}
-html.light-theme #quick-note-input { color: #ffffff !important; }
-html.light-theme #quick-note-input::placeholder { color: rgba(255, 255, 255, 0.45) !important; opacity: 1; }
+
 
 #storage-toolbar { background: rgba(22, 22, 22, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 24px; padding: 4px 8px; }
 html.light-theme #storage-toolbar { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
@@ -1035,11 +985,7 @@ html:not(.light-theme) .file-row-input:focus { filter: brightness(1.2); }
   top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90vw; max-width: 400px; display: none; flex-direction: column; gap: 12px;
   box-shadow: 0 24px 60px rgba(0,0,0,0.6);
 }
-html.light-theme .modal-base {
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(0,0,0,0.08) !important;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.15);
-}
+
 .modal-base.open { display: flex; }
 
 #statusBar {
@@ -1165,12 +1111,7 @@ html.light-theme {
   gap: 2px !important;
   z-index: 20000 !important;
 }
-html.light-theme .keyboard-nav-dock {
-  background: rgba(255, 255, 255, 0.88) !important;
-  border: 1px solid rgba(0, 0, 0, 0.07) !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
-}
-.kbd-nav-btn, html.light-theme .kbd-nav-btn {
+.kbd-nav-btn {
   flex: 0 0 auto !important;
   width: 44px !important;
   height: 38px !important;
@@ -1186,8 +1127,8 @@ html.light-theme .keyboard-nav-dock {
 }
 .kbd-nav-btn i { font-size: 14px !important; }
 .kbd-nav-btn span { display: block !important; font-size: 6.5px !important; line-height: 1 !important; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
-.kbd-nav-btn.active, html.light-theme .kbd-nav-btn.active,
-.keyboard-nav-dock .kbd-nav-btn.active, html.light-theme .keyboard-nav-dock .kbd-nav-btn.active {
+.kbd-nav-btn.active,
+.keyboard-nav-dock .kbd-nav-btn.active {
   background: rgba(245, 176, 65, 0.18) !important;
   color: var(--amber) !important;
   opacity: 1;
@@ -1208,10 +1149,7 @@ html.light-theme .keyboard-nav-dock {
   -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
-html.light-theme .top-bar-actions {
-  background: rgba(255, 255, 255, 0.88) !important;
-  border: 1px solid rgba(0, 0, 0, 0.07) !important;
-}
+
 .top-bar-actions .action-mini-btn {
   width: 34px !important;
   height: 34px !important;
@@ -1242,10 +1180,7 @@ label[for="storage-search-input"]::after,
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
 }
-html.light-theme #storage-toolbar {
-  background: rgba(255, 255, 255, 0.88) !important;
-  border: 1px solid rgba(0, 0, 0, 0.07) !important;
-}
+
 #storage-toolbar .action-mini-btn,
 label[for="storage-search-input"] {
   width: 32px !important;
@@ -1303,11 +1238,7 @@ label[for="storage-search-input"] i {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14) !important;
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
-html.light-theme #storage-folders-container .folder-card,
-html.light-theme #folders-container .folder-card {
-  border: 1px solid rgba(0, 0, 0, 0.06) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
-}
+
 #storage-folders-container .folder-card i,
 #folders-container .folder-card i {
   font-size: 14px !important;
@@ -1329,10 +1260,7 @@ html.light-theme #folders-container .folder-card {
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.14) !important;
 }
-html.light-theme .file-card {
-  border: 1px solid rgba(0, 0, 0, 0.06) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
-}
+
 .file-card:active { transform: scale(0.985) !important; }
 .file-card [style*="width:42px"] {
   width: 42px !important;
@@ -1403,9 +1331,7 @@ html.light-theme .file-card {
   line-height: 1.45 !important;
   border: 1px solid rgba(255, 255, 255, 0.07) !important;
 }
-html.light-theme .note-card {
-  border: 1px solid rgba(0, 0, 0, 0.07) !important;
-}
+
 .note-card-title {
   font-size: 15px !important;
   font-weight: 700 !important;
@@ -1469,12 +1395,7 @@ html.light-theme .note-card {
   background: rgba(24, 24, 28, 0.9) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
-html.light-theme .quick-input-bar {
-  background: rgba(255, 255, 255, 0.94) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-html.light-theme #quick-note-input { color: #141417 !important; }
-html.light-theme #quick-note-input::placeholder { color: rgba(0, 0, 0, 0.45) !important; }
+
 .quick-input-bar i { font-size: 15px !important; }
 #quick-note-input { font-size: 14px !important; }
 
@@ -1495,10 +1416,7 @@ html.light-theme #quick-note-input::placeholder { color: rgba(0, 0, 0, 0.45) !im
   box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.55) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
-html.light-theme #fileContextMenu, html.light-theme #folderContextMenu {
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18) !important;
-}
+
 #file-cm-title, #fcm-title {
   font-size: 13px !important;
   padding: 4px 8px 8px 8px !important;
@@ -1531,10 +1449,7 @@ html.light-theme #fileContextMenu, html.light-theme #folderContextMenu {
   background: rgba(24, 24, 28, 0.95) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
-html.light-theme #multiSelectBar {
-  background: rgba(255, 255, 255, 0.96) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-}
+
 #multiSelectBar.active {
   bottom: calc(env(safe-area-inset-bottom, 0px) + 20px) !important;
 }
@@ -1766,9 +1681,7 @@ html.hide-labels .micro-lbl, html.hide-labels .kbd-nav-btn span { display: none 
     <button class="action-mini-btn" onclick="window.checkStorage()" title="Storage Info">
     <i class="fa-solid fa-hard-drive"></i>
   </button>
-  <button class="action-mini-btn" onclick="window.toggleTheme()" title="Toggle Theme">
-    <i class="fa-solid fa-circle-half-stroke"></i>
-  </button>
+  
 </div>
 
 <input type="file" id="fileUploadInput" style="display:none;" multiple onchange="window.uploadFile(event)">
@@ -2419,49 +2332,14 @@ window.previewImage = function(event, url) {
     document.getElementById('mediaPreviewModal').style.display = 'flex';
 };
 
-window.toggleTheme = async function() {
-    if (window._themeToggling) return;
-    window._themeToggling = true;
-    document.documentElement.classList.toggle('light-theme');
-    const isLight = document.documentElement.classList.contains('light-theme');
-    const themeVal = isLight ? 'light' : 'dark';
-    try {
-        const { data, error: fetchErr } = await supabaseClient.from('user_data').select('state').eq('id', USER_DOC_ID).single();
-        if (fetchErr && fetchErr.code !== 'PGRST116') throw fetchErr;
-        const prevState = (data && data.state) || {};
-        const { error: upsertErr } = await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...prevState, theme: themeVal } });
-        if (upsertErr) { console.error("Theme cloud save error:", upsertErr); toast('Failed to sync theme', 'err'); }
-    } catch(e) { console.error("Theme sync exception:", e); toast('Theme sync aborted due to state fetch failure', 'err'); }
-    finally { window._themeToggling = false; }
-};
+
 
 window.checkStorage = function() {
     const storageUsage = document.getElementById('sb-storage').textContent;
     toast(`Cloud Storage: ${storageUsage}`, 'info', 3000);
 };
 
-window.syncCloudTheme = async function() {
-    if (typeof supabaseClient === 'undefined') return;
-    try {
-        const { data, error } = await window.getCloudState();
-        if (error && error.code !== 'PGRST116') { console.error("Theme fetch error:", error); return; }
-        
-        const stateData = (data && data.state) || {};
-        if (stateData.theme) {
-            document.documentElement.classList.toggle('light-theme', stateData.theme === 'light');
-        }
-        
-        supabaseClient.channel('system-sync-channel')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'user_data', filter: `id=eq.${USER_DOC_ID}` }, payload => {
-                        const s = payload.new && payload.new.state;
-                        if (s && s.theme) {
-                            document.documentElement.classList.toggle('light-theme', s.theme === 'light');
-                        }
-                    })
-                    .subscribe();
-            
-    } catch(e) { console.error("Could not init cloud theme:", e); }
-};
+
 
 window.openCompiler = async function(url, event) {
     if(event) event.stopPropagation();
@@ -2635,11 +2513,7 @@ window.loadNotesData = async function() {
         S.notes = data.state.notes || [];
         S.folders = data.state.folders || [];
                 try { localStorage.setItem('sovereign_notes_cache', JSON.stringify({ notes: S.notes, folders: S.folders })); } catch (e) {}
-        if (data.state.theme) {
-            const isLight = data.state.theme === 'light';
-            document.documentElement.classList.toggle('light-theme', isLight);
-            localStorage.setItem('sovereign_theme', data.state.theme);
-        }
+        
     }
     window.renderNotes();
 };
@@ -5056,7 +4930,7 @@ document.addEventListener('DOMContentLoaded', () => {
   localStorage.removeItem('sovereign_wp_url');
   document.documentElement.classList.remove('has-wallpaper');
   window.switchPage('files');
-  window.loadFiles(); window.loadNotesData(); window.syncCloudTheme();
+  window.loadFiles(); window.loadNotesData();
   let roTimer;
   const resizeObserver = new ResizeObserver(() => {
       window.requestAnimationFrame(() => {
