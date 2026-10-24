@@ -14,7 +14,8 @@ if ('serviceWorker' in navigator) {
 <script>
   // Zero-Latency Local Cache Boot
   (function() {
-    if (localStorage.getItem('sovereign_theme') === 'light') {
+    try { var _pc = document.createElement('link'); _pc.rel = 'preconnect'; _pc.href = 'https://fxnrugbvbfyamtrfmjea.supabase.co'; _pc.crossOrigin = ''; document.head.appendChild(_pc); } catch (e) {}
+        if (localStorage.getItem('sovereign_theme') === 'light') {
             document.documentElement.classList.add('light-theme');
         }
       })();
@@ -1671,7 +1672,8 @@ label[for="storage-search-input"] { display: flex !important; flex-direction: co
   }
   document.addEventListener('DOMContentLoaded', function () {
     run();
-    new MutationObserver(function () { run(); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['title'] });
+    var raf = 0;
+        new MutationObserver(function () { if (raf) return; raf = requestAnimationFrame(function () { raf = 0; run(); }); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['title'] });
   });
 })();
 </script>
@@ -2550,7 +2552,8 @@ window.previewUniversal = function(event, url, ext) {
                     console.error("Cloud fetch error:", e);
                     return toast("Cloud state fetch failed, aborting save to prevent data wipe", "err");
                 }
-                // Merge the entire existing state (including wallpaperName) so it isn't erased
+                try { localStorage.setItem('sovereign_notes_cache', JSON.stringify({ notes: S.notes, folders: S.folders })); } catch (e) {}
+                                // Merge the entire existing state (including wallpaperName) so it isn't erased
                 const { error: upsertErr } = await supabaseClient.from('user_data').upsert({ id: USER_DOC_ID, state: { ...prevState, notes: S.notes, folders: S.folders } });
                 if (upsertErr) { console.error("Cloud save error:", upsertErr); toast("Failed to sync note data", "err"); }
             };
@@ -2561,6 +2564,7 @@ window.loadNotesData = async function() {
     else if (data && data.state) {
         S.notes = data.state.notes || [];
         S.folders = data.state.folders || [];
+                try { localStorage.setItem('sovereign_notes_cache', JSON.stringify({ notes: S.notes, folders: S.folders })); } catch (e) {}
         if (data.state.theme) {
             const isLight = data.state.theme === 'light';
             document.documentElement.classList.toggle('light-theme', isLight);
@@ -3730,18 +3734,17 @@ window.fetchCompleteList = async function(path = '') {
 window.fetchAllRecursive = async function(path = '') {
     let all = [];
     const data = await window.fetchCompleteList(path);
-    for (let f of data) {
-        if (!f.id && f.name !== '.emptyFolderPlaceholder') {
-            let subPath = path ? path + '/' + f.name : f.name;
-            let subs = await window.fetchAllRecursive(subPath);
-            all = all.concat(subs);
-        } else if (f.id && f.name !== '.emptyFolderPlaceholder') {
-            f._fullPath = path ? path + '/' + f.name : f.name;
-            f._parentPath = path || 'Root';
-            all.push(f);
+        const dirs = data.filter(f => !f.id && f.name !== '.emptyFolderPlaceholder');
+        const subLists = await Promise.all(dirs.map(f => window.fetchAllRecursive(path ? path + '/' + f.name : f.name)));
+        subLists.forEach(s => { all = all.concat(s); });
+        for (let f of data) {
+            if (f.id && f.name !== '.emptyFolderPlaceholder') {
+                f._fullPath = path ? path + '/' + f.name : f.name;
+                f._parentPath = path || 'Root';
+                all.push(f);
+            }
         }
-    }
-    return all;
+        return all;
 };
 
 window.toggleFileSelection = function(fileName, event) {
